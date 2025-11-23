@@ -1,0 +1,173 @@
+/* Global Colors & Fonts from HTML analysis */
+* {
+    -fx-primary-green: #007345;
+    -fx-light-green-bg: #E7F1DD;
+    -fx-root-bg: #F1FCF5;
+    -fx-text-dark: #1E201F;
+    -fx-text-grey: #5A5A5A;
+    -fx-text-light-grey: #9D9D9D;
+    -fx-white: #ffffff;
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.root {
+    -fx-background-color: -fx-root-bg;
+}
+
+/* Sidebar Styling (Shared) */
+.sidebar {
+    -fx-background-color: -fx-white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 2, 0, 0.4, 0);
+    -fx-background-radius: 0 20 20 0;
+}
+
+.logo-container {
+    -fx-background-color: rgba(134, 184, 87, 0.20);
+    -fx-background-radius: 0 20 0 0;
+}
+
+.logo-text {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-fill: black;
+}
+
+.logo-subtext {
+    -fx-font-size: 13px;
+    -fx-font-family: "Sanchez", "Serif";
+    -fx-fill: black;
+    -fx-letter-spacing: 3.77px;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-grey;
+    -fx-font-size: 18px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.nav-button-active {
+    -fx-background-color: -fx-light-green-bg;
+    -fx-text-fill: -fx-text-dark;
+    -fx-font-weight: bold;
+    -fx-background-radius: 11;
+}
+
+.user-panel {
+    -fx-background-color: rgba(134, 184, 87, 0.20);
+    -fx-background-radius: 16;
+    -fx-padding: 10;
+}
+
+/* Card Styling (Shared) */
+.card {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.10), 4, 0, 0, 2);
+    -fx-padding: 24;
+}
+
+/* Dashboard Specific Text Styles */
+.header-label {
+    -fx-font-size: 41px;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+
+.card-title {
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-green;
+}
+
+.card-value {
+    -fx-font-size: 35px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-dark;
+}
+
+.card-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: -fx-text-grey;
+}
+
+/* Specific Card Gradients */
+.graph-placeholder-teal {
+    -fx-background-color: linear-gradient(to bottom, #45B6A7 0%, rgba(69, 182, 167, 0) 100%);
+    -fx-background-radius: 3;
+}
+.graph-placeholder-green {
+    -fx-background-color: linear-gradient(to bottom, #A2FA5E 0%, rgba(198, 250, 94, 0) 100%);
+    -fx-background-radius: 3;
+}
+.graph-placeholder-cyan {
+    -fx-background-color: linear-gradient(to bottom, #64F7AD 0%, rgba(100, 234, 247, 0) 100%);
+    -fx-background-radius: 3;
+}
+
+/* Queue Card */
+.queue-card-gradient {
+    -fx-background-color: linear-gradient(to bottom right, #007345 30%, #E7F1DD 100%);
+    -fx-background-radius: 16;
+}
+
+.queue-number-large {
+    -fx-font-size: 70px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.call-button {
+    -fx-background-color: #007345;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.10), 6, 0, 0, 4);
+}
+
+/* Recent Calls List */
+.recent-call-item {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 12;
+    -fx-padding: 16;
+}
+
+.call-id {
+    -fx-font-size: 24px;
+    -fx-text-fill: #017345;
+}
+
+.call-time {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748B;
+}
+
+.call-type {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748B;
+}
+
+.badge-regular {
+    -fx-background-color: rgba(59, 130, 246, 0.10);
+    -fx-text-fill: #017345;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+    -fx-font-size: 12px;
+}
+
+.badge-emergency {
+    -fx-background-color: #EF3232;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+    -fx-font-size: 12px;
+}

@@ -59,7 +59,7 @@ public class LoginController {
     private void loadDashboard() {
         try {
             // Load the dashboard FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/receptionist-dashboard-view.fxml"));
             Parent dashboardRoot = loader.load();
 
             // Create a new scene and stage

@@ -1,0 +1,190 @@
+/* Global Colors & Fonts */
+* {
+    -fx-primary-green: #007345;
+    -fx-light-green-bg: #E7F1DD;
+    -fx-root-bg: #F1FCF5;
+    -fx-text-dark: #1E201F;
+    -fx-text-grey: #5A5A5A;
+    -fx-white: #ffffff;
+    /* Default fallback, specific elements use Plus Jakarta Sans or Poppins as requested */
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.root {
+    -fx-background-color: -fx-root-bg;
+}
+
+/* Shared Sidebar Styling */
+.sidebar {
+    -fx-background-color: -fx-white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 2, 0, 0.4, 0);
+    -fx-background-radius: 0 20 20 0;
+}
+
+.logo-container {
+    -fx-background-color: rgba(134, 184, 87, 0.20);
+    -fx-background-radius: 0 20 0 0;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-grey;
+    -fx-font-size: 18px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.nav-button-active {
+    -fx-background-color: -fx-light-green-bg;
+    -fx-text-fill: -fx-text-dark;
+    -fx-font-weight: bold;
+    -fx-background-radius: 11;
+}
+
+/* Card Styling */
+.card {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.10), 4, 0, 0, 2);
+    -fx-padding: 0;
+}
+
+/* Registration Form Header */
+.header-label {
+    -fx-font-size: 41px;
+    -fx-font-weight: bold; /* 500 */
+    -fx-text-fill: black;
+}
+
+.form-header-active {
+    -fx-background-color: -fx-primary-green;
+    -fx-text-fill: white;
+    -fx-background-radius: 20 20 0 0;
+    -fx-padding: 15 20;
+    -fx-font-size: 25px;
+    -fx-font-weight: bold; /* 500 */
+    -fx-font-family: "Poppins", sans-serif;
+}
+
+.form-header-inactive {
+    -fx-background-color: #9CC9B7; /* Muted green from HTML context */
+    -fx-text-fill: white;
+    -fx-background-radius: 20 20 0 0;
+    -fx-padding: 15 20;
+    -fx-font-size: 25px;
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-cursor: hand;
+}
+
+/* Form Typography & Inputs */
+.form-label {
+    -fx-text-fill: #0D0D0D; /* Text-Colors-Title-Light */
+    -fx-font-family: "Plus Jakarta Sans", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: normal; /* 400 */
+}
+
+.text-field, .text-area, .combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #D6D6D6; /* System-&-Support-Colors-Neutral */
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+    -fx-font-family: "Plus Jakarta Sans", sans-serif;
+    -fx-font-size: 14px;
+    -fx-prompt-text-fill: #808080; /* Text-Colors-Description-Light */
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: -fx-primary-green;
+}
+
+/* Buttons */
+.primary-button {
+    -fx-background-color: -fx-primary-green;
+    -fx-text-fill: white; /* Text-Colors-Title-Dark */
+    -fx-font-family: "Plus Jakarta Sans", sans-serif;
+    -fx-font-weight: bold; /* 600 */
+    -fx-font-size: 16px;
+    -fx-background-radius: 8;
+    -fx-padding: 10 30;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(16, 24, 40, 0.05), 2, 0, 0, 1);
+}
+
+.primary-button:hover {
+    -fx-background-color: #0b5e3b;
+}
+
+/* Ticket Generated View Styles */
+.ticket-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.10), 6, 0, 0, 4);
+    -fx-padding: 48;
+}
+
+.ticket-icon-container {
+    -fx-background-color: #F1FCF5;
+    -fx-background-radius: 40; /* 80px circle */
+    -fx-min-width: 80px;
+    -fx-min-height: 80px;
+    -fx-alignment: center;
+}
+
+.ticket-title {
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: #1E293B;
+}
+
+.ticket-subtitle {
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: #64748B;
+}
+
+.ticket-number-box {
+    -fx-background-color: linear-gradient(to bottom right, #007345 0%, #E7F1DD 100%);
+    -fx-background-radius: 16;
+    -fx-alignment: center;
+    -fx-padding: 30;
+}
+
+.ticket-number {
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-font-size: 96px;
+    -fx-text-fill: white;
+    -fx-font-weight: normal; /* 400 */
+}
+
+.secondary-button {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #1E293B;
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-font-weight: 500;
+    -fx-font-size: 14px;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+}
+
+.print-button {
+    -fx-background-color: #007345;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-font-weight: 500;
+    -fx-font-size: 14px;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+}
