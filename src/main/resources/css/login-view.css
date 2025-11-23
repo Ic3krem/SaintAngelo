@@ -1,0 +1,11 @@
+/* CSS for login-view.fxml */
+
+.login-button {
+    -fx-background-color: #007345;
+    -fx-background-radius: 8;
+}
+
+/* Optional: Add a hover effect for better user experience */
+.login-button:hover {
+    -fx-background-color: #005c37; /* A slightly darker shade */
+}

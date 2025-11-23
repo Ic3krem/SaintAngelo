@@ -1,0 +1,15 @@
+.title-bar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 0; /* Ensures the background color fills the button shape */
+}
+
+.minimize-button:hover {
+    -fx-background-color: #555555; /* Dark grey background on hover */
+}
+
+.close-button:hover {
+    -fx-background-color: #CC0000; /* Red background on hover */
+}

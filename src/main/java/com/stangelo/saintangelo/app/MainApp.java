@@ -1,0 +1,87 @@
+package com.stangelo.saintangelo.app;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.io.IOException;
+
+public class MainApp extends Application {
+    private double xOffset = 0;
+    private double yOffset = 0;
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+
+        Parent fxmlRoot = FXMLLoader.load(getClass().getResource("/fxml/login-view.fxml"));
+
+        HBox titleBar = new HBox();
+        titleBar.setAlignment(Pos.CENTER_LEFT);
+        titleBar.setPadding(new Insets(10, 5, 5, 10));
+        titleBar.setStyle("-fx-background-color: #007345;");
+
+        Label titleLabel = new Label("Saint Angelo Medical Center");
+        titleLabel.setTextFill(Color.WHITE);
+
+        // Pane to push buttons to the right
+        Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Container for control buttons
+        HBox controlButtons = new HBox(10);
+        controlButtons.setAlignment(Pos.CENTER);
+
+        // Minimize Button
+        Button minimizeButton = new Button("—");
+        minimizeButton.getStyleClass().addAll("title-bar-button", "minimize-button");
+        minimizeButton.setOnAction(event -> primaryStage.setIconified(true));
+
+        // Close Button
+        Button closeButton = new Button("X");
+        closeButton.getStyleClass().addAll("title-bar-button", "close-button");
+        closeButton.setOnAction(event -> primaryStage.close());
+
+        controlButtons.getChildren().addAll(minimizeButton, closeButton);
+
+        titleBar.getChildren().addAll(titleLabel, spacer, controlButtons);
+        titleBar.setPadding(new Insets(10, 40, 10, 10));
+
+
+        titleBar.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+        titleBar.setOnMouseDragged(event -> {
+            primaryStage.setX(event.getScreenX() - xOffset);
+            primaryStage.setY(event.getScreenY() - yOffset);
+        });
+
+        BorderPane root = new BorderPane();
+        root.setTop(titleBar);
+        root.setCenter(fxmlRoot);
+
+        Scene scene = new Scene(root, 1280, 854);
+        scene.getStylesheets().add(getClass().getResource("/css/main-app.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.show();
+        
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
