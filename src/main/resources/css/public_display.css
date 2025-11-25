@@ -1,0 +1,78 @@
+/* Global Settings */
+.root {
+    /* Linear gradient matching the design: Light Green to Dark Green */
+    -fx-background-color: linear-gradient(to bottom right, #E7F1DD 0%, #88c6a5 40%, #007345 100%);
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+/* Header Text */
+.title-label {
+    -fx-font-size: 36px;
+    -fx-text-fill: #1E293B;
+    -fx-font-weight: normal;
+}
+
+.subtitle-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: rgba(30, 41, 59, 0.8);
+}
+
+.time-label {
+    -fx-font-size: 48px;
+    -fx-text-fill: #1E293B;
+    -fx-font-weight: normal;
+}
+
+.date-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: rgba(30, 41, 59, 0.8);
+    -fx-alignment: CENTER_RIGHT;
+}
+
+/* Now Serving Section */
+.now-serving-label {
+    -fx-font-size: 48px;
+    -fx-text-fill: rgba(30, 41, 59, 0.9);
+    -fx-font-weight: normal;
+}
+
+.now-serving-card {
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 50, 0, 0, 25);
+    -fx-alignment: center;
+    -fx-padding: 20;
+}
+
+.now-serving-number {
+    -fx-font-size: 200px; /* Large font for visibility */
+    -fx-text-fill: #007345;
+    -fx-font-weight: bold;
+}
+
+/* Next in Queue Section */
+.next-queue-container {
+    -fx-background-color: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
+    -fx-background-radius: 16;
+    -fx-padding: 25 32;
+}
+
+.next-queue-title {
+    -fx-font-size: 30px;
+    -fx-text-fill: #1E293B; /* Dark grey for readability */
+    -fx-font-weight: 500;
+}
+
+.next-queue-item {
+    -fx-background-color: rgba(255, 255, 255, 0.5); /* lighter glass effect */
+    -fx-background-radius: 16;
+    -fx-padding: 15 0;
+    -fx-alignment: center;
+    -fx-min-width: 180px;
+}
+
+.next-queue-number {
+    -fx-font-size: 50px;
+    -fx-text-fill: #292929;
+    -fx-font-weight: normal;
+}
