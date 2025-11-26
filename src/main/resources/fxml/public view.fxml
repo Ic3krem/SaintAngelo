@@ -9,9 +9,10 @@
 <?import javafx.scene.shape.SVGPath?>
 
 <!-- Root StackPane handles the background gradient covering the full window -->
-<StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
+
+<StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
    <children>
-      <VBox spacing="40.0" alignment="TOP_CENTER">
+      <VBox alignment="TOP_CENTER" spacing="40.0">
          <padding>
             <Insets bottom="48.0" left="48.0" right="48.0" top="48.0" />
          </padding>
@@ -22,7 +23,7 @@
                <children>
                   <VBox>
                      <children>
-                        <Label styleClass="title-label" text="Queue Status Board" />
+                        <Label styleClass="title-label" text="St. Angelo Medical Center" />
                         <Label styleClass="subtitle-label" text="Welcome to our service" />
                      </children>
                   </VBox>
@@ -30,7 +31,7 @@
                   <Region HBox.hgrow="ALWAYS" />
                   <VBox alignment="CENTER_RIGHT">
                      <children>
-                        <Label fx:id="timeLabel" styleClass="time-label" text="03:58 PM" />
+                        <Label fx:id="timeLabel" styleClass="time-label" text="00:00 AM" />
                         <Label fx:id="dateLabel" styleClass="date-label" text="Friday, November 21, 2025" />
                      </children>
                   </VBox>
@@ -45,7 +46,7 @@
                   <!-- The Card -->
                   <StackPane maxHeight="Infinity" maxWidth="Infinity" styleClass="now-serving-card" VBox.vgrow="ALWAYS">
                      <children>
-                        <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="A043" />
+                        <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="A000" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="20.0" top="10.0" />
@@ -60,7 +61,7 @@
                   <!-- Section Title with Icon -->
                   <HBox alignment="CENTER_LEFT" spacing="15.0">
                      <children>
-                        <SVGPath content="M16 1L16 16M16 16L12 12M16 16L20 12" fill="TRANSPARENT" stroke="#363636" strokeWidth="3" scaleX="1.2" scaleY="1.2"/>
+                        <SVGPath content="M16 1L16 16M16 16L12 12M16 16L20 12" fill="TRANSPARENT" scaleX="1.2" scaleY="1.2" stroke="#363636" strokeWidth="3" />
                         <Label styleClass="next-queue-title" text="Next in Queue" />
                      </children>
                   </HBox>
@@ -70,27 +71,27 @@
                      <children>
                         <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
                            <children>
-                              <Label styleClass="next-queue-number" text="A045" />
+                              <Label styleClass="next-queue-number" text="A000" />
                            </children>
                         </VBox>
                         <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
                            <children>
-                              <Label styleClass="next-queue-number" text="A046" />
+                              <Label styleClass="next-queue-number" text="A000" />
                            </children>
                         </VBox>
                         <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
                            <children>
-                              <Label styleClass="next-queue-number" text="A047" />
+                              <Label styleClass="next-queue-number" text="A000" />
                            </children>
                         </VBox>
                         <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
                            <children>
-                              <Label styleClass="next-queue-number" text="A048" />
+                              <Label styleClass="next-queue-number" text="A000" />
                            </children>
                         </VBox>
                         <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
                            <children>
-                              <Label styleClass="next-queue-number" text="A049" />
+                              <Label styleClass="next-queue-number" text="A000" />
                            </children>
                         </VBox>
                      </children>
