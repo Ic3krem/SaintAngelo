@@ -1,15 +1,47 @@
+/* --- Title Bar Container --- */
+.title-bar {
+    -fx-background-color: #006039; /* Slightly darker/richer green */
+    -fx-padding: 0 0 0 15; /* Top Right Bottom Left */
+    -fx-min-height: 40px;
+    -fx-alignment: center-left;
+}
+
+/* --- The Title Text --- */
+.title-label {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+/* --- General Window Buttons --- */
 .title-bar-button {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 0; /* Ensures the background color fills the button shape */
+    -fx-background-radius: 0;
+    -fx-min-width: 45px;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
 }
 
-.minimize-button:hover {
-    -fx-background-color: #555555; /* Dark grey background on hover */
+/* The SVG shape inside the button */
+.window-icon {
+    -fx-fill: white;
+    -fx-scale-x: 1.2; /* Make icons slightly visible */
+    -fx-scale-y: 1.2;
 }
 
+/* --- Minimize Button Hover --- */
+.title-bar-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Close Button Specifics --- */
 .close-button:hover {
-    -fx-background-color: #CC0000; /* Red background on hover */
+    -fx-background-color: #e81123; /* Standard Windows 'Red' for close */
+}
+
+/* Keep the icon white when hovering over red */
+.close-button:hover .window-icon {
+    -fx-fill: white;
 }

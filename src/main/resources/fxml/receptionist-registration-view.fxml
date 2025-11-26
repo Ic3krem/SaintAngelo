@@ -15,7 +15,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.SVGPath?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="900.0" minWidth="1440.0" stylesheets="@../css/registration.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.RegistrationController">
+<BorderPane fx:controller="com.stangelo.saintangelo.controllers.RegistrationController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="900.0" minWidth="1440.0" stylesheets="@../css/registration.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    
    <!-- Sidebar -->
    <left>
@@ -63,9 +63,7 @@
                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: rgba(134, 184, 87, 0.20); -fx-background-radius: 16; -fx-padding: 10;">
-                <ImageView fitHeight="47.0" fitWidth="47.0">
-                    <!-- Placeholder -->
-                </ImageView>
+                <ImageView fitHeight="47.0" fitWidth="47.0" />
                <VBox alignment="CENTER_LEFT">
                   <Label style="-fx-font-weight: 500; -fx-font-size: 18px;" text="Angelo Castro" />
                   <Label style="-fx-font-size: 11px; -fx-font-weight: 300;" text="Receptionist" />

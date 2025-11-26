@@ -8,98 +8,66 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 
-<!-- Root StackPane handles the background gradient covering the full window -->
+<StackPane fx:controller="com.stangelo.saintangelo.controllers.PublicViewController" stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <VBox alignment="TOP_CENTER" spacing="40.0">
+      <padding>
+         <Insets bottom="48.0" left="48.0" right="48.0" top="48.0" />
+      </padding>
+      
+      <!-- 1. Header Section -->
+      <HBox alignment="CENTER_LEFT">
+         <VBox>
+            <Label styleClass="title-label" text="St. Angelo Medical Center" />
+            <Label styleClass="subtitle-label" text="Welcome to our service" />
+         </VBox>
+         <!-- Spacer to push time to the right -->
+         <Region HBox.hgrow="ALWAYS" />
+         <VBox alignment="CENTER_RIGHT">
+            <Label fx:id="timeLabel" styleClass="time-label" text="00:00 AM" />
+            <Label fx:id="dateLabel" styleClass="date-label" text="Friday, November 21, 2025" />
+         </VBox>
+      </HBox>
 
-<StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
-   <children>
-      <VBox alignment="TOP_CENTER" spacing="40.0">
-         <padding>
-            <Insets bottom="48.0" left="48.0" right="48.0" top="48.0" />
-         </padding>
-         <children>
-            
-            <!-- 1. Header Section -->
-            <HBox alignment="CENTER_LEFT">
-               <children>
-                  <VBox>
-                     <children>
-                        <Label styleClass="title-label" text="St. Angelo Medical Center" />
-                        <Label styleClass="subtitle-label" text="Welcome to our service" />
-                     </children>
-                  </VBox>
-                  <!-- Spacer to push time to the right -->
-                  <Region HBox.hgrow="ALWAYS" />
-                  <VBox alignment="CENTER_RIGHT">
-                     <children>
-                        <Label fx:id="timeLabel" styleClass="time-label" text="00:00 AM" />
-                        <Label fx:id="dateLabel" styleClass="date-label" text="Friday, November 21, 2025" />
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-
-            <!-- 2. Main Center Section (Growable) -->
-            <VBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <Label styleClass="now-serving-label" text="Now Serving" />
-                  
-                  <!-- The Card -->
-                  <StackPane maxHeight="Infinity" maxWidth="Infinity" styleClass="now-serving-card" VBox.vgrow="ALWAYS">
-                     <children>
-                        <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="A000" />
-                     </children>
-                     <VBox.margin>
-                        <Insets bottom="20.0" top="10.0" />
-                     </VBox.margin>
-                  </StackPane>
-               </children>
-            </VBox>
-
-            <!-- 3. Bottom "Next in Queue" Section -->
-            <VBox spacing="25.0" styleClass="next-queue-container">
-               <children>
-                  <!-- Section Title with Icon -->
-                  <HBox alignment="CENTER_LEFT" spacing="15.0">
-                     <children>
-                        <SVGPath content="M16 1L16 16M16 16L12 12M16 16L20 12" fill="TRANSPARENT" scaleX="1.2" scaleY="1.2" stroke="#363636" strokeWidth="3" />
-                        <Label styleClass="next-queue-title" text="Next in Queue" />
-                     </children>
-                  </HBox>
-                  
-                  <!-- Horizontal List of Numbers -->
-                  <HBox fx:id="nextQueueBox" alignment="CENTER_LEFT" spacing="20.0">
-                     <children>
-                        <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label styleClass="next-queue-number" text="A000" />
-                           </children>
-                        </VBox>
-                        <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label styleClass="next-queue-number" text="A000" />
-                           </children>
-                        </VBox>
-                        <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label styleClass="next-queue-number" text="A000" />
-                           </children>
-                        </VBox>
-                        <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label styleClass="next-queue-number" text="A000" />
-                           </children>
-                        </VBox>
-                        <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-                           <children>
-                              <Label styleClass="next-queue-number" text="A000" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-            
-         </children>
+      <!-- 2. Main Center Section (Growable) -->
+      <VBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS">
+         <Label styleClass="now-serving-label" text="Now Serving" />
+         
+         <!-- The Card -->
+         <StackPane styleClass="now-serving-card" VBox.vgrow="ALWAYS">
+            <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="A000" />
+            <VBox.margin>
+               <Insets bottom="20.0" top="10.0" />
+            </VBox.margin>
+         </StackPane>
       </VBox>
-   </children>
+
+      <!-- 3. Bottom "Next in Queue" Section -->
+      <VBox spacing="25.0" styleClass="next-queue-container">
+         <!-- Section Title with Icon -->
+         <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <SVGPath content="M16 1L16 16M16 16L12 12M16 16L20 12" fill="TRANSPARENT" scaleX="1.2" scaleY="1.2" stroke="#363636" strokeWidth="3" />
+            <Label styleClass="next-queue-title" text="Next in Queue" />
+         </HBox>
+         
+         <!-- Horizontal List of Numbers -->
+         <HBox fx:id="nextQueueBox" alignment="CENTER_LEFT" spacing="20.0">
+            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
+               <Label styleClass="next-queue-number" text="A000" />
+            </VBox>
+            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
+               <Label styleClass="next-queue-number" text="A000" />
+            </VBox>
+            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
+               <Label styleClass="next-queue-number" text="A000" />
+            </VBox>
+            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
+               <Label styleClass="next-queue-number" text="A000" />
+            </VBox>
+            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
+               <Label styleClass="next-queue-number" text="A000" />
+            </VBox>
+         </HBox>
+      </VBox>
+      
+   </VBox>
 </StackPane>
