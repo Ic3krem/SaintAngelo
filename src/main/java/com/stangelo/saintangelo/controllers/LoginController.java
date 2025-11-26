@@ -31,52 +31,50 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // --- Simple, Hardcoded Authentication ---
-        // In a real app, you would use an AuthService to check credentials against a database.
-        if (isValid(username, password)) {
-            errorLabel.setText(""); // Clear error message
-            System.out.println("Login Successful!");
-            loadDashboard();
-        } else {
+        // Directly attempt to load the dashboard based on credentials
+        if (!loadDashboardForCredentials(username, password)) {
             errorLabel.setText("Invalid username or password. Please try again.");
             System.out.println("Login Failed.");
         }
     }
 
-    /**
-     * A basic, placeholder validation method.
-     * Replace this with a call to a real authentication service.
-     */
-    private boolean isValid(String username, String password) {
-        // For testing purposes, let's use a simple check.
-        // A real app would query a database.
-        return "admin".equals(username) && "password".equals(password);
-    }
+    private boolean loadDashboardForCredentials(String username, String password) {
+        String fxmlFile = null;
+        String dashboardTitle = null;
 
-    /**
-     * Loads the main application dashboard after a successful login.
-     */
-    private void loadDashboard() {
-        try {
-            // Load the dashboard FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/receptionist-dashboard-view.fxml"));
-            Parent dashboardRoot = loader.load();
 
-            // Create a new scene and stage
-            Stage dashboardStage = new Stage();
-            dashboardStage.setTitle("St. Angelo Dashboard");
-            dashboardStage.setScene(new Scene(dashboardRoot));
-
-            // Show the dashboard
-            dashboardStage.show();
-
-            // Close the login window
-            Stage loginStage = (Stage) loginButton.getScene().getWindow();
-            loginStage.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorLabel.setText("Failed to load the dashboard.");
+        if ("reception".equals(username) && "password".equals(password)) {
+            fxmlFile = "/fxml/receptionist-dashboard-view.fxml";
+            dashboardTitle = "Receptionist Dashboard";
+        } else if ("doctor".equals(username) && "password".equals(password)) {
+            fxmlFile = "/fxml/doctor-dashboard-view.fxml";
+            dashboardTitle = "Doctor Dashboard";
         }
+
+        // If a mapping was found, load the FXML
+        if (fxmlFile != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+                Parent dashboardRoot = loader.load();
+
+                Stage dashboardStage = new Stage();
+                dashboardStage.setTitle(dashboardTitle);
+                dashboardStage.setScene(new Scene(dashboardRoot));
+                dashboardStage.show();
+
+                // Close the login window
+                Stage loginStage = (Stage) loginButton.getScene().getWindow();
+                loginStage.close();
+
+                return true; // Login and loading were successful
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                errorLabel.setText("Error: Failed to load dashboard.");
+                return false;
+            }
+        }
+
+        return false; // No matching credentials found
     }
 }
