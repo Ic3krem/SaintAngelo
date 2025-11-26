@@ -1,11 +1,74 @@
-/* CSS for login-view.fxml */
-
-.login-button {
-    -fx-background-color: #007345;
-    -fx-background-radius: 8;
+/* General Layout */
+.main-container {
+    -fx-background-color: white;
 }
 
-/* Optional: Add a hover effect for better user experience */
-.login-button:hover {
-    -fx-background-color: #005c37; /* A slightly darker shade */
+.left-pane {
+    -fx-background-color: #ffffff;
+}
+
+.right-pane {
+    -fx-background-color: #ffffff; /* Placeholder color if image fails to load */
+}
+
+/* Typography - Left Side */
+.header-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.field-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+/* Input Fields */
+.text-field {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 5; /* Slightly softer corners */
+    -fx-border-color: transparent;
+    -fx-padding: 12px;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #0f7a48;
+    -fx-border-radius: 5;
+    -fx-border-width: 1px;
+}
+
+/* Links */
+.forgot-link {
+    -fx-text-fill: #0f7a48; /* Brand Green */
+    -fx-font-size: 13px;
+    -fx-underline: false;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.forgot-link:visited {
+    -fx-text-fill: #0f7a48;
+}
+
+.forgot-link:hover {
+    -fx-underline: true;
+}
+
+/* Login Button */
+.login-btn {
+    -fx-background-color: #046c4e; /* Deep Brand Green */
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+}
+
+.login-btn:hover {
+    -fx-background-color: #03543d;
 }
