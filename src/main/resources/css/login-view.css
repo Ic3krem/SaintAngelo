@@ -1,14 +1,23 @@
 /* General Layout */
 .main-container {
-    -fx-background-color: white;
+    -fx-background-color: transparent;
+    /* Remove radius from the container so it doesn't clip or double-draw */
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
 
 .left-pane {
     -fx-background-color: #ffffff;
+    /* Top-Left: 0, Top-Right: 0, Bottom-Right: 0, Bottom-Left: 30 */
+    -fx-background-radius: 0 0 0 30;
+    -fx-border-radius: 0 0 0 30;
 }
 
 .right-pane {
-    -fx-background-color: #ffffff; /* Placeholder color if image fails to load */
+    -fx-background-color: #ffffff;
+    /* Top-Left: 0, Top-Right: 0, Bottom-Right: 30, Bottom-Left: 0 */
+    -fx-background-radius: 0 0 30 0;
+    -fx-border-radius: 0 0 30 0;
 }
 
 /* Typography - Left Side */
@@ -28,7 +37,7 @@
 /* Input Fields */
 .text-field {
     -fx-background-color: #f3f4f6;
-    -fx-background-radius: 5; /* Slightly softer corners */
+    -fx-background-radius: 5;
     -fx-border-color: transparent;
     -fx-padding: 12px;
     -fx-font-size: 14px;
@@ -43,7 +52,7 @@
 
 /* Links */
 .forgot-link {
-    -fx-text-fill: #0f7a48; /* Brand Green */
+    -fx-text-fill: #0f7a48;
     -fx-font-size: 13px;
     -fx-underline: false;
     -fx-border-color: transparent;
@@ -60,7 +69,7 @@
 
 /* Login Button */
 .login-btn {
-    -fx-background-color: #046c4e; /* Deep Brand Green */
+    -fx-background-color: #046c4e;
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: bold;

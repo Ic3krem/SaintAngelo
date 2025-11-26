@@ -100,7 +100,7 @@
     -fx-text-fill: -text-muted;
 }
 
-/* Treatment Section */
+/* Treatment/Form Section */
 .treatment-panel {
     -fx-background-color: white;
     -fx-background-radius: 15;
@@ -123,7 +123,6 @@
     -fx-padding: 25;
 }
 
-/* Patient Info Boxes */
 .info-box {
     -fx-background-color: #eef5f1;
     -fx-background-radius: 8;
@@ -141,7 +140,6 @@
     -fx-text-fill: -text-dark;
 }
 
-/* Forms */
 .form-label {
     -fx-font-size: 14px;
     -fx-text-fill: -text-dark;
@@ -171,6 +169,94 @@
     -fx-font-size: 14px;
 }
 
-.action-button:hover {
-    -fx-background-color: #096646;
+/* --- NEW STYLES FOR QUEUE MANAGEMENT --- */
+
+/* Table Container */
+.table-container {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 10 0 20 0; /* Top/Bottom padding */
+}
+
+/* Table Header */
+.table-header {
+    -fx-padding: 15 30;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+}
+
+.column-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #444;
+    -fx-font-size: 14px;
+}
+
+/* Table Row */
+.table-row {
+    -fx-padding: 15 30;
+    -fx-border-color: transparent transparent #f9f9f9 transparent;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.table-row:hover {
+    -fx-background-color: #fafafa;
+}
+
+.cell-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+.cell-subtext {
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-muted;
+}
+
+/* Badges */
+.badge-emergency {
+    -fx-background-color: #ea1b1b;
+    -fx-background-radius: 20;
+    -fx-padding: 5 15;
+}
+.badge-emergency-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.badge-regular {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 20;
+    -fx-padding: 4 14;
+}
+.badge-regular-text {
+    -fx-text-fill: #333;
+    -fx-font-weight: normal;
+    -fx-font-size: 12px;
+}
+
+/* Pagination */
+.pagination-label {
+    -fx-text-fill: #888;
+    -fx-font-size: 13px;
+}
+
+.pagination-btn {
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+    -fx-background-radius: 20; /* Circle */
+    -fx-background-color: transparent;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 20;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-padding: 0;
+}
+
+.pagination-btn.active {
+    -fx-border-color: -text-dark;
+    -fx-background-color: white;
+    -fx-border-width: 2;
+    -fx-font-weight: bold;
 }
