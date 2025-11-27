@@ -6,6 +6,8 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
 
     <!-- LEFT SIDEBAR -->
@@ -13,18 +15,27 @@
         <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <!-- Logo -->
             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Pane prefHeight="40.0" prefWidth="40.0">
-                    <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
-                    <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
-                </Pane>
-                <VBox alignment="CENTER_LEFT">
-                    <Text styleClass="logo-text" text="St. Angelo" />
-                    <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
-                </VBox>
+                <children>
+                    <Pane prefHeight="56.0" prefWidth="60.0">
+                        <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/logo.png" />
+                            </image>
+                        </ImageView>
+                    </Pane>
+                    <VBox alignment="CENTER_LEFT">
+                        <Text styleClass="logo-text" text="St. Angelo" wrappingWidth="97.20703125">
+                            <font>
+                                <Font size="24.0" />
+                            </font></Text>
+                        <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
+                    </VBox>
+                </children>
                 <VBox.margin>
                     <Insets bottom="30.0" />
                 </VBox.margin>
             </HBox>
+
 
             <!-- Menu Items -->
             <Button maxWidth="Infinity" onAction="#handleNavDashboard" styleClass="nav-button" text="Dashboard">

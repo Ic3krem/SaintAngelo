@@ -5,165 +5,179 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane fx:controller="com.stangelo.saintangelo.controllers.RegistrationController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="900.0" minWidth="1440.0" stylesheets="@../css/reception-registration.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
-   
-   <!-- Sidebar -->
-   <left>
-      <VBox prefWidth="300.0" styleClass="sidebar">
-         <!-- Logo Area -->
-         <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="15.0" styleClass="logo-container">
-            <padding>
-               <Insets left="20.0" />
-            </padding>
-            <Circle fill="#ffffff" radius="24.0" stroke="#007345" strokeWidth="2.0" />
-            <VBox alignment="CENTER_LEFT">
-               <Label styleClass="logo-text" text="St. Angelo" />
-               <Label styleClass="logo-subtext" text="MEDICAL CENTER" />
-            </VBox>
-         </HBox>
-         
-         <!-- Navigation -->
-         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-            <padding>
-               <Insets left="17.0" right="17.0" top="30.0" />
-            </padding>
-            <Button alignment="BASELINE_LEFT" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" styleClass="nav-button" text="Dashboard">
-                <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#5A5A5A" scaleX="1.2" scaleY="1.2"/></graphic>
-            </Button>
-            <Button alignment="BASELINE_LEFT" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" styleClass="nav-button-active" text="Registration">
-                 <graphic><SVGPath content="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z" fill="#1E201F" scaleX="1.2" scaleY="1.2"/></graphic>
-            </Button>
-            <Button alignment="BASELINE_LEFT" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" styleClass="nav-button" text="Queue Management">
-                 <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="#5A5A5A" scaleX="1.2" scaleY="1.2"/></graphic>
-            </Button>
-            <Button alignment="BASELINE_LEFT" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" styleClass="nav-button" text="Check-in/Check-out">
-                 <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" fill="#5A5A5A" scaleX="1.2" scaleY="1.2"/></graphic>
-            </Button>
-            <Button alignment="BASELINE_LEFT" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" styleClass="nav-button" text="Appointments">
-                 <graphic><SVGPath content="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="#5A5A5A" scaleX="1.2" scaleY="1.2"/></graphic>
-            </Button>
-            <Button alignment="BASELINE_LEFT" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" styleClass="nav-button" text="Discharge">
-                 <graphic><SVGPath content="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#5A5A5A" scaleX="1.2" scaleY="1.2"/></graphic>
-            </Button>
-         </VBox>
-         
-         <!-- User Profile -->
-         <VBox>
-            <padding>
-               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
-            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: rgba(134, 184, 87, 0.20); -fx-background-radius: 16; -fx-padding: 10;">
-                <ImageView fitHeight="47.0" fitWidth="47.0" />
-               <VBox alignment="CENTER_LEFT">
-                  <Label style="-fx-font-weight: 500; -fx-font-size: 18px;" text="Angelo Castro" />
-                  <Label style="-fx-font-size: 11px; -fx-font-weight: 300;" text="Receptionist" />
-                  <Label style="-fx-font-size: 15px; -fx-font-weight: 500; -fx-padding: 5 0 0 0; -fx-cursor: hand;" text="Logout" />
-               </VBox>
-            </HBox>
-         </VBox>
-      </VBox>
-   </left>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
-   <center>
-      <!-- StackPane to hold both the Form View and the Ticket View -->
-      <StackPane>
-         
-         <!-- VIEW 1: REGISTRATION FORM (Default) -->
-         <ScrollPane fx:id="registrationScrollView" fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox spacing="30.0">
-               <padding>
-                  <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-               </padding>
-               <VBox spacing="5.0">
-                  <Label styleClass="header-label" text="Registration" />
-                  <Label style="-fx-text-fill: #5A5A5A; -fx-font-size: 16px;" text="Register patients and manage intake queue" />
-               </VBox>
-               
-               <!-- Form Card -->
-               <VBox styleClass="card">
-                  <!-- Tabs Header -->
-                  <HBox>
-                     <Label maxWidth="1.7976931348623157E308" styleClass="form-header-active" text="Patient Registration Form" HBox.hgrow="ALWAYS">
-                        <graphic>
-                            <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="WHITE"/>
-                        </graphic>
-                     </Label>
-                     <Label maxWidth="1.7976931348623157E308" styleClass="form-header-inactive" text="Existing Patient Form" HBox.hgrow="ALWAYS">
-                         <graphic>
-                             <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="WHITE"/>
-                         </graphic>
-                     </Label>
-                  </HBox>
-                  
-                  <!-- Form Fields -->
-                  <VBox spacing="25.0">
-                     <padding>
-                        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-                     </padding>
-                     <Label styleClass="form-label" text="Full Name" />
-                     <HBox spacing="30.0">
-                        <TextField fx:id="firstNameField" promptText="First name" styleClass="text-field" HBox.hgrow="ALWAYS" />
-                        <TextField fx:id="lastNameField" promptText="Last name" styleClass="text-field" HBox.hgrow="ALWAYS" />
-                     </HBox>
-                     
-                     <Label styleClass="form-label" text="Phone Number" />
-                     <TextField fx:id="phoneNumberField" promptText="Enter 10 digit number" styleClass="text-field" />
-                     
-                     <Label styleClass="form-label" text="Age" />
-                     <TextField fx:id="ageField" promptText="Enter the age of the patient" styleClass="text-field" />
-                     
-                     <Label styleClass="form-label" text="Chief Complaint" />
-                     <TextArea fx:id="complaintArea" prefRowCount="3" promptText="Write the reason for the patients visit..." styleClass="text-area" wrapText="true" />
-                     
-                     <Label styleClass="form-label" text="Priority Level" />
-                     <ComboBox fx:id="priorityComboBox" maxWidth="1.7976931348623157E308" promptText="Regular" styleClass="combo-box" />
-                     
-                     <Button onAction="#handleGetQueueNumber" styleClass="primary-button" text="Get Queue Number  →">
-                        <VBox.margin>
-                           <Insets top="10.0" />
-                        </VBox.margin>
-                     </Button>
-                  </VBox>
-               </VBox>
-            </VBox>
-         </ScrollPane>
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Pane prefHeight="40.0" prefWidth="40.0">
+                            <children>
+                                <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
+                                <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
+                            </children>
+                        </Pane>
+                        <VBox alignment="CENTER_LEFT">
+                            <Text styleClass="logo-text" text="St. Angelo" />
+                            <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
+                        </VBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="30.0" />
+                    </VBox.margin>
+                </HBox>
 
-         <!-- VIEW 2: TICKET GENERATED (Initially Hidden, Toggle visible in Controller) -->
-         <VBox fx:id="ticketView" alignment="CENTER" style="-fx-background-color: rgba(241, 252, 245, 0.95);" visible="false">
-            <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="435.0" prefWidth="435.0" spacing="40.0" styleClass="ticket-card">
-               <!-- Header -->
-               <VBox alignment="CENTER" spacing="15.0">
-                  <HBox styleClass="ticket-icon-container">
-                      <!-- Ticket Icon SVG -->
-                      <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14l4-4 4 4 4-4 4 4V5c0-1.1-.9-2-2-2zm0 14.5c-1 .6-1.8.8-2.5 0l-2.5-1.6-2.5 1.6c-.7.6-1.5.4-2.5 0L5 15.5V5h14v12.5z M7 7h10v2H7z M7 11h7v2H7z" fill="#007345" scaleX="1.5" scaleY="1.5" />
-                  </HBox>
-                  <Label styleClass="ticket-title" text="Ticket Generated" />
-                  <Label styleClass="ticket-subtitle" text="Your queue number is" />
-               </VBox>
-               
-               <!-- Gradient Number Box -->
-               <VBox styleClass="ticket-number-box">
-                  <Label fx:id="ticketNumberLabel" styleClass="ticket-number" text="A053" />
-               </VBox>
-               
-               <!-- Actions -->
-               <VBox prefWidth="100.0" spacing="15.0">
-                  <Button maxWidth="1.7976931348623157E308" styleClass="print-button" text="Print Ticket" />
-                  <Button onAction="#handleRegisterNewTicket" maxWidth="1.7976931348623157E308" styleClass="secondary-button" text="Register New Ticket" />
-               </VBox>
-            </VBox>
-         </VBox>
+                <!-- Navigation with Actions -->
+                <Button onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="nav-button" text="Dashboard">
+                    <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/></graphic>
+                </Button>
+                <!-- ACTIVE -->
+                <Button onAction="#handleNavRegistration" maxWidth="Infinity" styleClass="nav-button, active" text="Registration">
+                    <graphic><SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/></graphic>
+                </Button>
+                <Button onAction="#handleNavQueue" maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
+                    <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
+                <Button onAction="#handleNavAppointments" maxWidth="Infinity" styleClass="nav-button" text="Appointments">
+                    <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
+                <Button onAction="#handleNavDischarge" maxWidth="Infinity" styleClass="nav-button" text="Discharge">
+                    <graphic><SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
 
-      </StackPane>
-   </center>
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="15.0" styleClass="user-section">
+                    <Separator opacity="0.5" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <children>
+                            <Circle fill="#e0e0e0" radius="20.0" />
+                            <VBox>
+                                <children>
+                                    <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
+                                    <Label style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+                    <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox spacing="25.0" styleClass="content-area">
+                    <children>
+                        <!-- Header -->
+                        <VBox spacing="5.0">
+                            <Text styleClass="page-title" text="Registration" />
+                            <Text styleClass="page-subtitle" text="Register patients and manage intake queue" />
+                        </VBox>
+
+                        <!-- Registration Content -->
+                        <VBox>
+                            <!-- Tab Headers -->
+                            <HBox styleClass="reg-tab-header">
+                                <children>
+                                    <Button fx:id="btnTabNew" text="   +   Patient Registration Form   " styleClass="reg-tab-btn, reg-tab-active" onAction="#handleTabNewPatient" />
+                                    <Button fx:id="btnTabExisting" text="   👤   Existing Patient Form   " styleClass="reg-tab-btn, reg-tab-inactive" onAction="#handleTabExistingPatient" />
+                                    <Region HBox.hgrow="ALWAYS" style="-fx-border-color: transparent transparent transparent transparent; -fx-border-width: 0 0 1 0;" />
+                                </children>
+                            </HBox>
+
+                            <!-- Forms Container (StackPane for switching views) -->
+                            <StackPane styleClass="reg-form-card">
+                                <children>
+
+                                    <!-- FORM 1: NEW PATIENT -->
+                                    <VBox fx:id="formNewPatient" spacing="20.0">
+                                        <children>
+                                            <VBox spacing="5.0">
+                                                <Label text="Full Name" styleClass="reg-form-label" />
+                                                <HBox spacing="20.0">
+                                                    <TextField promptText="First name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
+                                                    <TextField promptText="Last name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
+                                                </HBox>
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Phone number" styleClass="reg-form-label" />
+                                                <TextField promptText="Enter 10 digit number" maxWidth="600" styleClass="reg-text-field" />
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Age" styleClass="reg-form-label" />
+                                                <TextField promptText="Enter the age of the patient" maxWidth="600" styleClass="reg-text-field" />
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Chief Complaint" styleClass="reg-form-label" />
+                                                <TextArea promptText="Write the reason for the patients visit..." prefHeight="100.0" wrapText="true" styleClass="reg-text-area" />
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Priority Level" styleClass="reg-form-label" />
+                                                <ComboBox promptText="Regular" maxWidth="Infinity" styleClass="reg-combo-box" />
+                                            </VBox>
+                                            <HBox>
+                                                <Button text="Get Queue Number   →" styleClass="btn-get-queue" />
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                    <!-- FORM 2: EXISTING PATIENT (Initially Hidden) -->
+                                    <VBox fx:id="formExistingPatient" spacing="20.0" visible="false" managed="false">
+                                        <children>
+                                            <!-- Simplified Form for Existing Patient -->
+                                            <VBox spacing="5.0">
+                                                <Label text="Full Name" styleClass="reg-form-label" />
+                                                <HBox spacing="20.0">
+                                                    <TextField promptText="First name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
+                                                    <TextField promptText="Last name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
+                                                </HBox>
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Chief Complaint" styleClass="reg-form-label" />
+                                                <TextArea promptText="Write the reason for the patients visit..." prefHeight="100.0" wrapText="true" styleClass="reg-text-area" />
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Priority Level" styleClass="reg-form-label" />
+                                                <ComboBox promptText="Regular" maxWidth="Infinity" styleClass="reg-combo-box" />
+                                            </VBox>
+                                            <HBox>
+                                                <Button text="Get Queue Number   →" styleClass="btn-get-queue" />
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                </children>
+                            </StackPane>
+                        </VBox>
+
+                    </children>
+                    <padding>
+                        <Insets bottom="30.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
 </BorderPane>

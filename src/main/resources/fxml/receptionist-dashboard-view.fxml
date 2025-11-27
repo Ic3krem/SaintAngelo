@@ -1,33 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="900.0" minWidth="1440.0" stylesheets="@../css/reception-dashboard.css, @../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionistController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
         <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
-                <!-- Logo Section -->
+                <!-- Logo -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Pane prefHeight="56.0" prefWidth="60.0">
-                            <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
-                                <image>
-                                    <Image url="@../images/logo.png" />
-                                </image>
-                            </ImageView>
+                        <Pane prefHeight="40.0" prefWidth="40.0">
+                            <children>
+                                <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
+                                <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
+                            </children>
                         </Pane>
                         <VBox alignment="CENTER_LEFT">
-                            <Text styleClass="logo-text" text="St. Angelo" wrappingWidth="97.20703125">
-                                <font>
-                                    <Font size="24.0" />
-                                </font></Text>
+                            <Text styleClass="logo-text" text="St. Angelo" />
                             <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
                         </VBox>
                     </children>
@@ -36,28 +43,28 @@
                     </VBox.margin>
                 </HBox>
 
-                <!-- Navigation -->
-                <Button maxWidth="Infinity" styleClass="nav-button, active" text="Dashboard">
-                    <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" /></graphic>
+                <!-- Navigation with Actions -->
+                <Button onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="nav-button, active" text="Dashboard">
+                    <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/></graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
-                    <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" /></graphic>
+                <Button onAction="#handleNavRegistration" maxWidth="Infinity" styleClass="nav-button" text="Registration">
+                    <graphic><SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Check-in/Check-out">
-                    <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" scaleX="0.7" scaleY="0.7" /></graphic>
+                <Button onAction="#handleNavQueue" maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
+                    <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Appointments">
-                    <graphic><SVGPath content="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" scaleX="0.7" scaleY="0.7" /></graphic>
+                <Button onAction="#handleNavAppointments" maxWidth="Infinity" styleClass="nav-button" text="Appointments">
+                    <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Discharge">
-                    <graphic><SVGPath content="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" scaleX="0.7" scaleY="0.7" /></graphic>
+                <Button onAction="#handleNavDischarge" maxWidth="Infinity" styleClass="nav-button" text="Discharge">
+                    <graphic><SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
                 </Button>
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <!-- User Profile -->
+                <!-- Profile -->
                 <VBox spacing="15.0" styleClass="user-section">
-                    <Separator opacity="0.0" />
+                    <Separator opacity="0.5" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <children>
                             <Circle fill="#e0e0e0" radius="20.0" />
@@ -69,140 +76,179 @@
                             </VBox>
                         </children>
                     </HBox>
-                    <Button fx:id="btnLogout" maxWidth="Infinity" onAction="#handleLogout" styleClass="logout-button" text="Logout" />
+                    <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
                 </VBox>
             </children>
         </VBox>
     </left>
 
-    <!-- Main Content Area -->
+    <!-- MAIN CONTENT -->
     <center>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox spacing="30.0">
-                <padding>
-                    <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-                </padding>
-                <Label styleClass="header-label" text="Reception Dashboard" />
+            <content>
+                <VBox spacing="25.0" styleClass="content-area">
+                    <children>
+                        <Text styleClass="page-title" text="Reception Dashboard" />
 
-                <!-- Top Stats Cards Row -->
-                <HBox spacing="30.0">
-                    <!-- Card 1: Total Today -->
-                    <Pane prefHeight="179.0" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label layoutX="24.0" layoutY="24.0" styleClass="card-title" text="Total Today" />
-                        <Label layoutX="24.0" layoutY="70.0" styleClass="card-value" text="129" />
-                        <Label layoutX="140.0" layoutY="140.0" styleClass="card-subtitle" text="+ 43 Increased vs Last Month" />
-                        <Label layoutX="120.0" layoutY="70.0" text="▲" textFill="#45B6A7" />
-                        <!-- Graph Placeholder -->
-                        <Region layoutX="140.0" layoutY="70.0" prefHeight="64.0" prefWidth="157.0" styleClass="graph-placeholder-teal" />
-                    </Pane>
+                        <!-- Main Grid Layout -->
+                        <GridPane hgap="25.0" vgap="25.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="70.0" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
 
-                    <!-- Card 2: Waiting -->
-                    <Pane prefHeight="179.0" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label layoutX="24.0" layoutY="24.0" styleClass="card-title" text="Waiting" />
-                        <Label layoutX="24.0" layoutY="70.0" styleClass="card-value" text="30" />
-                        <Label layoutX="140.0" layoutY="140.0" styleClass="card-subtitle" text="+ 43 Increased vs Last Month" />
-                        <Label layoutX="100.0" layoutY="70.0" text="▲" textFill="#A2FA5E" />
-                        <!-- Graph Placeholder -->
-                        <Region layoutX="140.0" layoutY="70.0" prefHeight="64.0" prefWidth="157.0" styleClass="graph-placeholder-green" />
-                    </Pane>
+                                <!-- LEFT COLUMN -->
+                                <VBox spacing="25.0">
+                                    <children>
+                                        <HBox spacing="20.0">
+                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <Label styleClass="stat-title" text="Total Today" />
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label styleClass="stat-value" text="129" />
+                                                        <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <SVGPath content="M0 30 Q10 20 20 25 T40 10 T60 25 T80 5" fill="TRANSPARENT" stroke="#0b7d56" strokeWidth="2" />
+                                                    </HBox>
+                                                    <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                                </children>
+                                            </VBox>
+                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <Label styleClass="stat-title" text="Waiting" />
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label styleClass="stat-value" text="30" />
+                                                        <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <SVGPath content="M0 30 Q10 15 20 20 T40 10 T60 25 T80 20" fill="TRANSPARENT" stroke="#76ff03" strokeWidth="2" />
+                                                    </HBox>
+                                                    <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                                </children>
+                                            </VBox>
+                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <Label styleClass="stat-title" text="Avg. Wait Time" />
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label styleClass="stat-value" text="129" />
+                                                        <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <SVGPath content="M0 25 L20 20 L40 10 L60 25 L80 5" fill="TRANSPARENT" stroke="#64ffda" strokeWidth="2" />
+                                                    </HBox>
+                                                    <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
+                                                </children>
+                                            </VBox>
+                                        </HBox>
 
-                    <!-- Card 3: Avg Wait Time -->
-                    <Pane prefHeight="179.0" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label layoutX="24.0" layoutY="24.0" styleClass="card-title" text="Avg. Wait Time" />
-                        <Label layoutX="24.0" layoutY="70.0" styleClass="card-value" text="129" />
-                        <Label layoutX="140.0" layoutY="140.0" styleClass="card-subtitle" text="-14 Decreased vs Last Month" />
-                        <Label layoutX="120.0" layoutY="70.0" text="▼" textFill="#E46565" />
-                        <!-- Graph Placeholder -->
-                        <Region layoutX="140.0" layoutY="70.0" prefHeight="64.0" prefWidth="157.0" styleClass="graph-placeholder-cyan" />
-                    </Pane>
-                </HBox>
+                                        <!-- Serving Section -->
+                                        <VBox spacing="15.0">
+                                            <Label styleClass="serving-section-title" text="Current Number Being Served" />
+                                            <VBox styleClass="serving-card-gradient">
+                                                <children>
+                                                    <Label styleClass="serving-number-huge" text="A042" />
+                                                    <Label styleClass="serving-status-label" text="Now Serving" />
+                                                </children>
+                                            </VBox>
+                                            <Button maxWidth="Infinity" styleClass="btn-call-next" text="Call Next Number" />
+                                        </VBox>
+                                    </children>
+                                </VBox>
 
-                <!-- Main Split Row -->
-                <HBox spacing="30.0" VBox.vgrow="ALWAYS">
-                    <!-- Left Column: Circular Queue + Current Number -->
-                    <VBox spacing="30.0" HBox.hgrow="ALWAYS">
-                        <!-- Circular Queue Viz -->
-                        <VBox minHeight="258.0" styleClass="card">
-                            <HBox>
-                                <Label style="-fx-font-size: 51px; -fx-text-fill: #1E293B;" text="Circular Queue " />
-                                <Label style="-fx-font-size: 51px; -fx-text-fill: #007345;" text="Visualization" />
-                            </HBox>
-                            <Pane VBox.vgrow="ALWAYS" /> <!-- Placeholder for Circle Image/Canvas -->
-                        </VBox>
+                                <!-- RIGHT COLUMN: Recent Calls -->
+                                <VBox styleClass="recent-calls-panel" GridPane.columnIndex="1">
+                                    <children>
+                                        <Label styleClass="section-header" text="Recent Calls" />
+                                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                                            <content>
+                                                <VBox spacing="15.0">
+                                                    <VBox styleClass="recent-call-card">
+                                                        <children>
+                                                            <HBox alignment="CENTER_LEFT">
+                                                                <Label styleClass="ticket-id" text="A042" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="call-time-small" text="14:23" />
+                                                            </HBox>
+                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                <Label styleClass="call-category" text="General Inquiry" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="badge-regular-call" text="Regular" />
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                    <VBox styleClass="recent-call-card">
+                                                        <children>
+                                                            <HBox alignment="CENTER_LEFT">
+                                                                <Label styleClass="ticket-id" text="A041" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="call-time-small" text="14:18" />
+                                                            </HBox>
+                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                <Label styleClass="call-category" text="Consultation" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label style="-fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; -fx-padding: 2 8; -fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;" text="Emergency" />
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                    <VBox styleClass="recent-call-card">
+                                                        <children>
+                                                            <HBox alignment="CENTER_LEFT">
+                                                                <Label styleClass="ticket-id" text="A040" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="call-time-small" text="14:12" />
+                                                            </HBox>
+                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                <Label styleClass="call-category" text="Payment" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="badge-regular-call" text="Regular" />
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                    <VBox styleClass="recent-call-card">
+                                                        <children>
+                                                            <HBox alignment="CENTER_LEFT">
+                                                                <Label styleClass="ticket-id" text="A039" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="call-time-small" text="14:08" />
+                                                            </HBox>
+                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                <Label styleClass="call-category" text="Documentation" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="badge-regular-call" text="Regular" />
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                    <VBox styleClass="recent-call-card">
+                                                        <children>
+                                                            <HBox alignment="CENTER_LEFT">
+                                                                <Label styleClass="ticket-id" text="A038" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="call-time-small" text="14:03" />
+                                                            </HBox>
+                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                <Label styleClass="call-category" text="General Inquiry" />
+                                                                <Region HBox.hgrow="ALWAYS" />
+                                                                <Label styleClass="badge-regular-call" text="Regular" />
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                </VBox>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </VBox>
 
-                        <!-- Current Number Card -->
-                        <VBox prefHeight="375.0" styleClass="card">
-                            <Label style="-fx-font-size: 25px; -fx-text-fill: #1E293B; -fx-padding: 0 0 40 0;" text="Current Number Being Served" />
+                            </children>
+                        </GridPane>
 
-                            <!-- Green Gradient Box -->
-                            <VBox alignment="CENTER" prefHeight="144.0" styleClass="queue-card-gradient">
-                                <Label styleClass="queue-number-large" text="A042" />
-                                <Label style="-fx-text-fill: rgba(255,255,255,0.8);" text="Now Serving" />
-                            </VBox>
-
-                            <Pane VBox.vgrow="ALWAYS" />
-
-                            <!-- Action Button -->
-                            <Button fx:id="callnextNumber" maxWidth="Infinity" styleClass="call-button" text="Call Next Number  →" />
-                        </VBox>
-                    </VBox>
-
-                    <!-- Right Column: Recent Calls -->
-                    <VBox minWidth="304.0" prefHeight="641.0" prefWidth="304.0" spacing="40.0" styleClass="card">
-                        <Label style="-fx-font-size: 25px; -fx-text-fill: #1E293B;" text="Recent Calls" />
-
-                        <VBox spacing="15.0">
-                            <!-- Call Item 1 -->
-                            <VBox styleClass="recent-call-item">
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label maxWidth="Infinity" styleClass="call-id" text="A042" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="call-time" text="14:23" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 8 0 0 0;">
-                                    <Label maxWidth="Infinity" styleClass="call-type" text="General Inquiry" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="badge-regular" text="Regular" />
-                                </HBox>
-                            </VBox>
-
-                            <!-- Call Item 2 -->
-                            <VBox styleClass="recent-call-item">
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label maxWidth="Infinity" styleClass="call-id" text="A041" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="call-time" text="14:18" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 8 0 0 0;">
-                                    <Label maxWidth="Infinity" styleClass="call-type" text="Consultation" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="badge-emergency" text="Emergency" />
-                                </HBox>
-                            </VBox>
-
-                            <!-- Call Item 3 -->
-                            <VBox styleClass="recent-call-item">
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label maxWidth="Infinity" styleClass="call-id" text="A040" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="call-time" text="14:12" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 8 0 0 0;">
-                                    <Label maxWidth="Infinity" styleClass="call-type" text="Payment" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="badge-regular" text="Regular" />
-                                </HBox>
-                            </VBox>
-
-                            <!-- Call Item 4 -->
-                            <VBox styleClass="recent-call-item">
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label maxWidth="Infinity" styleClass="call-id" text="A039" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="call-time" text="14:08" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 8 0 0 0;">
-                                    <Label maxWidth="Infinity" styleClass="call-type" text="Documentation" HBox.hgrow="ALWAYS" />
-                                    <Label styleClass="badge-regular" text="Regular" />
-                                </HBox>
-                            </VBox>
-                        </VBox>
-                    </VBox>
-                </HBox>
-            </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="30.0" />
+                    </padding>
+                </VBox>
+            </content>
         </ScrollPane>
     </center>
 </BorderPane>
