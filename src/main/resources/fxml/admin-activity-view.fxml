@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Logo -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Pane prefHeight="40.0" prefWidth="40.0">
+                            <children>
+                                <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
+                                <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
+                            </children>
+                        </Pane>
+                        <VBox alignment="CENTER_LEFT">
+                            <Text styleClass="logo-text" text="St. Angelo" />
+                            <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
+                        </VBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="30.0" />
+                    </VBox.margin>
+                </HBox>
+
+                <!-- Menu Items -->
+                <Button maxWidth="Infinity" styleClass="nav-button" text="Dashboard">
+                    <graphic>
+                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#666"/>
+                    </graphic>
+                </Button>
+                <Button maxWidth="Infinity" styleClass="nav-button" text="User Management">
+                    <graphic>
+                        <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#666"/>
+                    </graphic>
+                </Button>
+                <!-- ACTIVE BUTTON -->
+                <Button maxWidth="Infinity" styleClass="nav-button, active" text="Activity Logs">
+                    <graphic>
+                        <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12h-2v-6h2v6zm0-8h-2V5h2v2z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/>
+                    </graphic>
+                </Button>
+                <Button maxWidth="Infinity" styleClass="nav-button" text="Generate Report">
+                    <graphic>
+                        <SVGPath content="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" scaleX="0.7" scaleY="0.7" fill="#666"/>
+                    </graphic>
+                </Button>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <!-- Profile -->
+                <VBox spacing="15.0" styleClass="user-section">
+                    <Separator opacity="0.5" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <children>
+                            <Circle fill="#e0e0e0" radius="20.0" />
+                            <VBox>
+                                <children>
+                                    <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
+                                    <Label style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+                    <Button maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox spacing="25.0" styleClass="content-area">
+                    <children>
+                        <!-- Title -->
+                        <Text styleClass="page-title" text="Admin Dashboard" />
+
+                        <!-- Filter Bar -->
+                        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="filter-bar-container">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="search-field">
+                                    <children>
+                                        <SVGPath content="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#999" scaleX="0.8" scaleY="0.8" />
+                                        <TextField promptText="Search Activity Logs" style="-fx-background-color: transparent; -fx-pref-width: 300;" />
+                                    </children>
+                                </HBox>
+                                <ComboBox promptText="All Types" styleClass="combo-box-filter" />
+                                <Button styleClass="btn-filter-outline" text="Export Logs">
+                                    <graphic>
+                                        <SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#555" scaleX="0.8" scaleY="0.8" />
+                                    </graphic>
+                                </Button>
+                            </children>
+                        </HBox>
+
+                        <!-- Activity Log Table -->
+                        <VBox styleClass="table-container">
+                            <children>
+                                <!-- Header Row -->
+                                <GridPane styleClass="table-header-green">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Log ID" styleClass="table-col-header" />
+                                        <Label text="User" styleClass="table-col-header" GridPane.columnIndex="1" />
+                                        <Label text="Action" styleClass="table-col-header" GridPane.columnIndex="2" />
+                                        <Label text="Target" styleClass="table-col-header" GridPane.columnIndex="3" />
+                                        <Label text="Type" styleClass="table-col-header" GridPane.columnIndex="4" />
+                                        <Label text="Timestamp" styleClass="table-col-header" GridPane.columnIndex="5" />
+                                    </children>
+                                </GridPane>
+
+                                <!-- Row 1 -->
+                                <GridPane styleClass="table-row-item">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="L001" styleClass="text-cell-bold" />
+                                        <Label text="Dr. John Diaz" styleClass="text-cell" GridPane.columnIndex="1" />
+                                        <Label text="Completed patient consultation" styleClass="text-cell" GridPane.columnIndex="2" />
+                                        <Label text="Patient A145" styleClass="text-cell" GridPane.columnIndex="3" />
+                                        <Label text="medical" styleClass="badge-log, log-medical" GridPane.columnIndex="4" />
+                                        <Label text="2 min ago" styleClass="text-cell" GridPane.columnIndex="5" />
+                                    </children>
+                                </GridPane>
+
+                                <!-- Row 2 -->
+                                <GridPane styleClass="table-row-item">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="L002" styleClass="text-cell-bold" />
+                                        <Label text="Angelo Castro" styleClass="text-cell" GridPane.columnIndex="1" />
+                                        <Label text="Registered new patient" styleClass="text-cell" GridPane.columnIndex="2" />
+                                        <Label text="Patient Q007" styleClass="text-cell" GridPane.columnIndex="3" />
+                                        <Label text="registration" styleClass="badge-log, log-registration" GridPane.columnIndex="4" />
+                                        <Label text="5 min ago" styleClass="text-cell" GridPane.columnIndex="5" />
+                                    </children>
+                                </GridPane>
+
+                                <!-- Row 3 -->
+                                <GridPane styleClass="table-row-item">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="L003" styleClass="text-cell-bold" />
+                                        <Label text="Dr. Sarah Lee" styleClass="text-cell" GridPane.columnIndex="1" />
+                                        <Label text="Updated patient records" styleClass="text-cell" GridPane.columnIndex="2" />
+                                        <Label text="Patient A146" styleClass="text-cell" GridPane.columnIndex="3" />
+                                        <Label text="medical" styleClass="badge-log, log-medical" GridPane.columnIndex="4" />
+                                        <Label text="8 min ago" styleClass="text-cell" GridPane.columnIndex="5" />
+                                    </children>
+                                </GridPane>
+
+                                <!-- Row 4 -->
+                                <GridPane styleClass="table-row-item">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="L004" styleClass="text-cell-bold" />
+                                        <Label text="Admin User" styleClass="text-cell" GridPane.columnIndex="1" />
+                                        <Label text="Generated monthly report" styleClass="text-cell" GridPane.columnIndex="2" />
+                                        <Label text="System Report" styleClass="text-cell" GridPane.columnIndex="3" />
+                                        <Label text="system" styleClass="badge-log, log-system" GridPane.columnIndex="4" />
+                                        <Label text="15 min ago" styleClass="text-cell" GridPane.columnIndex="5" />
+                                    </children>
+                                </GridPane>
+
+                                <!-- Row 5 -->
+                                <GridPane styleClass="table-row-item">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="L005" styleClass="text-cell-bold" />
+                                        <Label text="Maria Santos" styleClass="text-cell" GridPane.columnIndex="1" />
+                                        <Label text="Modified queue order" styleClass="text-cell" GridPane.columnIndex="2" />
+                                        <Label text="Queue System" styleClass="text-cell" GridPane.columnIndex="3" />
+                                        <Label text="queue" styleClass="badge-log, log-queue" GridPane.columnIndex="4" />
+                                        <Label text="20 min ago" styleClass="text-cell" GridPane.columnIndex="5" />
+                                    </children>
+                                </GridPane>
+
+                            </children>
+                        </VBox>
+
+                    </children>
+                    <padding>
+                        <Insets bottom="30.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

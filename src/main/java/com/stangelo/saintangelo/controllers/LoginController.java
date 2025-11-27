@@ -49,6 +49,9 @@ public class LoginController {
         } else if ("doctor".equals(username) && "password".equals(password)) {
             fxmlFile = "/fxml/doctor-dashboard-view.fxml";
             dashboardTitle = "Doctor Dashboard";
+        } else if ("admin".equals(username) && "password".equals(password)) {
+            fxmlFile = "/fxml/admin-dashboard-view.fxml";
+            dashboardTitle = "Admin Dashboard";
         }
 
         if (fxmlFile != null) {
