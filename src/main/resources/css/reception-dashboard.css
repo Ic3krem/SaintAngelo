@@ -18,7 +18,7 @@
 .sidebar {
     -fx-background-color: -fx-white;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 2, 0, 0.4, 0);
-    -fx-background-radius: 0 20 20 0;
+    -fx-background-radius: 0 0 0 0;
 }
 
 .logo-container {
