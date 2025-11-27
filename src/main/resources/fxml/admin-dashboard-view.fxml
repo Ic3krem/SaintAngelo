@@ -1,25 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.shape.SVGPath?>
-<?import javafx.scene.text.Text?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
 <!-- Controller linked here -->
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
@@ -46,24 +35,24 @@
 
                 <!-- Menu Items -->
                 <!-- ADDED onAction handlers -->
-                <Button onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="nav-button, active" text="Dashboard">
+                <Button maxWidth="Infinity" onAction="#handleNavDashboard" styleClass="nav-button, active" text="Dashboard">
                     <graphic>
-                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/>
+                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#1a1a1a" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
-                <Button onAction="#handleNavUsers" maxWidth="Infinity" styleClass="nav-button" text="User Management">
+                <Button maxWidth="Infinity" onAction="#handleNavUsers" styleClass="nav-button" text="User Management">
                     <graphic>
-                        <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#666"/>
+                        <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#666" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
-                <Button onAction="#handleNavActivity" maxWidth="Infinity" styleClass="nav-button" text="Activity Logs">
+                <Button maxWidth="Infinity" onAction="#handleNavActivity" styleClass="nav-button" text="Activity Logs">
                     <graphic>
-                        <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12h-2v-6h2v6zm0-8h-2V5h2v2z" scaleX="0.7" scaleY="0.7" fill="#666"/>
+                        <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12h-2v-6h2v6zm0-8h-2V5h2v2z" fill="#666" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
-                <Button onAction="#handleNavReports" maxWidth="Infinity" styleClass="nav-button" text="Generate Report">
+                <Button maxWidth="Infinity" onAction="#handleNavReports" styleClass="nav-button" text="Generate Report">
                     <graphic>
-                        <SVGPath content="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" scaleX="0.7" scaleY="0.7" fill="#666"/>
+                        <SVGPath content="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="#666" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
 
@@ -71,7 +60,7 @@
 
                 <!-- Profile -->
                 <VBox spacing="15.0" styleClass="user-section">
-                    <Separator opacity="0.5" />
+                    <Separator opacity="0.0" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <children>
                             <Circle fill="#e0e0e0" radius="20.0" />
@@ -83,7 +72,7 @@
                             </VBox>
                         </children>
                     </HBox>
-                    <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                    <Button maxWidth="Infinity" onAction="#handleLogout" styleClass="logout-button" text="Logout" />
                 </VBox>
             </children>
         </VBox>
@@ -160,13 +149,13 @@
                                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0b7d56;" text="Patient Flow (Last 7 Days)" />
                                         <HBox alignment="BOTTOM_CENTER" prefHeight="150.0" spacing="15.0" styleClass="chart-container">
                                             <children>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="80.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Mon" styleClass="chart-label"/></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="95.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Tue" styleClass="chart-label"/></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="105.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Wed" styleClass="chart-label"/></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="85.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Thu" styleClass="chart-label"/></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="110.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Fri" styleClass="chart-label"/></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="108.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Sat" styleClass="chart-label"/></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="120.0" prefWidth="30.0" styleClass="chart-bar"/><Label text="Sun" styleClass="chart-label"/></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="80.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Mon" /></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="95.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Tue" /></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="105.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Wed" /></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="85.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Thu" /></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="110.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Fri" /></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="108.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Sat" /></VBox>
+                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="120.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Sun" /></VBox>
                                             </children>
                                         </HBox>
                                     </children>
@@ -178,15 +167,15 @@
                                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0b7d56;" text="System Usage by Roles" />
                                         <VBox alignment="CENTER_LEFT" spacing="15.0">
                                             <VBox spacing="5.0">
-                                                <HBox><Label text="Doctors" styleClass="usage-label" /><Region HBox.hgrow="ALWAYS" /><Label text="45%" styleClass="usage-percent" /></HBox>
+                                                <HBox><Label styleClass="usage-label" text="Doctors" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="45%" /></HBox>
                                                 <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="150" styleClass="progress-fill, fill-blue" /></StackPane>
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <HBox><Label text="Receptionists" styleClass="usage-label" /><Region HBox.hgrow="ALWAYS" /><Label text="35%" styleClass="usage-percent" /></HBox>
+                                                <HBox><Label styleClass="usage-label" text="Receptionists" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="35%" /></HBox>
                                                 <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="110" styleClass="progress-fill, fill-green" /></StackPane>
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <HBox><Label text="Admins" styleClass="usage-label" /><Region HBox.hgrow="ALWAYS" /><Label text="20%" styleClass="usage-percent" /></HBox>
+                                                <HBox><Label styleClass="usage-label" text="Admins" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="20%" /></HBox>
                                                 <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="60" styleClass="progress-fill, fill-purple" /></StackPane>
                                             </VBox>
                                         </VBox>
@@ -205,24 +194,24 @@
                                 </HBox>
                                 <VBox spacing="0.0">
                                     <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label text="medical" styleClass="badge-tag, tag-medical" />
-                                        <Text text="Dr. John Diaz Completed patient consultation" styleClass="activity-text" />
+                                        <Label styleClass="badge-tag, tag-medical" text="medical" />
+                                        <Text styleClass="activity-text" text="Dr. John Diaz Completed patient consultation" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label text="2 min ago" styleClass="activity-time" />
+                                        <Label styleClass="activity-time" text="2 min ago" />
                                     </HBox>
                                     <Separator />
                                     <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label text="registration" styleClass="badge-tag, tag-registration" />
-                                        <Text text="Angelo Castro Registered new patient" styleClass="activity-text" />
+                                        <Label styleClass="badge-tag, tag-registration" text="registration" />
+                                        <Text styleClass="activity-text" text="Angelo Castro Registered new patient" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label text="5 min ago" styleClass="activity-time" />
+                                        <Label styleClass="activity-time" text="5 min ago" />
                                     </HBox>
                                     <Separator />
                                     <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label text="medical" styleClass="badge-tag, tag-medical" />
-                                        <Text text="Dr. Sarah Lee Updated patient records" styleClass="activity-text" />
+                                        <Label styleClass="badge-tag, tag-medical" text="medical" />
+                                        <Text styleClass="activity-text" text="Dr. Sarah Lee Updated patient records" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label text="8 min ago" styleClass="activity-time" />
+                                        <Label styleClass="activity-time" text="8 min ago" />
                                     </HBox>
                                 </VBox>
                             </children>
