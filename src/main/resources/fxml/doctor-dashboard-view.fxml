@@ -7,6 +7,8 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -30,14 +32,17 @@
                 <!-- Logo Section -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Pane prefHeight="40.0" prefWidth="40.0">
+                        <Pane prefHeight="79.0" prefWidth="58.0">
                             <children>
-                                <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
-                                <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
+                                <ImageView fitHeight="70.0" fitWidth="79.0" layoutX="-6.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../images/logo.png" />
+                                    </image>
+                                </ImageView>
                             </children>
                         </Pane>
-                        <VBox alignment="CENTER_LEFT">
-                            <Text styleClass="logo-text" text="St. Angelo" />
+                        <VBox alignment="CENTER_LEFT" prefHeight="46.0" prefWidth="151.0">
+                            <Text styleClass="logo-text" text="St. Angelo" wrappingWidth="133.20703268051147" />
                             <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
                         </VBox>
                     </children>
