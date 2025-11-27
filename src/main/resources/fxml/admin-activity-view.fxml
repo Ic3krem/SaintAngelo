@@ -25,7 +25,6 @@
     <left>
         <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
-                <!-- Logo -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
                         <Pane prefHeight="40.0" prefWidth="40.0">
@@ -44,24 +43,24 @@
                     </VBox.margin>
                 </HBox>
 
-                <!-- Menu Items -->
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Dashboard">
+                <!-- Menu Items - ADDED onAction -->
+                <Button onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="nav-button" text="Dashboard">
                     <graphic>
                         <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#666"/>
                     </graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="User Management">
+                <Button onAction="#handleNavUsers" maxWidth="Infinity" styleClass="nav-button" text="User Management">
                     <graphic>
                         <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#666"/>
                     </graphic>
                 </Button>
                 <!-- ACTIVE BUTTON -->
-                <Button maxWidth="Infinity" styleClass="nav-button, active" text="Activity Logs">
+                <Button onAction="#handleNavActivity" maxWidth="Infinity" styleClass="nav-button, active" text="Activity Logs">
                     <graphic>
                         <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12h-2v-6h2v6zm0-8h-2V5h2v2z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/>
                     </graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Generate Report">
+                <Button onAction="#handleNavReports" maxWidth="Infinity" styleClass="nav-button" text="Generate Report">
                     <graphic>
                         <SVGPath content="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" scaleX="0.7" scaleY="0.7" fill="#666"/>
                     </graphic>
@@ -69,7 +68,6 @@
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <!-- Profile -->
                 <VBox spacing="15.0" styleClass="user-section">
                     <Separator opacity="0.5" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -83,7 +81,7 @@
                             </VBox>
                         </children>
                     </HBox>
-                    <Button maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                    <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
                 </VBox>
             </children>
         </VBox>
@@ -95,7 +93,6 @@
             <content>
                 <VBox spacing="25.0" styleClass="content-area">
                     <children>
-                        <!-- Title -->
                         <Text styleClass="page-title" text="Admin Dashboard" />
 
                         <!-- Filter Bar -->

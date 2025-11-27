@@ -37,24 +37,24 @@ public class AdminDashboardController implements Initializable {
 
     @FXML
     private void handleNavDashboard(ActionEvent event) {
-        loadView(event, "/fxml/admin_dashboard.fxml");
+        loadView(event, "/fxml/admin-dashboard-view.fxml");
     }
 
     @FXML
     private void handleNavUsers(ActionEvent event) {
-        loadView(event, "/fxml/admin_user_management.fxml");
+        loadView(event, "/fxml/admin-usermanage-view.fxml");
     }
 
     @FXML
     private void handleNavActivity(ActionEvent event) {
-        loadView(event, "/fxml/admin_activity_logs.fxml");
+        loadView(event, "/fxml/admin-activity-view.fxml");
     }
 
     @FXML
     private void handleNavReports(ActionEvent event) {
-        // Placeholder for report generation
-        showAlert(Alert.AlertType.INFORMATION, "Coming Soon", "Report Generation module is under development.");
+        loadView(event, "/fxml/admin-generaterReport-view.fxml.");
     }
+
 
     // --- LOGOUT HANDLER (Consistent with MedicalDashboard) ---
 
@@ -133,6 +133,7 @@ public class AdminDashboardController implements Initializable {
             e.printStackTrace();
         }
     }
+
 
     // --- HELPER METHODS ---
 

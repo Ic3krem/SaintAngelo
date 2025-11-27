@@ -406,3 +406,95 @@
     -fx-background-color: #fff3e0; /* Light Orange */
     -fx-text-fill: #e65100;
 }
+/* --- GENERATE REPORT SPECIFIC STYLES --- */
+
+/* Form Container */
+.form-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 30;
+}
+
+.form-header-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+/* Form Input Labels */
+.input-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+    -fx-padding: 0 0 5 0;
+}
+
+/* Custom Text Fields & ComboBoxes */
+.form-input {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+.form-input:focused {
+    -fx-border-color: -primary-green;
+}
+
+/* DatePicker Styling */
+.date-picker {
+    -fx-background-color: transparent;
+}
+.date-picker .text-field {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 5 0 0 5; /* Radius only on left */
+    -fx-background-radius: 5 0 0 5;
+    -fx-padding: 8 12;
+}
+.date-picker .arrow-button {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 0 5 5 0;
+    -fx-background-radius: 0 5 5 0;
+    -fx-border-width: 1 1 1 0; /* Remove left border overlap */
+}
+.date-picker .arrow-button .arrow {
+    -fx-background-color: #555;
+}
+
+/* CheckBox Styling */
+.custom-check-box {
+    -fx-font-size: 13px;
+    -fx-text-fill: #555;
+    -fx-cursor: hand;
+}
+.custom-check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 3;
+}
+.custom-check-box:selected .box {
+    -fx-background-color: #0b7d56;
+    -fx-border-color: #0b7d56;
+}
+.custom-check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+/* Large Action Button */
+.btn-generate-large {
+    -fx-background-color: #28a745; /* Specific vibrant green */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 12 20;
+    -fx-alignment: CENTER;
+}
+.btn-generate-large:hover {
+    -fx-background-color: #218838;
+}
