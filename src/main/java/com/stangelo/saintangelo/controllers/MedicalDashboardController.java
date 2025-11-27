@@ -215,7 +215,7 @@ public class MedicalDashboardController implements Initializable {
     @FXML
     private void handleNavRecords(ActionEvent event) {
         // UPDATED: Now points to the actual patient_records.fxml file
-        loadView(event, "/fxml/patient_records.fxml");
+        loadView(event, "/fxml/doctor-patient-records.fxml");
     }
 
     /**

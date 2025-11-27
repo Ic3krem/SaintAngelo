@@ -20,7 +20,8 @@
 <?import javafx.scene.text.Text?>
 
 <!-- Linked to DashboardController in the specified package -->
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
@@ -46,19 +47,19 @@
                 </HBox>
 
                 <!-- Navigation -->
-                <Button fx:id="btnCurrentPatient" onAction="#handleNavCurrentPatient" maxWidth="Infinity" styleClass="nav-button, active" text="Current Patient">
+                <Button fx:id="btnCurrentPatient" maxWidth="Infinity" onAction="#handleNavCurrentPatient" styleClass="nav-button, active" text="Current Patient">
                     <graphic>
                         <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="btnQueue" onAction="#handleNavQueue" maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
+                <Button fx:id="btnQueue" maxWidth="Infinity" onAction="#handleNavQueue" styleClass="nav-button" text="Queue Management">
                     <graphic>
                         <SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="btnRecords" onAction="#handleNavRecords" maxWidth="Infinity" styleClass="nav-button" text="Patient Records">
+                <Button fx:id="btnRecords" maxWidth="Infinity" onAction="#handleNavRecords" styleClass="nav-button" text="Patient Records">
                     <graphic>
                         <SVGPath content="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" scaleX="0.7" scaleY="0.7" />
                     </graphic>
@@ -68,7 +69,7 @@
 
                 <!-- User Profile -->
                 <VBox spacing="15.0" styleClass="user-section">
-                    <Separator />
+                    <Separator opacity="0.0" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <children>
                             <Circle fill="#e0e0e0" radius="20.0" />
@@ -80,7 +81,7 @@
                             </VBox>
                         </children>
                     </HBox>
-                    <Button fx:id="btnLogout" onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                    <Button fx:id="btnLogout" maxWidth="Infinity" onAction="#handleLogout" styleClass="logout-button" text="Logout" />
                 </VBox>
             </children>
         </VBox>
@@ -228,14 +229,14 @@
 
                                                 <VBox>
                                                     <Label styleClass="form-label" text="Consultation Notes" />
-                                                    <Label styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Consultation Notes" />
+                                                    <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" styleClass="form-label" text="Consultation Notes" />
                                                     <TextArea fx:id="consultationNotesArea" prefHeight="100.0" promptText="Add consultation notes..." wrapText="true" />
                                                 </VBox>
                                             </children>
                                         </VBox>
 
                                         <!-- Footer Action -->
-                                        <HBox alignment="CENTER_RIGHT" >
+                                        <HBox alignment="CENTER_RIGHT">
                                             <children>
                                                 <Button onAction="#handleCompleteTreatment" styleClass="action-button" text="   Complete Treatment   ">
                                                     <graphic>
