@@ -1,5 +1,8 @@
 package com.stangelo.saintangelo.app;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -15,6 +18,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -79,6 +83,13 @@ public class MainApp extends Application {
         root.setTop(titleBar);
         root.setCenter(fxmlRoot);
 
+        // --- ANIMATION SETUP START ---
+        // 1. Initial State: Invisible and slightly smaller
+        root.setOpacity(0);
+        root.setScaleX(0.95);
+        root.setScaleY(0.95);
+        // --- ANIMATION SETUP END ---
+
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/css/main-app.css").toExternalForm());
 
@@ -88,6 +99,28 @@ public class MainApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
+
+        // --- PLAY GRANDIOSE ANIMATION ---
+        playEntranceAnimation(root);
+    }
+
+    private void playEntranceAnimation(BorderPane root) {
+        // 1. Fade In (1.5 seconds)
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(1500), root);
+        fadeOut.setFromValue(0.0);
+        fadeOut.setToValue(1.0);
+
+        // 2. Scale Up / Zoom In (1.5 seconds)
+        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(1500), root);
+        scaleUp.setFromX(0.95);
+        scaleUp.setFromY(0.95);
+        scaleUp.setToX(1.0);
+        scaleUp.setToY(1.0);
+
+        // 3. Play both together
+        ParallelTransition parallelTransition = new ParallelTransition();
+        parallelTransition.getChildren().addAll(fadeOut, scaleUp);
+        parallelTransition.play();
     }
 
     public static void main(String[] args) {

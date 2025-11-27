@@ -1,5 +1,6 @@
 package com.stangelo.saintangelo.controllers;
 
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,6 +23,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration; // Import for Animation Duration
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -59,12 +62,10 @@ public class MedicalDashboardController implements Initializable {
     }
 
     private void loadDashboardData() {
-        // Simulating data fetching (null checks added to prevent crashes on tabs where these labels don't exist)
         if(totalTodayLabel != null) totalTodayLabel.setText("129");
         if(waitingLabel != null) waitingLabel.setText("30");
         if(avgWaitTimeLabel != null) avgWaitTimeLabel.setText("129");
 
-        // Load current patient data if on treatment screen
         if(patientIdLabel != null) {
             patientIdLabel.setText("A145");
             patientNameLabel.setText("Patrick Claridad");
@@ -123,23 +124,25 @@ public class MedicalDashboardController implements Initializable {
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // 1. Close the current dashboard stage
+            // Close current dashboard
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
-            // 2. Load the Login View
+            // Load Login View
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login-view.fxml"));
             Parent loginView = loader.load();
 
-            // 3. Create a NEW Stage for Login (This is critical for StageStyle.TRANSPARENT)
+            // ANIMATION: Set initial opacity to 0
+            loginView.setOpacity(0);
+
+            // Create New Stage for Login
             Stage loginStage = new Stage();
             loginStage.initStyle(StageStyle.TRANSPARENT);
 
-            // 4. Reconstruct the Custom Title Bar (matching MainApp.java)
+            // Reconstruct Title Bar
             HBox titleBar = new HBox();
             titleBar.setAlignment(Pos.CENTER_LEFT);
             titleBar.setPadding(new Insets(10, 5, 5, 10));
-            // Match styling from MainApp
             titleBar.setStyle("-fx-background-color: #007345; -fx-background-radius: 30 30 0 0;");
 
             Label titleLabel = new Label("Saint Angelo Medical Center");
@@ -151,12 +154,10 @@ public class MedicalDashboardController implements Initializable {
             HBox controlButtons = new HBox(10);
             controlButtons.setAlignment(Pos.CENTER);
 
-            // Minimize Button
             Button minimizeButton = new Button("—");
             minimizeButton.getStyleClass().addAll("title-bar-button", "minimize-button");
             minimizeButton.setOnAction(e -> loginStage.setIconified(true));
 
-            // Close Button
             Button closeButton = new Button("X");
             closeButton.getStyleClass().addAll("title-bar-button", "close-button");
             closeButton.setOnAction(e -> loginStage.close());
@@ -165,7 +166,6 @@ public class MedicalDashboardController implements Initializable {
             titleBar.getChildren().addAll(titleLabel, spacer, controlButtons);
             titleBar.setPadding(new Insets(10, 40, 10, 10));
 
-            // Add dragging logic
             final double[] xOffset = {0};
             final double[] yOffset = {0};
             titleBar.setOnMousePressed(e -> {
@@ -177,26 +177,27 @@ public class MedicalDashboardController implements Initializable {
                 loginStage.setY(e.getScreenY() - yOffset[0]);
             });
 
-            // 5. Wrap login view in BorderPane with title bar
             BorderPane root = new BorderPane();
             root.setStyle("-fx-background-color: transparent;");
             root.setTop(titleBar);
             root.setCenter(loginView);
 
-            // 6. Create Scene with Transparent Fill and Styles
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
-            // Ensure the main app CSS is loaded for button styles
             scene.getStylesheets().add(getClass().getResource("/css/main-app.css").toExternalForm());
 
-            // 7. Configure and Show Login Stage
             loginStage.setScene(scene);
             loginStage.setResizable(false);
             loginStage.show();
 
+            // ANIMATION: Fade In Login Screen
+            FadeTransition fade = new FadeTransition(Duration.millis(500), loginView);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            fade.play();
+
         } catch (IOException e) {
             e.printStackTrace();
-            // Fallback: just try to close the window
             Stage stage = (Stage) btnLogout.getScene().getWindow();
             stage.close();
         }
@@ -214,20 +215,28 @@ public class MedicalDashboardController implements Initializable {
 
     @FXML
     private void handleNavRecords(ActionEvent event) {
-        // UPDATED: Now points to the actual patient_records.fxml file
         loadView(event, "/fxml/doctor-patient-records.fxml");
     }
 
     /**
-     * Helper method to switch the current scene's root to a new FXML view.
+     * Helper method to switch the current scene's root to a new FXML view with animation.
      */
-    private void loadView(ActionEvent event, String fxmlPath) {
+    public void loadView(ActionEvent event, String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // 1. Set initial opacity to 0 (Invisible)
+            root.setOpacity(0);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
+
+            // 2. Create Fade Transition (0.0 -> 1.0)
+            FadeTransition fadeTransition = new FadeTransition(Duration.millis(300), root);
+            fadeTransition.setFromValue(0.0);
+            fadeTransition.setToValue(1.0);
+            fadeTransition.play();
 
         } catch (IOException e) {
             e.printStackTrace();

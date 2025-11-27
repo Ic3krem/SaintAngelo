@@ -1,5 +1,6 @@
 package com.stangelo.saintangelo.controllers;
 
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -11,6 +12,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -41,14 +43,11 @@ public class LoginController {
         String fxmlFile = null;
         String dashboardTitle = null;
 
-        // NOTE: Ensure these paths match the FXML file names you saved.
-        // For the UI I created, you might want to point both to "/fxml/dashboard.fxml"
-        // or rename the file I gave you to "doctor-dashboard-view.fxml"
         if ("reception".equals(username) && "password".equals(password)) {
-            fxmlFile = "/fxml/receptionist-dashboard-view.fxml"; // Updated to use the file I provided
+            fxmlFile = "/fxml/receptionist-dashboard-view.fxml";
             dashboardTitle = "Receptionist Dashboard";
         } else if ("doctor".equals(username) && "password".equals(password)) {
-            fxmlFile = "/fxml/doctor-dashboard-view.fxml"; // Updated to use the file I provided
+            fxmlFile = "/fxml/doctor-dashboard-view.fxml";
             dashboardTitle = "Doctor Dashboard";
         }
 
@@ -56,6 +55,9 @@ public class LoginController {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
                 Parent dashboardRoot = loader.load();
+
+                // 1. Set Initial Opacity to 0 (Invisible) for Animation
+                dashboardRoot.setOpacity(0);
 
                 Stage dashboardStage = new Stage();
                 dashboardStage.setTitle(dashboardTitle);
@@ -75,6 +77,12 @@ public class LoginController {
                 // --- FULL SCREEN LOGIC END ---
 
                 dashboardStage.show();
+
+                // 2. Play Fade Transition (0.0 -> 1.0)
+                FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), dashboardRoot);
+                fadeTransition.setFromValue(0.0);
+                fadeTransition.setToValue(1.0);
+                fadeTransition.play();
 
                 // Close the login window
                 Stage loginStage = (Stage) loginButton.getScene().getWindow();
