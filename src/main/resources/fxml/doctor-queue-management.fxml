@@ -3,30 +3,26 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.SVGPath?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
 
-    <!-- LEFT SIDEBAR -->
+    <!-- LEFT SIDEBAR (Unchanged) -->
     <left>
         <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
-                <!-- Logo Section -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
                         <Pane prefHeight="40.0" prefWidth="40.0">
@@ -45,7 +41,6 @@
                     </VBox.margin>
                 </HBox>
 
-                <!-- Navigation -->
                 <Button fx:id="btnCurrentPatient" maxWidth="Infinity" onAction="#handleNavCurrentPatient" styleClass="nav-button" text="Current Patient">
                     <graphic>
                         <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" />
@@ -66,7 +61,6 @@
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <!-- User Profile -->
                 <VBox spacing="15.0" styleClass="user-section">
                     <Separator opacity="0.0" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -90,204 +84,208 @@
     <center>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
-                <VBox spacing="25.0" styleClass="content-area">
+                <VBox spacing="20.0" styleClass="content-area">
                     <children>
+                        <!-- Header -->
                         <VBox spacing="5.0">
                             <Text styleClass="page-title" text="Medical Dashboard" />
                             <Text styleClass="page-subtitle" text="Manage patient consultations and medical records" />
                         </VBox>
 
-                        <!-- TABLE CONTAINER -->
-                        <VBox styleClass="table-container">
-                            <children>
-                                <!-- Header Row -->
-                                <GridPane styleClass="table-header">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label styleClass="column-header" text="Name" />
-                                        <Label styleClass="column-header" text="Ticket No." GridPane.columnIndex="1" />
-                                        <Label styleClass="column-header" text="Chief Complaint" GridPane.columnIndex="2" />
-                                        <Label styleClass="column-header" text="Priority" GridPane.columnIndex="3">
-                                 <padding>
-                                    <Insets left="20.0" />
-                                 </padding></Label>
-                                        <Label styleClass="column-header" text="Actions" GridPane.columnIndex="4" />
-                                    </children>
-                           <rowConstraints>
-                              <RowConstraints />
-                           </rowConstraints>
-                                </GridPane>
+                        <!-- Tab Pane for Queue Sections -->
+                        <TabPane styleClass="queue-tab-pane" tabClosingPolicy="UNAVAILABLE">
+                            <tabs>
+                                <!-- TAB 1: WAITING QUEUE -->
+                                <Tab text="Waiting Queue (6)">
+                                    <content>
+                                        <VBox spacing="15.0">
+                                            <!-- Card 1 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-waiting">
+                                                <StackPane styleClass="queue-number-circle">
+                                                    <Label text="1" styleClass="queue-number-text" />
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Elena Martinez" styleClass="text-name" />
+                                                        <Label text="• Age 42" styleClass="text-meta" />
+                                                        <Label text="Regular" styleClass="badge-pill, badge-blue" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: Q001" styleClass="text-sub" />
+                                                        <Label text="• Fever" styleClass="text-sub" />
+                                                        <Label text="📞 0912-345-6789" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                                <VBox alignment="CENTER_RIGHT" spacing="5.0">
+                                                    <Label text="Wait Time" styleClass="text-meta" />
+                                                    <Label text="15 min" styleClass="wait-time-text" />
+                                                </VBox>
+                                                <Button styleClass="icon-btn-trash">
+                                                    <graphic>
+                                                        <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="WHITE" scaleX="0.7" scaleY="0.7"/>
+                                                    </graphic>
+                                                </Button>
+                                                <SVGPath content="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="#999" scaleX="1.2" scaleY="1.2"/>
+                                            </HBox>
 
-                                <!-- Row 1: Tiger Nixon -->
-                                <GridPane styleClass="table-row">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                            <children>
-                                                <Circle fill="#ebbcbc" radius="18.0" />
-                                                <Label styleClass="cell-text" text="Tiger Nixon" />
-                                            </children>
-                                        </HBox>
-                                        <Label styleClass="cell-text" text="A053" GridPane.columnIndex="1" />
-                                        <Label styleClass="cell-text" text="Heart Attack" GridPane.columnIndex="2" />
-                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="3">
-                                            <children>
-                                                <HBox styleClass="badge-emergency">
-                                                    <children>
-                                                        <Label styleClass="badge-emergency-text" text="Emergency">
-                                             <HBox.margin>
-                                                <Insets top="5.0" />
-                                             </HBox.margin></Label>
-                                                    </children>
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                                </HBox>
-                                            </children>
-                                        </HBox>
+                                            <!-- Card 2 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-waiting">
+                                                <StackPane styleClass="queue-number-circle">
+                                                    <Label text="2" styleClass="queue-number-text" />
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Robert Chen" styleClass="text-name" />
+                                                        <Label text="• Age 35" styleClass="text-meta" />
+                                                        <Label text="! Urgent" styleClass="badge-pill, badge-red" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: Q002" styleClass="text-sub" />
+                                                        <Label text="• Chest Pain" styleClass="text-sub" />
+                                                        <Label text="📞 0923-456-7890" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                                <VBox alignment="CENTER_RIGHT" spacing="5.0">
+                                                    <Label text="Wait Time" styleClass="text-meta" />
+                                                    <Label text="8 min" styleClass="wait-time-text" style="-fx-text-fill: #e74c3c;" /> <!-- Red for urgent -->
+                                                </VBox>
+                                                <Button styleClass="icon-btn-trash">
+                                                    <graphic>
+                                                        <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="WHITE" scaleX="0.7" scaleY="0.7"/>
+                                                    </graphic>
+                                                </Button>
+                                                <SVGPath content="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="#999" scaleX="1.2" scaleY="1.2"/>
+                                            </HBox>
 
-                                        <!-- ACTION BUTTON -->
-                                        <MenuButton styleClass="action-menu-button" text="..." GridPane.columnIndex="4">
-                                            <items>
-                                                <MenuItem onAction="#handleEscalate" text="Escalate Priority" userData="A053" />
-                                                <MenuItem onAction="#handleRemove" text="Remove Patient" userData="A053" />
-                                            </items>
-                                 <GridPane.margin>
-                                    <Insets left="15.0" />
-                                 </GridPane.margin>
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                                        </MenuButton>
-                                    </children>
-                           <rowConstraints>
-                              <RowConstraints />
-                           </rowConstraints>
-                                </GridPane>
+                                            <!-- Card 3 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-waiting">
+                                                <StackPane styleClass="queue-number-circle">
+                                                    <Label text="3" styleClass="queue-number-text" />
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Sarah Johnson" styleClass="text-name" />
+                                                        <Label text="• Age 28" styleClass="text-meta" />
+                                                        <Label text="Regular" styleClass="badge-pill, badge-blue" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: Q003" styleClass="text-sub" />
+                                                        <Label text="• Headache" styleClass="text-sub" />
+                                                        <Label text="📞 0934-567-8901" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                                <VBox alignment="CENTER_RIGHT" spacing="5.0">
+                                                    <Label text="Wait Time" styleClass="text-meta" />
+                                                    <Label text="22 min" styleClass="wait-time-text" />
+                                                </VBox>
+                                                <Button styleClass="icon-btn-trash">
+                                                    <graphic>
+                                                        <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="WHITE" scaleX="0.7" scaleY="0.7"/>
+                                                    </graphic>
+                                                </Button>
+                                                <SVGPath content="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="#999" scaleX="1.2" scaleY="1.2"/>
+                                            </HBox>
+                                        </VBox>
+                                    </content>
+                                </Tab>
 
-                                <!-- Row 2: Garrett Winters -->
-                                <GridPane styleClass="table-row">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                            <children>
-                                                <Circle fill="#8dc63f" radius="18.0" />
-                                                <Label styleClass="cell-text" text="Garrett Winters" />
-                                            </children>
-                                        </HBox>
-                                        <Label styleClass="cell-text" text="A054" GridPane.columnIndex="1" />
-                                        <Label styleClass="cell-text" text="Heart Attack" GridPane.columnIndex="2" />
-                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="3">
-                                            <children>
-                                                <HBox styleClass="badge-emergency">
-                                                    <children>
-                                                        <Label styleClass="badge-emergency-text" text="Emergency">
-                                             <HBox.margin>
-                                                <Insets top="5.0" />
-                                             </HBox.margin></Label>
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </HBox>
+                                <!-- TAB 2: IN PROGRESS -->
+                                <Tab text="In Progress (2)">
+                                    <content>
+                                        <VBox spacing="15.0">
+                                            <!-- Card 1 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-progress">
+                                                <StackPane>
+                                                    <Circle radius="25.0" fill="#e3f2fd" />
+                                                    <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" styleClass="avatar-circle-blue" scaleX="1.5" scaleY="1.5"/>
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Patrick Claridad" styleClass="text-name" />
+                                                        <Label text="• Age 51" styleClass="text-meta" />
+                                                        <Label text="Consulting" styleClass="badge-pill, badge-consulting" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: A145" styleClass="text-sub" />
+                                                        <Label text="• Backburner" styleClass="text-sub" />
+                                                        <Label text="• Dr. John Diaz" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                            </HBox>
 
-                                        <MenuButton styleClass="action-menu-button" text="..." GridPane.columnIndex="4">
-                                            <items>
-                                                <MenuItem onAction="#handleEscalate" text="Escalate Priority" userData="A054" />
-                                                <MenuItem onAction="#handleRemove" text="Remove Patient" userData="A054" />
-                                            </items>
-                                 <GridPane.margin>
-                                    <Insets left="15.0" />
-                                 </GridPane.margin>
-                                        </MenuButton>
-                                    </children>
-                           <rowConstraints>
-                              <RowConstraints />
-                           </rowConstraints>
-                                </GridPane>
+                                            <!-- Card 2 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-progress">
+                                                <StackPane>
+                                                    <Circle radius="25.0" fill="#e3f2fd" />
+                                                    <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" styleClass="avatar-circle-blue" scaleX="1.5" scaleY="1.5"/>
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Lisa Reyes" styleClass="text-name" />
+                                                        <Label text="• Age 39" styleClass="text-meta" />
+                                                        <Label text="Consulting" styleClass="badge-pill, badge-consulting" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: A146" styleClass="text-sub" />
+                                                        <Label text="• Cough" styleClass="text-sub" />
+                                                        <Label text="• Dr. Sarah Lee" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                            </HBox>
+                                        </VBox>
+                                    </content>
+                                </Tab>
 
-                                <!-- Row 3: Ashton Cox -->
-                                <GridPane styleClass="table-row">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                            <children>
-                                                <Circle fill="#99badd" radius="18.0" />
-                                                <Label styleClass="cell-text" text="Ashton Cox" />
-                                            </children>
-                                        </HBox>
-                                        <Label styleClass="cell-text" text="A055" GridPane.columnIndex="1" />
-                                        <Label styleClass="cell-text" text="Heart Attack" GridPane.columnIndex="2" />
-                                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="3">
-                                            <children>
-                                                <HBox styleClass="badge-regular">
-                                                    <children>
-                                                        <Label styleClass="badge-regular-text" text="Regular">
-                                             <HBox.margin>
-                                                <Insets top="5.0" />
-                                             </HBox.margin></Label>
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </HBox>
+                                <!-- TAB 3: COMPLETED -->
+                                <Tab text="Completed Today (3)">
+                                    <content>
+                                        <VBox spacing="15.0">
+                                            <!-- Card 1 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-completed">
+                                                <StackPane>
+                                                    <Circle radius="20.0" fill="#2e7d32" />
+                                                    <SVGPath content="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Juan Dela Cruz" styleClass="text-name" />
+                                                        <Label text="• Age 45" styleClass="text-meta" />
+                                                        <Label text="Regular" styleClass="badge-pill, badge-blue" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: A143" styleClass="text-sub" />
+                                                        <Label text="• Fever" styleClass="text-sub" />
+                                                        <Label text="• Completed at 10:45 AM" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                                <Button text="View Details" styleClass="btn-view-details" />
+                                            </HBox>
 
-                                        <MenuButton styleClass="action-menu-button" text="..." GridPane.columnIndex="4">
-                                            <items>
-                                                <MenuItem onAction="#handleEscalate" text="Escalate Priority" userData="A055" />
-                                                <MenuItem onAction="#handleRemove" text="Remove Patient" userData="A055" />
-                                            </items>
-                                 <GridPane.margin>
-                                    <Insets left="15.0" />
-                                 </GridPane.margin>
-                                        </MenuButton>
-                                    </children>
-                           <rowConstraints>
-                              <RowConstraints />
-                           </rowConstraints>
-                                </GridPane>
-
-                            </children>
-                        </VBox>
-
-                        <!-- PAGINATION -->
-                        <HBox alignment="CENTER_RIGHT" spacing="20.0">
-                            <children>
-                                <Label styleClass="pagination-label" text="Showing 1-3 from 100 data" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <HBox alignment="CENTER" spacing="5.0">
-                                    <children>
-                                        <Button styleClass="pagination-btn" text="&lt;" />
-                                        <Button styleClass="pagination-btn, active" text="1" />
-                                        <Button styleClass="pagination-btn" text="2" />
-                                        <Button styleClass="pagination-btn" text="3" />
-                                        <Button styleClass="pagination-btn" text="&gt;" />
-                                    </children>
-                                </HBox>
-                            </children>
-                        </HBox>
+                                            <!-- Card 2 -->
+                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-completed">
+                                                <StackPane>
+                                                    <Circle radius="20.0" fill="#2e7d32" />
+                                                    <SVGPath content="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
+                                                </StackPane>
+                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                        <Label text="Ana Reyes" styleClass="text-name" />
+                                                        <Label text="• Age 28" styleClass="text-meta" />
+                                                        <Label text="Regular" styleClass="badge-pill, badge-blue" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                        <Label text="ID: A142" styleClass="text-sub" />
+                                                        <Label text="• Cough" styleClass="text-sub" />
+                                                        <Label text="• Completed at 10:30 AM" styleClass="text-sub" />
+                                                    </HBox>
+                                                </VBox>
+                                                <Button text="View Details" styleClass="btn-view-details" />
+                                            </HBox>
+                                        </VBox>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
                     </children>
                     <padding>
                         <Insets bottom="30.0" />

@@ -4,15 +4,24 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -50,7 +59,7 @@ public class MedicalDashboardController implements Initializable {
     }
 
     private void loadDashboardData() {
-        // Simulating data fetching
+        // Simulating data fetching (null checks added to prevent crashes on tabs where these labels don't exist)
         if(totalTodayLabel != null) totalTodayLabel.setText("129");
         if(waitingLabel != null) waitingLabel.setText("30");
         if(avgWaitTimeLabel != null) avgWaitTimeLabel.setText("129");
@@ -64,15 +73,12 @@ public class MedicalDashboardController implements Initializable {
         }
     }
 
-    // --- NEW ACTION HANDLERS FOR QUEUE TABLE ---
+    // --- ACTION HANDLERS FOR QUEUE TABLE ---
 
     @FXML
     private void handleEscalate(ActionEvent event) {
-        // Get the MenuItem that was clicked
         MenuItem item = (MenuItem) event.getSource();
-        // Retrieve the Ticket ID we stored in "userData" in the FXML
         String ticketId = (String) item.getUserData();
-
         showAlert(Alert.AlertType.INFORMATION, "Escalate Priority",
                 "Patient with Ticket " + ticketId + " has been marked as EMERGENCY.");
     }
@@ -90,11 +96,10 @@ public class MedicalDashboardController implements Initializable {
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             System.out.println("Removed patient: " + ticketId);
-            // In a real app, you would reload the table data here
         }
     }
 
-    // --- EXISTING HANDLERS ---
+    // --- TREATMENT HANDLERS ---
 
     @FXML
     private void handleCompleteTreatment() {
@@ -113,24 +118,85 @@ public class MedicalDashboardController implements Initializable {
         consultationNotesArea.clear();
     }
 
+    // --- NAVIGATION HANDLERS ---
+
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // Navigate back to the Login Screen
+            // 1. Close the current dashboard stage
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+            // 2. Load the Login View
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login-view.fxml"));
-            Parent root = loader.load();
+            Parent loginView = loader.load();
 
-            // Get current stage and set the login scene
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
+            // 3. Create a NEW Stage for Login (This is critical for StageStyle.TRANSPARENT)
+            Stage loginStage = new Stage();
+            loginStage.initStyle(StageStyle.TRANSPARENT);
 
-            // Optional: If you want to resize window back to login size
-            // stage.setWidth(800); stage.setHeight(600);
-            // stage.centerOnScreen();
+            // 4. Reconstruct the Custom Title Bar (matching MainApp.java)
+            HBox titleBar = new HBox();
+            titleBar.setAlignment(Pos.CENTER_LEFT);
+            titleBar.setPadding(new Insets(10, 5, 5, 10));
+            // Match styling from MainApp
+            titleBar.setStyle("-fx-background-color: #007345; -fx-background-radius: 30 30 0 0;");
+
+            Label titleLabel = new Label("Saint Angelo Medical Center");
+            titleLabel.setTextFill(Color.WHITE);
+
+            Pane spacer = new Pane();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            HBox controlButtons = new HBox(10);
+            controlButtons.setAlignment(Pos.CENTER);
+
+            // Minimize Button
+            Button minimizeButton = new Button("—");
+            minimizeButton.getStyleClass().addAll("title-bar-button", "minimize-button");
+            minimizeButton.setOnAction(e -> loginStage.setIconified(true));
+
+            // Close Button
+            Button closeButton = new Button("X");
+            closeButton.getStyleClass().addAll("title-bar-button", "close-button");
+            closeButton.setOnAction(e -> loginStage.close());
+
+            controlButtons.getChildren().addAll(minimizeButton, closeButton);
+            titleBar.getChildren().addAll(titleLabel, spacer, controlButtons);
+            titleBar.setPadding(new Insets(10, 40, 10, 10));
+
+            // Add dragging logic
+            final double[] xOffset = {0};
+            final double[] yOffset = {0};
+            titleBar.setOnMousePressed(e -> {
+                xOffset[0] = e.getSceneX();
+                yOffset[0] = e.getSceneY();
+            });
+            titleBar.setOnMouseDragged(e -> {
+                loginStage.setX(e.getScreenX() - xOffset[0]);
+                loginStage.setY(e.getScreenY() - yOffset[0]);
+            });
+
+            // 5. Wrap login view in BorderPane with title bar
+            BorderPane root = new BorderPane();
+            root.setStyle("-fx-background-color: transparent;");
+            root.setTop(titleBar);
+            root.setCenter(loginView);
+
+            // 6. Create Scene with Transparent Fill and Styles
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            // Ensure the main app CSS is loaded for button styles
+            scene.getStylesheets().add(getClass().getResource("/css/main-app.css").toExternalForm());
+
+            // 7. Configure and Show Login Stage
+            loginStage.setScene(scene);
+            loginStage.setResizable(false);
+            loginStage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Fallback: just close the window if login file is missing
+            // Fallback: just try to close the window
             Stage stage = (Stage) btnLogout.getScene().getWindow();
             stage.close();
         }
@@ -138,22 +204,18 @@ public class MedicalDashboardController implements Initializable {
 
     @FXML
     private void handleNavCurrentPatient(ActionEvent event) {
-        // Load the main dashboard view (Current Patient)
         loadView(event, "/fxml/doctor-dashboard-view.fxml");
     }
 
     @FXML
     private void handleNavQueue(ActionEvent event) {
-        // Load the queue management view
         loadView(event, "/fxml/doctor-queue-management.fxml");
     }
 
     @FXML
     private void handleNavRecords(ActionEvent event) {
-        // Placeholder: reload dashboard or show alert since we don't have this FXML yet
-        // loadView(event, "/fxml/patient_records.fxml");
-        setActiveNav(btnRecords);
-        showAlert(Alert.AlertType.INFORMATION, "Coming Soon", "Patient Records module is under development.");
+        // UPDATED: Now points to the actual patient_records.fxml file
+        loadView(event, "/fxml/patient_records.fxml");
     }
 
     /**
@@ -164,23 +226,13 @@ public class MedicalDashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Get the stage from the event source (the button clicked)
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Switch the root of the scene (keeps the window size/state)
             stage.getScene().setRoot(root);
 
         } catch (IOException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load " + fxmlPath + "\nCheck if file exists in /fxml/ folder.");
         }
-    }
-
-    private void setActiveNav(Button activeButton) {
-        btnCurrentPatient.getStyleClass().remove("active");
-        btnQueue.getStyleClass().remove("active");
-        btnRecords.getStyleClass().remove("active");
-        activeButton.getStyleClass().add("active");
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

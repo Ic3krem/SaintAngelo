@@ -282,3 +282,277 @@
     -fx-background-color: transparent;
     -fx-padding: 0;
 }
+
+/* Transparent TabPane */
+.queue-tab-pane {
+    -fx-background-color: transparent;
+}
+
+.queue-tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.queue-tab-pane .tab-header-area {
+    -fx-padding: 0 0 0 0; /* Remove padding around headers */
+    -fx-border-color: transparent transparent #e0e0e0 transparent; /* Light grey line across bottom */
+    -fx-border-width: 0 0 1 0;
+}
+
+.queue-tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 15 30 15 30;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 3 0; /* Bottom border for selection */
+    -fx-border-color: transparent;
+}
+
+.queue-tab-pane .tab:selected {
+    -fx-border-color: -primary-green; /* Active green underline */
+}
+
+.queue-tab-pane .tab-label {
+    -fx-text-fill: #666666;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+.queue-tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -primary-green;
+    -fx-font-weight: bold;
+}
+
+.queue-tab-pane .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 20 0 0 0;
+}
+
+/* --- QUEUE CARD STYLES --- */
+
+/* Base Card */
+.q-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-padding: 15 20;
+    -fx-border-color: #f0f0f0;
+}
+
+/* 1. Waiting Queue Card Specifics */
+.q-card-waiting {
+    /* Standard white card styling from .q-card */
+}
+
+.queue-number-circle {
+    -fx-background-color: #0b7d56; /* Green circle */
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-alignment: CENTER;
+}
+
+.queue-number-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.wait-time-text {
+    -fx-text-fill: #e67e22; /* Orange for wait time */
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.icon-btn-trash {
+    -fx-background-color: #555;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+    -fx-background-radius: 4;
+}
+.icon-btn-trash:hover { -fx-background-color: #333; }
+
+/* 2. In Progress Card Specifics */
+.q-card-progress {
+    -fx-background-color: #f0f8ff; /* Light Blue BG */
+    -fx-border-color: #add8e6;     /* Light Blue Border */
+    -fx-effect: none;
+}
+
+.avatar-circle-blue {
+    -fx-fill: #2196f3;
+}
+
+/* 3. Completed Card Specifics */
+.q-card-completed {
+    -fx-background-color: #f1f8f3; /* Light Green BG */
+    -fx-border-color: #c8e6c9;     /* Light Green Border */
+    -fx-effect: none;
+}
+
+.btn-view-details {
+    -fx-background-color: transparent;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 4;
+    -fx-text-fill: #333;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+.btn-view-details:hover {
+    -fx-background-color: white;
+}
+
+/* Badges */
+.badge-pill {
+    -fx-padding: 3 10;
+    -fx-background-radius: 15;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-blue {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #2196f3;
+}
+
+.badge-red {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #f44336;
+}
+
+.badge-consulting {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+}
+
+/* Text Utilities */
+.text-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+.text-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #777;
+}
+.text-sub {
+    -fx-font-size: 13px;
+    -fx-text-fill: #555;
+}
+* Filter Bar */
+.filter-bar-container {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-padding: 15;
+}
+
+.search-field {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 12;
+}
+
+.combo-box-filter {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.btn-filter-outline {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-text-fill: #333;
+    -fx-cursor: hand;
+    -fx-padding: 8 15;
+}
+.btn-filter-outline:hover { -fx-background-color: #f9f9f9; }
+
+.btn-export-green {
+    -fx-background-color: -primary-green;
+    -fx-text-fill: white;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-padding: 8 15;
+}
+.btn-export-green:hover { -fx-background-color: #096646; }
+
+/* Records Table */
+.records-table-header {
+    -fx-background-color: -primary-green;
+    -fx-padding: 15 20;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.records-col-header {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.records-table-row {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+    -fx-padding: 15 20;
+}
+.records-table-row:hover { -fx-background-color: #fafafa; }
+
+/* Table Text Styles */
+.text-id-bold {
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-font-size: 13px;
+}
+.text-cell {
+    -fx-text-fill: #555;
+    -fx-font-size: 13px;
+}
+
+/* Specific Badges for Records */
+.badge-treatment {
+    -fx-background-color: #fff3cd; /* Light Yellow */
+    -fx-text-fill: #856404;        /* Dark Yellow/Brown */
+    -fx-background-radius: 12;
+    -fx-padding: 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-discharged {
+    -fx-background-color: #d4edda; /* Light Green */
+    -fx-text-fill: #155724;        /* Dark Green */
+    -fx-background-radius: 12;
+    -fx-padding: 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-active-blue {
+    -fx-background-color: #cce5ff; /* Light Blue */
+    -fx-text-fill: #004085;        /* Dark Blue */
+    -fx-background-radius: 12;
+    -fx-padding: 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Action Icons */
+.btn-icon-view {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5;
+}
+.btn-icon-view:hover { -fx-background-color: #e8f5e9; -fx-background-radius: 4; }
+
+.btn-icon-calendar {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5;
+}
