@@ -19,7 +19,8 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<!-- Linked to DashboardController in the specified package -->
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
@@ -45,18 +46,19 @@
                 </HBox>
 
                 <!-- Navigation -->
-                <Button maxWidth="Infinity" styleClass="nav-button, active" text="Current Patient">
+                <Button fx:id="btnCurrentPatient" onAction="#handleNavCurrentPatient" maxWidth="Infinity" styleClass="nav-button, active" text="Current Patient">
                     <graphic>
-                        <!-- Icon simulation -->
                         <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
+
+                <Button fx:id="btnQueue" onAction="#handleNavQueue" maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
                     <graphic>
                         <SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
-                <Button maxWidth="Infinity" styleClass="nav-button" text="Patient Records">
+
+                <Button fx:id="btnRecords" onAction="#handleNavRecords" maxWidth="Infinity" styleClass="nav-button" text="Patient Records">
                     <graphic>
                         <SVGPath content="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" scaleX="0.7" scaleY="0.7" />
                     </graphic>
@@ -78,7 +80,7 @@
                             </VBox>
                         </children>
                     </HBox>
-                    <Button maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                    <Button fx:id="btnLogout" onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
                 </VBox>
             </children>
         </VBox>
@@ -112,13 +114,10 @@
                                     <children>
                                         <Label styleClass="stat-title" text="Total Today" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <Label styleClass="stat-value" text="129" />
-                                                <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
-                                                <Region HBox.hgrow="ALWAYS" />
-                                                <!-- Fake Chart Line -->
-                                                <SVGPath content="M0 20 Q10 10 20 20 T40 10 T60 20 T80 5" fill="TRANSPARENT" stroke="#4ecdc4" strokeWidth="2" />
-                                            </children>
+                                            <Label fx:id="totalTodayLabel" styleClass="stat-value" text="129" />
+                                            <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <SVGPath content="M0 20 Q10 10 20 20 T40 10 T60 20 T80 5" fill="TRANSPARENT" stroke="#4ecdc4" strokeWidth="2" />
                                         </HBox>
                                         <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
                                     </children>
@@ -129,12 +128,10 @@
                                     <children>
                                         <Label styleClass="stat-title" text="Waiting" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <Label styleClass="stat-value" text="30" />
-                                                <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
-                                                <Region HBox.hgrow="ALWAYS" />
-                                                <SVGPath content="M0 25 Q10 25 20 15 T40 20 T60 10 T80 20" fill="TRANSPARENT" stroke="#96f233" strokeWidth="2" />
-                                            </children>
+                                            <Label fx:id="waitingLabel" styleClass="stat-value" text="30" />
+                                            <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <SVGPath content="M0 25 Q10 25 20 15 T40 20 T60 10 T80 20" fill="TRANSPARENT" stroke="#96f233" strokeWidth="2" />
                                         </HBox>
                                         <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
                                     </children>
@@ -145,12 +142,10 @@
                                     <children>
                                         <Label styleClass="stat-title" text="Avg. Wait Time" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <children>
-                                                <Label styleClass="stat-value" text="129" />
-                                                <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
-                                                <Region HBox.hgrow="ALWAYS" />
-                                                <SVGPath content="M0 20 L20 25 L40 15 L60 25 L80 10" fill="TRANSPARENT" stroke="#4ecdc4" strokeWidth="2" />
-                                            </children>
+                                            <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="129" />
+                                            <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <SVGPath content="M0 20 L20 25 L40 15 L60 25 L80 10" fill="TRANSPARENT" stroke="#4ecdc4" strokeWidth="2" />
                                         </HBox>
                                         <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
                                     </children>
@@ -184,25 +179,25 @@
                                                 <VBox styleClass="info-box">
                                                     <children>
                                                         <Label styleClass="info-label" text="Patient ID" />
-                                                        <Label styleClass="info-value" text="A145" />
+                                                        <Label fx:id="patientIdLabel" styleClass="info-value" text="A145" />
                                                     </children>
                                                 </VBox>
                                                 <VBox styleClass="info-box" GridPane.columnIndex="1">
                                                     <children>
                                                         <Label styleClass="info-label" text="Name" />
-                                                        <Label styleClass="info-value" text="Patrick Claridad" />
+                                                        <Label fx:id="patientNameLabel" styleClass="info-value" text="Patrick Claridad" />
                                                     </children>
                                                 </VBox>
                                                 <VBox styleClass="info-box" GridPane.columnIndex="2">
                                                     <children>
                                                         <Label styleClass="info-label" text="Chief Complaint" />
-                                                        <Label styleClass="info-value" text="Backburner" />
+                                                        <Label fx:id="chiefComplaintLabel" styleClass="info-value" text="Backburner" />
                                                     </children>
                                                 </VBox>
                                                 <VBox styleClass="info-box" GridPane.columnIndex="3">
                                                     <children>
                                                         <Label styleClass="info-label" text="Age" />
-                                                        <Label styleClass="info-value" text="51" />
+                                                        <Label fx:id="patientAgeLabel" styleClass="info-value" text="51" />
                                                     </children>
                                                 </VBox>
                                             </children>
@@ -215,18 +210,18 @@
                                             <children>
                                                 <VBox>
                                                     <Label styleClass="form-label" text="Medication" />
-                                                    <TextField promptText="Enter Medication Name" />
+                                                    <TextField fx:id="medicationField" promptText="Enter Medication Name" />
                                                 </VBox>
 
                                                 <HBox spacing="20.0">
                                                     <children>
                                                         <VBox HBox.hgrow="ALWAYS">
                                                             <Label styleClass="form-label" text="Dosage" />
-                                                            <TextField promptText="e.g., 500 mg" />
+                                                            <TextField fx:id="dosageField" promptText="e.g., 500 mg" />
                                                         </VBox>
                                                         <VBox HBox.hgrow="ALWAYS">
                                                             <Label styleClass="form-label" text="Frequency" />
-                                                            <TextField promptText="e.g., 3x daily" />
+                                                            <TextField fx:id="frequencyField" promptText="e.g., 3x daily" />
                                                         </VBox>
                                                     </children>
                                                 </HBox>
@@ -234,7 +229,7 @@
                                                 <VBox>
                                                     <Label styleClass="form-label" text="Consultation Notes" />
                                                     <Label styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Consultation Notes" />
-                                                    <TextArea prefHeight="100.0" promptText="Add consultation notes..." wrapText="true" />
+                                                    <TextArea fx:id="consultationNotesArea" prefHeight="100.0" promptText="Add consultation notes..." wrapText="true" />
                                                 </VBox>
                                             </children>
                                         </VBox>
@@ -242,7 +237,7 @@
                                         <!-- Footer Action -->
                                         <HBox alignment="CENTER_RIGHT" >
                                             <children>
-                                                <Button styleClass="action-button" text="   Complete Treatment   ">
+                                                <Button onAction="#handleCompleteTreatment" styleClass="action-button" text="   Complete Treatment   ">
                                                     <graphic>
                                                         <SVGPath content="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
                                                     </graphic>

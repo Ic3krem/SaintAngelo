@@ -260,3 +260,25 @@
     -fx-border-width: 2;
     -fx-font-weight: bold;
 }
+/* ACTION MENU BUTTON STYLES (NEW) */
+.action-menu-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.action-menu-button .label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1a1a1a;
+    -fx-padding: 1;
+}
+
+/* Hide the default arrow on the menu button to make it look like just "..." */
+.action-menu-button .arrow-button {
+    -fx-padding: 0;
+}
+.action-menu-button .arrow {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
