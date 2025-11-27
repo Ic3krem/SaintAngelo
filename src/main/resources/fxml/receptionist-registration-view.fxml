@@ -15,7 +15,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.SVGPath?>
 
-<BorderPane fx:controller="com.stangelo.saintangelo.controllers.RegistrationController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="900.0" minWidth="1440.0" stylesheets="@../css/registration.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:controller="com.stangelo.saintangelo.controllers.RegistrationController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="900.0" minWidth="1440.0" stylesheets="@../css/reception-registration.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    
    <!-- Sidebar -->
    <left>
