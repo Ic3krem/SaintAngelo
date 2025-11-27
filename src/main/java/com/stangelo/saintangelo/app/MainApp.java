@@ -2,7 +2,9 @@ package com.stangelo.saintangelo.app;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -11,10 +13,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -75,33 +80,72 @@ public class MainApp extends Application {
             primaryStage.setY(event.getScreenY() - yOffset);
         });
 
-        BorderPane root = new BorderPane();
+        // This is the Login Screen Root
+        BorderPane loginRoot = new BorderPane();
+        loginRoot.setStyle("-fx-background-color: transparent;");
+        loginRoot.setTop(titleBar);
+        loginRoot.setCenter(fxmlRoot);
 
-        // CHANGED: Set root background to transparent
-        root.setStyle("-fx-background-color: transparent;");
+        // --- SPLASH SCREEN SETUP ---
+        StackPane splashScreen = new StackPane();
+        splashScreen.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 30;"); // Match app theme
 
-        root.setTop(titleBar);
-        root.setCenter(fxmlRoot);
+        try {
+            // Attempt to load the logo
+            ImageView splashImage = new ImageView(new Image(getClass().getResourceAsStream("/images/cover2.png")));
+            splashImage.setFitWidth(700);
+            splashImage.setFitHeight(500);
+            splashImage.setPreserveRatio(true);
+            splashScreen.getChildren().add(splashImage);
+        } catch (Exception e) {
+            // Fallback text if image not found
+            Label splashLabel = new Label("St. Angelo");
+            splashLabel.setTextFill(Color.WHITE);
+            splashLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Segoe UI';");
+            splashScreen.getChildren().add(splashLabel);
+        }
 
-        // --- ANIMATION SETUP START ---
-        // 1. Initial State: Invisible and slightly smaller
-        root.setOpacity(0);
-        root.setScaleX(0.95);
-        root.setScaleY(0.95);
-        // --- ANIMATION SETUP END ---
+        // --- ROOT CONTAINER (Holds Splash + Login) ---
+        StackPane mainContainer = new StackPane();
+        mainContainer.setStyle("-fx-background-color: transparent;");
+        mainContainer.getChildren().addAll(loginRoot, splashScreen); // Splash is on top
 
-        Scene scene = new Scene(root);
+        // --- PREPARE ANIMATION STATES ---
+        // 1. Hide Login Screen initially
+        loginRoot.setOpacity(0);
+        loginRoot.setScaleX(0.95);
+        loginRoot.setScaleY(0.95);
+
+        Scene scene = new Scene(mainContainer);
         scene.getStylesheets().add(getClass().getResource("/css/main-app.css").toExternalForm());
-
-        // CHANGED: Set scene fill to transparent so the background styling shows through
         scene.setFill(Color.TRANSPARENT);
 
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        // --- PLAY GRANDIOSE ANIMATION ---
-        playEntranceAnimation(root);
+        // --- PLAY ANIMATION SEQUENCE ---
+        playStartupSequence(splashScreen, loginRoot, mainContainer);
+    }
+
+    private void playStartupSequence(StackPane splashScreen, BorderPane loginRoot, StackPane mainContainer) {
+        // 1. Wait for 2 seconds (Display Splash)
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+
+        // 2. Fade Out Splash Screen
+        FadeTransition fadeSplash = new FadeTransition(Duration.seconds(0.8), splashScreen);
+        fadeSplash.setFromValue(1.0);
+        fadeSplash.setToValue(0.0);
+
+        // 3. When Fade Out finishes, remove Splash and play Login Entrance
+        fadeSplash.setOnFinished(e -> {
+            mainContainer.getChildren().remove(splashScreen);
+            playEntranceAnimation(loginRoot);
+        });
+
+        // Execute Sequence
+        SequentialTransition sequence = new SequentialTransition(pause, fadeSplash);
+        sequence.play();
     }
 
     private void playEntranceAnimation(BorderPane root) {
