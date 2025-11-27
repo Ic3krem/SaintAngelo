@@ -23,6 +23,7 @@
 
 <!-- Linked to DashboardController in the specified package -->
 
+<?import javafx.scene.text.Font?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
 
     <!-- LEFT SIDEBAR -->
@@ -32,17 +33,18 @@
                 <!-- Logo Section -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Pane prefHeight="79.0" prefWidth="58.0">
-                            <children>
-                                <ImageView fitHeight="70.0" fitWidth="79.0" layoutX="-6.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../images/logo.png" />
-                                    </image>
-                                </ImageView>
-                            </children>
+                        <Pane prefHeight="56.0" prefWidth="60.0">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/logo.png" />
+                                </image>
+                            </ImageView>
                         </Pane>
-                        <VBox alignment="CENTER_LEFT" prefHeight="46.0" prefWidth="151.0">
-                            <Text styleClass="logo-text" text="St. Angelo" wrappingWidth="133.20703268051147" />
+                        <VBox alignment="CENTER_LEFT">
+                            <Text styleClass="logo-text" text="St. Angelo" wrappingWidth="97.20703125">
+                                <font>
+                                    <Font size="24.0" />
+                                </font></Text>
                             <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
                         </VBox>
                     </children>
