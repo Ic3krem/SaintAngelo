@@ -1,18 +1,23 @@
 package com.stangelo.saintangelo.controllers;
 
+import com.stangelo.saintangelo.services.QueueService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.ResourceBundle;
 
-public class PublicViewController {
+public class PublicViewController implements Initializable {
 
     @FXML
     private Label timeLabel;
@@ -26,13 +31,13 @@ public class PublicViewController {
     @FXML
     private HBox nextQueueBox;
 
-    // Formatters for the time and date
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
+    private static final int MAX_QUEUE_NUMBER = 260;
 
-    @FXML
-    public void initialize() {
-        // Start a timeline to update the time and date every second
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {
             LocalDateTime now = LocalDateTime.now();
             timeLabel.setText(now.format(TIME_FORMATTER));
@@ -41,28 +46,33 @@ public class PublicViewController {
         clock.setCycleCount(Animation.INDEFINITE);
         clock.play();
 
-        // In a real application, you would fetch the queue data from your QueueService here
-        // and update the labels accordingly.
-        // For now, we'll just use the placeholder data from the FXML.
+        if (nowServingNumberLabel != null) {
+            nowServingNumberLabel.textProperty().bind(QueueService.queueNumberAsStringBinding());
+        }
+
+        QueueService.currentQueueNumberProperty().addListener((obs, oldVal, newVal) -> {
+            updateNextInQueue(newVal.intValue());
+        });
+
+        updateNextInQueue(QueueService.getCurrentQueueNumber());
     }
 
-    /**
-     * This method would be called by a service to update the "Now Serving" display.
-     * @param ticketNumber The new ticket number to display.
-     */
-    public void updateNowServing(String ticketNumber) {
-        nowServingNumberLabel.setText(ticketNumber);
-    }
+    private void updateNextInQueue(int currentNumber) {
+        nextQueueBox.getChildren().clear();
+        for (int i = 1; i <= 5; i++) {
+            // Calculate the next number with looping
+            int nextNumber = (currentNumber + i -1) % MAX_QUEUE_NUMBER + 1;
+            String formattedNumber = QueueService.formatQueueNumber(nextNumber);
 
-    /**
-     * This method would be called by a service to update the "Next in Queue" list.
-     * @param nextTickets A list of the next ticket numbers.
-     */
-    public void updateNextInQueue(List<String> nextTickets) {
-        nextQueueBox.getChildren().clear(); // Clear the existing items
-        for (String ticketNumber : nextTickets) {
-            // You would create a new VBox with the correct style classes and add it here
-            // For simplicity, this part is left as an exercise.
+            Label numberLabel = new Label(formattedNumber);
+            numberLabel.getStyleClass().add("next-queue-number");
+
+            VBox queueItem = new VBox(numberLabel);
+            queueItem.getStyleClass().add("next-queue-item");
+            queueItem.setAlignment(Pos.CENTER);
+            HBox.setHgrow(queueItem, javafx.scene.layout.Priority.ALWAYS);
+
+            nextQueueBox.getChildren().add(queueItem);
         }
     }
 }

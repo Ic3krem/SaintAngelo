@@ -148,11 +148,11 @@
                                             <Label styleClass="serving-section-title" text="Current Number Being Served" />
                                             <VBox styleClass="serving-card-gradient">
                                                 <children>
-                                                    <Label styleClass="serving-number-huge" text="A042" />
+                                                    <Label fx:id="queueNumberLabel" styleClass="serving-number-huge" text="0" />
                                                     <Label styleClass="serving-status-label" text="Now Serving" />
                                                 </children>
                                             </VBox>
-                                            <Button maxWidth="Infinity" styleClass="btn-call-next" text="Call Next Number" />
+                                            <Button onAction="#handleNextQueueNumber" maxWidth="Infinity" styleClass="btn-call-next" text="Call Next Number" />
                                         </VBox>
                                     </children>
                                 </VBox>

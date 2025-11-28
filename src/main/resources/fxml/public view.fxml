@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.SVGPath?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<StackPane fx:controller="com.stangelo.saintangelo.controllers.PublicViewController" stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
    <VBox alignment="TOP_CENTER" spacing="40.0">
       <padding>
          <Insets bottom="48.0" left="48.0" right="48.0" top="48.0" />
@@ -34,7 +31,7 @@
          
          <!-- The Card -->
          <StackPane styleClass="now-serving-card" VBox.vgrow="ALWAYS">
-            <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="A000" />
+            <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="0" />
             <VBox.margin>
                <Insets bottom="20.0" top="10.0" />
             </VBox.margin>
@@ -50,23 +47,7 @@
          </HBox>
          
          <!-- Horizontal List of Numbers -->
-         <HBox fx:id="nextQueueBox" alignment="CENTER_LEFT" spacing="20.0">
-            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-               <Label styleClass="next-queue-number" text="A000" />
-            </VBox>
-            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-               <Label styleClass="next-queue-number" text="A000" />
-            </VBox>
-            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-               <Label styleClass="next-queue-number" text="A000" />
-            </VBox>
-            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-               <Label styleClass="next-queue-number" text="A000" />
-            </VBox>
-            <VBox styleClass="next-queue-item" HBox.hgrow="ALWAYS">
-               <Label styleClass="next-queue-number" text="A000" />
-            </VBox>
-         </HBox>
+         <HBox fx:id="nextQueueBox" alignment="CENTER_LEFT" spacing="20.0" />
       </VBox>
       
    </VBox>

@@ -1,5 +1,6 @@
 package com.stangelo.saintangelo.controllers;
 
+import com.stangelo.saintangelo.services.QueueService;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,6 +36,7 @@ public class ReceptionDashboardController implements Initializable {
     @FXML private Button btnTabExisting;
     @FXML private VBox formNewPatient;
     @FXML private VBox formExistingPatient;
+    @FXML private Label queueNumberLabel;
 
     // Discharge Modal
     @FXML private StackPane modalOverlay;
@@ -42,7 +44,15 @@ public class ReceptionDashboardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialization logic
+        if (queueNumberLabel != null) {
+            queueNumberLabel.textProperty().bind(QueueService.queueNumberAsStringBinding());
+        }
+    }
+
+    // --- QUEUE HANDLERS ---
+    @FXML
+    private void handleNextQueueNumber(ActionEvent event) {
+        QueueService.incrementQueueNumber();
     }
 
     // --- DISCHARGE MODAL HANDLERS ---
