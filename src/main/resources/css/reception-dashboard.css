@@ -270,3 +270,543 @@
     -fx-background-color: #f3f4f6;
     -fx-border-color: #d1d5db;
 }
+/* Import base styles from medical-dashboard.css to reuse queue card styles and global theme */
+@import "medical-dashboard.css";
+
+/* --- RECEPTION SPECIFIC STYLES --- */
+
+/* Main Layout Spacing */
+.dashboard-grid {
+    -fx-hgap: 20;
+    -fx-vgap: 20;
+}
+
+/* --- RECEPTION NAV BUTTONS (Overrides if needed) --- */
+/* (Currently inheriting from medical-dashboard.css) */
+
+/* --- TICKET GENERATED SCREEN STYLES --- */
+.ticket-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);
+    -fx-padding: 50;
+    -fx-alignment: CENTER;
+    -fx-min-width: 400;
+    -fx-max-width: 450;
+    -fx-min-height: 550;
+}
+
+.ticket-icon-bg {
+    -fx-fill: #e6f7f0;
+}
+
+.ticket-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+}
+
+.ticket-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666;
+}
+
+.ticket-number-box {
+    -fx-background-color: linear-gradient(to bottom right, #1b8a5a, #a3cfbb);
+    -fx-background-radius: 15;
+    -fx-padding: 60 40;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.ticket-number-big {
+    -fx-font-size: 72px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.btn-print {
+    -fx-background-color: #046c4e;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+}
+.btn-print:hover {
+    -fx-background-color: #03543d;
+}
+
+.btn-new-ticket {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-text-fill: #1a1a1a;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+}
+.btn-new-ticket:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #d1d5db;
+}
+
+/* --- REGISTRATION SCREEN STYLES --- */
+.reg-tab-header {
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+.reg-tab-btn {
+    -fx-background-radius: 10 10 0 0;
+    -fx-padding: 15 25;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+}
+
+.reg-tab-active {
+    -fx-background-color: #046c4e;
+    -fx-text-fill: white;
+}
+
+.reg-tab-inactive {
+    -fx-background-color: #92c5b0;
+    -fx-text-fill: white;
+}
+.reg-tab-inactive:hover {
+    -fx-background-color: #7ab39b;
+}
+
+.reg-form-card {
+    -fx-background-color: white;
+    -fx-background-radius: 0 10 10 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 40;
+}
+
+.reg-form-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #1a1a1a;
+    -fx-padding: 0 0 5 0;
+}
+
+.reg-text-field, .reg-text-area, .reg-combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+}
+
+.reg-text-field:focused, .reg-text-area:focused, .reg-combo-box:focused {
+    -fx-border-color: #046c4e;
+}
+
+.reg-combo-box {
+    -fx-padding: 2;
+}
+
+.btn-get-queue {
+    -fx-background-color: #046c4e;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 12 25;
+    -fx-cursor: hand;
+}
+.btn-get-queue:hover {
+    -fx-background-color: #03543d;
+}
+
+/* --- RECEPTION DASHBOARD STATS --- */
+.stat-card-reception {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 20;
+}
+
+/* --- CENTER PANEL: CURRENT NUMBER --- */
+.serving-section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+}
+
+.serving-card-gradient {
+    -fx-background-color: linear-gradient(to bottom right, #0F8A5F, #0b7d56);
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 5);
+    -fx-padding: 40;
+    -fx-alignment: CENTER;
+    -fx-min-height: 250;
+}
+
+.serving-number-huge {
+    -fx-font-size: 80px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
+}
+
+.serving-status-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: rgba(255,255,255,0.8);
+}
+
+.btn-call-next {
+    -fx-background-color: #046c4e;
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 15 20;
+    -fx-alignment: CENTER;
+}
+.btn-call-next:hover {
+    -fx-background-color: #03543d;
+}
+
+/* --- RIGHT PANEL: RECENT CALLS --- */
+.recent-calls-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 25;
+}
+
+.section-header {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+    -fx-padding: 0 0 15 0;
+}
+
+.recent-call-card {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 8;
+    -fx-padding: 12 15;
+}
+
+.ticket-id {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #046c4e;
+}
+
+.call-time-small {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6b7280;
+}
+
+.call-category {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4b5563;
+}
+
+.badge-regular-call {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-emergency-call {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #b91c1c;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+/* --- APPOINTMENTS SCREEN STYLES --- */
+
+/* Calendar Container */
+.calendar-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 20;
+}
+
+.calendar-header-nav {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 15 0;
+}
+
+.calendar-month-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+}
+
+/* Calendar Grid */
+.calendar-grid {
+    -fx-background-color: #f3f4f6;
+    -fx-hgap: 1;
+    -fx-vgap: 1;
+    -fx-padding: 1; /* Thin lines between cells via background showing through */
+}
+
+/* Day Headers (Mon, Tue...) */
+.calendar-day-header {
+    -fx-background-color: #f9fafb;
+    -fx-alignment: CENTER;
+    -fx-padding: 10;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+}
+
+/* Date Cells */
+.calendar-cell {
+    -fx-background-color: white;
+    -fx-min-height: 80; /* Height of each day box */
+    -fx-padding: 5;
+    -fx-alignment: TOP_LEFT;
+}
+.calendar-cell:hover {
+    -fx-background-color: #f9f9f9;
+}
+
+.calendar-date-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.calendar-date-inactive {
+    -fx-text-fill: #d1d5db; /* Greyed out for prev/next month dates */
+}
+
+/* Appointment Pills inside Calendar */
+.appt-pill {
+    -fx-background-radius: 3;
+    -fx-padding: 2 5;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+    -fx-max-width: infinity;
+}
+
+.appt-pill-urgent {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #b91c1c;
+}
+
+.appt-pill-checkup {
+    -fx-background-color: #e6f4ea;
+    -fx-text-fill: #137333;
+}
+
+/* Form Styles (Reusing generic form styles, adding specific tweaks) */
+.appt-form-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 25;
+}
+
+.form-section-header {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0b7d56;
+    -fx-padding: 0 0 10 0;
+}
+
+.btn-book-appt {
+    -fx-background-color: #0b7d56;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+}
+.btn-book-appt:hover {
+    -fx-background-color: #096646;
+}
+/* --- DISCHARGE SCREEN STYLES --- */
+
+/* Filter Bar */
+.filter-bar-container {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-padding: 15;
+}
+
+.search-field-container {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 12;
+}
+
+/* Table Layout */
+.table-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 0 0 10 0;
+}
+
+.table-header-row {
+    -fx-background-color: -primary-green; /* #0b7d56 */
+    -fx-padding: 15 25;
+    -fx-background-radius: 10 10 0 0;
+}
+
+.table-header-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.table-data-row {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+    -fx-padding: 15 25;
+    -fx-alignment: CENTER_LEFT;
+}
+.table-data-row:hover {
+    -fx-background-color: #fafafa;
+}
+
+/* Status Badges */
+.badge-ready {
+    -fx-background-color: #e6f4ea;
+    -fx-text-fill: #137333;
+    -fx-background-radius: 15;
+    -fx-padding: 4 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-pending-review {
+    -fx-background-color: #fff3e0;
+    -fx-text-fill: #e65100;
+    -fx-background-radius: 15;
+    -fx-padding: 4 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-cleared {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+    -fx-background-radius: 15;
+    -fx-padding: 4 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Action Buttons */
+.btn-action-process {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e65100;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+    -fx-border-color: #e65100;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+.btn-action-process:hover {
+    -fx-background-color: #fff3e0;
+}
+
+.btn-action-discharge {
+    -fx-background-color: transparent;
+    -fx-text-fill: -primary-green;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+    -fx-border-color: -primary-green;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+.btn-action-discharge:hover {
+    -fx-background-color: #e6f4ea;
+}
+
+/* --- REVIEW POPUP MODAL --- */
+.modal-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 5);
+    -fx-padding: 30;
+    -fx-min-width: 500;
+    -fx-max-width: 600;
+}
+
+.modal-header {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -primary-green;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 0 15 0;
+}
+
+.modal-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #666;
+}
+
+.modal-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+    -fx-wrap-text: true;
+}
+
+.modal-section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0b7d56;
+    -fx-padding: 10 0 5 0;
+}
+
+.btn-reviewed {
+    -fx-background-color: #0b7d56;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 25;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+.btn-reviewed:hover {
+    -fx-background-color: #096646;
+}
+
+.btn-close-modal {
+    -fx-background-color: transparent;
+    -fx-text-fill: #666;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+}

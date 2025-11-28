@@ -17,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -29,55 +30,118 @@ import java.util.ResourceBundle;
 
 public class ReceptionDashboardController implements Initializable {
 
-    // --- FXML INJECTIONS FOR REGISTRATION TABS ---
+    // --- FXML INJECTIONS ---
     @FXML private Button btnTabNew;
     @FXML private Button btnTabExisting;
     @FXML private VBox formNewPatient;
     @FXML private VBox formExistingPatient;
 
+    // Discharge Modal
+    @FXML private StackPane modalOverlay;
+    private Button currentProcessButton; // To track which button opened the modal
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Default initialization if needed
+        // Initialization logic
+    }
+
+    // --- DISCHARGE MODAL HANDLERS ---
+
+    @FXML
+    private void handleProcess(ActionEvent event) {
+        // Store reference to the button that was clicked
+        currentProcessButton = (Button) event.getSource();
+
+        // Show the modal
+        if (modalOverlay != null) {
+            modalOverlay.setVisible(true);
+            modalOverlay.setManaged(true);
+
+            // Optional: Simple fade in
+            FadeTransition ft = new FadeTransition(Duration.millis(200), modalOverlay);
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.play();
+        }
+    }
+
+    @FXML
+    private void handleCloseModal(ActionEvent event) {
+        closeModal();
+    }
+
+    @FXML
+    private void handleReviewed(ActionEvent event) {
+        // Close the modal
+        closeModal();
+
+        // Update the button if it exists
+        if (currentProcessButton != null) {
+            currentProcessButton.setText("Discharge");
+
+            // Remove old styling classes
+            currentProcessButton.getStyleClass().remove("btn-action-process");
+
+            // Add new styling class
+            currentProcessButton.getStyleClass().add("btn-action-discharge");
+
+            // Update the handler to perform the actual discharge (or disable it)
+            currentProcessButton.setOnAction(e -> {
+                System.out.println("Discharging patient...");
+                currentProcessButton.setDisable(true);
+                currentProcessButton.setText("Discharged");
+            });
+        }
+    }
+
+    private void closeModal() {
+        if (modalOverlay != null) {
+            modalOverlay.setVisible(false);
+            modalOverlay.setManaged(false);
+        }
     }
 
     // --- REGISTRATION TAB HANDLERS ---
 
     @FXML
     private void handleTabNewPatient(ActionEvent event) {
-        // 1. Update Styles
-        btnTabNew.getStyleClass().removeAll("reg-tab-inactive");
-        btnTabNew.getStyleClass().add("reg-tab-active");
-
-        btnTabExisting.getStyleClass().removeAll("reg-tab-active");
-        btnTabExisting.getStyleClass().add("reg-tab-inactive");
-
-        // 2. Switch Visibility
-        if (formNewPatient != null && formExistingPatient != null) {
-            formNewPatient.setVisible(true);
-            formNewPatient.setManaged(true);
-
-            formExistingPatient.setVisible(false);
-            formExistingPatient.setManaged(false);
+        if(btnTabNew != null && formNewPatient != null) {
+            setTabActive(btnTabNew, formNewPatient);
+            setTabInactive(btnTabExisting, formExistingPatient);
         }
     }
 
     @FXML
     private void handleTabExistingPatient(ActionEvent event) {
-        // 1. Update Styles
-        btnTabExisting.getStyleClass().removeAll("reg-tab-inactive");
-        btnTabExisting.getStyleClass().add("reg-tab-active");
-
-        btnTabNew.getStyleClass().removeAll("reg-tab-active");
-        btnTabNew.getStyleClass().add("reg-tab-inactive");
-
-        // 2. Switch Visibility
-        if (formNewPatient != null && formExistingPatient != null) {
-            formExistingPatient.setVisible(true);
-            formExistingPatient.setManaged(true);
-
-            formNewPatient.setVisible(false);
-            formNewPatient.setManaged(false);
+        if(btnTabExisting != null && formExistingPatient != null) {
+            setTabActive(btnTabExisting, formExistingPatient);
+            setTabInactive(btnTabNew, formNewPatient);
         }
+    }
+
+    private void setTabActive(Button btn, VBox form) {
+        btn.getStyleClass().removeAll("reg-tab-inactive");
+        btn.getStyleClass().add("reg-tab-active");
+        if (form != null) {
+            form.setVisible(true);
+            form.setManaged(true);
+        }
+    }
+
+    private void setTabInactive(Button btn, VBox form) {
+        btn.getStyleClass().removeAll("reg-tab-active");
+        btn.getStyleClass().add("reg-tab-inactive");
+        if (form != null) {
+            form.setVisible(false);
+            form.setManaged(false);
+        }
+    }
+
+    // --- QUEUE GENERATION HANDLER ---
+
+    @FXML
+    private void handleGetQueueNumber(ActionEvent event) {
+        loadView(event, "/fxml/reception-ticket-view.fxml");
     }
 
     // --- NAVIGATION HANDLERS ---
@@ -99,12 +163,14 @@ public class ReceptionDashboardController implements Initializable {
 
     @FXML
     private void handleNavAppointments(ActionEvent event) {
-        showAlert(Alert.AlertType.INFORMATION, "Coming Soon", "Appointments module is under development.");
+        // UPDATED: Navigate to Appointments screen
+        loadView(event, "/fxml/receptionist-appointments-view.fxml");
     }
 
     @FXML
     private void handleNavDischarge(ActionEvent event) {
-        showAlert(Alert.AlertType.INFORMATION, "Coming Soon", "Discharge module is under development.");
+        // UPDATED: Navigate to Discharge screen
+        loadView(event, "/fxml/receptionist-discharge-view.fxml");
     }
 
     // --- LOGOUT HANDLER ---
@@ -112,15 +178,19 @@ public class ReceptionDashboardController implements Initializable {
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
+            // 1. Close current dashboard
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
+            // 2. Load Login View
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login-view.fxml"));
             Parent loginView = loader.load();
 
+            // 3. Create New Transparent Stage
             Stage loginStage = new Stage();
             loginStage.initStyle(StageStyle.TRANSPARENT);
 
+            // 4. Reconstruct Title Bar
             HBox titleBar = new HBox();
             titleBar.setAlignment(Pos.CENTER_LEFT);
             titleBar.setPadding(new Insets(10, 5, 5, 10));
@@ -147,6 +217,7 @@ public class ReceptionDashboardController implements Initializable {
             titleBar.getChildren().addAll(titleLabel, spacer, controlButtons);
             titleBar.setPadding(new Insets(10, 40, 10, 10));
 
+            // Dragging Logic
             final double[] xOffset = {0};
             final double[] yOffset = {0};
             titleBar.setOnMousePressed(e -> {
@@ -158,17 +229,18 @@ public class ReceptionDashboardController implements Initializable {
                 loginStage.setY(e.getScreenY() - yOffset[0]);
             });
 
+            // 5. Wrap Login View
             BorderPane root = new BorderPane();
             root.setStyle("-fx-background-color: transparent;");
             root.setTop(titleBar);
             root.setCenter(loginView);
 
+            // 6. Set Scene
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             scene.getStylesheets().add(getClass().getResource("/css/main-app.css").toExternalForm());
 
             loginStage.setScene(scene);
-            loginStage.setResizable(false);
             loginStage.show();
 
         } catch (IOException e) {

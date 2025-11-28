@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Pane prefHeight="40.0" prefWidth="40.0">
+                            <children>
+                                <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
+                                <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
+                            </children>
+                        </Pane>
+                        <VBox alignment="CENTER_LEFT">
+                            <Text styleClass="logo-text" text="St. Angelo" />
+                            <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
+                        </VBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="30.0" />
+                    </VBox.margin>
+                </HBox>
+
+                <!-- Navigation with Actions -->
+                <Button onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="nav-button" text="Dashboard">
+                    <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
+                <Button onAction="#handleNavRegistration" maxWidth="Infinity" styleClass="nav-button" text="Registration">
+                    <graphic><SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
+                <Button onAction="#handleNavQueue" maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
+                    <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
+                <Button onAction="#handleNavAppointments" maxWidth="Infinity" styleClass="nav-button" text="Appointments">
+                    <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                </Button>
+                <!-- ACTIVE -->
+                <Button onAction="#handleNavDischarge" maxWidth="Infinity" styleClass="nav-button, active" text="Discharge">
+                    <graphic><SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/></graphic>
+                </Button>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="15.0" styleClass="user-section">
+                    <Separator opacity="0.5" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <children>
+                            <Circle fill="#e0e0e0" radius="20.0" />
+                            <VBox>
+                                <children>
+                                    <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
+                                    <Label style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+                    <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <!-- StackPane allows Modal to sit on top -->
+        <StackPane>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;">
+                <content>
+                    <VBox spacing="25.0" styleClass="content-area">
+                        <children>
+                            <VBox spacing="5.0">
+                                <Text styleClass="page-title" text="Discharge Management" />
+                                <Text styleClass="page-subtitle" text="Process patient discharge and billing" />
+                            </VBox>
+
+                            <!-- ... Filter Bar ... -->
+                            <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="filter-bar-container">
+                                <children>
+                                    <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="search-field-container">
+                                        <children>
+                                            <SVGPath content="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#999" scaleX="0.8" scaleY="0.8" />
+                                            <TextField promptText="Search patient name or ID..." style="-fx-background-color: transparent; -fx-pref-width: 300;" />
+                                        </children>
+                                    </HBox>
+                                    <ComboBox promptText="All Status" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 4;" />
+                                </children>
+                            </HBox>
+
+                            <!-- Discharge Table -->
+                            <VBox styleClass="table-card">
+                                <children>
+                                    <!-- Header Row -->
+                                    <GridPane styleClass="table-header-row">
+                                        <columnConstraints>
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        </columnConstraints>
+                                        <children>
+                                            <Label text="Patient ID" styleClass="table-header-label" />
+                                            <Label text="Name" styleClass="table-header-label" GridPane.columnIndex="1" />
+                                            <Label text="Department" styleClass="table-header-label" GridPane.columnIndex="2" />
+                                            <Label text="Status" styleClass="table-header-label" GridPane.columnIndex="3" />
+                                            <Label text="Action" styleClass="table-header-label" GridPane.columnIndex="4" />
+                                        </children>
+                                    </GridPane>
+
+                                    <!-- Row 1: Ready -->
+                                    <GridPane styleClass="table-data-row">
+                                        <columnConstraints>
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        </columnConstraints>
+                                        <children>
+                                            <Label text="A144" style="-fx-font-weight: bold; -fx-text-fill: #333;" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="Maria Santos" style="-fx-text-fill: #555555;" GridPane.columnIndex="1" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="Cardiology" style="-fx-text-fill: #777777;" GridPane.columnIndex="2" />
+                                            <Label text="Ready" styleClass="badge-ready" GridPane.columnIndex="3" />
+                                            <Button text="Discharge" styleClass="btn-action-discharge" GridPane.columnIndex="4" />
+                                        </children>
+                                    </GridPane>
+
+                                    <!-- Row 2: Pending Process -->
+                                    <GridPane styleClass="table-data-row">
+                                        <columnConstraints>
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        </columnConstraints>
+                                        <children>
+                                            <Label text="A143" style="-fx-font-weight: bold; -fx-text-fill: #333;" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="Juan Dela Cruz" style="-fx-text-fill: #555555;" GridPane.columnIndex="1" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="General" style="-fx-text-fill: #777777;" GridPane.columnIndex="2" />
+                                            <Label text="Pending Review" styleClass="badge-pending-review" GridPane.columnIndex="3" />
+                                            <Button text="Process" onAction="#handleProcess" styleClass="btn-action-process" GridPane.columnIndex="4" />
+                                        </children>
+                                    </GridPane>
+
+                                    <!-- Row 3: Cleared -->
+                                    <GridPane styleClass="table-data-row">
+                                        <columnConstraints>
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
+                                        </columnConstraints>
+                                        <children>
+                                            <Label text="A138" style="-fx-font-weight: bold; -fx-text-fill: #333;" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="Sofia Villanueva" style="-fx-text-fill: #555555;" GridPane.columnIndex="1" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="Orthopedics" style="-fx-text-fill: #777777;" GridPane.columnIndex="2" />
+                                            <Label text="Cleared" styleClass="badge-cleared" GridPane.columnIndex="3" />
+                                            <!-- FIXED: textFill -> style -->
+                                            <Label text="---" style="-fx-text-fill: #999;" GridPane.columnIndex="4" />
+                                        </children>
+                                    </GridPane>
+
+                                </children>
+                            </VBox>
+
+                        </children>
+                        <padding>
+                            <Insets bottom="30.0" />
+                        </padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+            <!-- HIDDEN MODAL OVERLAY -->
+            <StackPane fx:id="modalOverlay" visible="false" managed="false" styleClass="modal-overlay">
+                <children>
+                    <VBox styleClass="modal-card" spacing="15.0" alignment="TOP_CENTER">
+                        <children>
+                            <Label text="Patient Information Review" styleClass="modal-header" maxWidth="Infinity" />
+
+                            <!-- Content Grid -->
+                            <GridPane hgap="20.0" vgap="15.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                                </columnConstraints>
+
+                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Full Name" styleClass="modal-label" />
+                                    <Label text="Juan Dela Cruz" styleClass="modal-value" />
+                                </VBox>
+                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Phone no." styleClass="modal-label" />
+                                    <Label text="0912-345-6789" styleClass="modal-value" />
+                                </VBox>
+
+                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="Age" styleClass="modal-label" />
+                                    <Label text="45" styleClass="modal-value" />
+                                </VBox>
+                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Doctor Assigned" styleClass="modal-label" />
+                                    <Label text="Dr. Sarah Lee" styleClass="modal-value" />
+                                </VBox>
+
+                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                    <Label text="Chief Complaint" styleClass="modal-label" />
+                                    <Label text="High fever and severe headache" styleClass="modal-value" />
+                                </VBox>
+                            </GridPane>
+
+                            <Separator />
+
+                            <Label text="Consultation Details" styleClass="modal-section-title" maxWidth="Infinity" />
+
+                            <VBox spacing="10.0">
+                                <VBox>
+                                    <Label text="Prescription" styleClass="modal-label" />
+                                    <Label text="Paracetamol (500mg) - 3x daily for 5 days" styleClass="modal-value" />
+                                </VBox>
+                                <HBox spacing="20.0">
+                                    <VBox HBox.hgrow="ALWAYS">
+                                        <Label text="Consultation Date" styleClass="modal-label" />
+                                        <Label text="2025-11-28" styleClass="modal-value" />
+                                    </VBox>
+                                </HBox>
+                                <VBox>
+                                    <Label text="Consultation Notes" styleClass="modal-label" />
+                                    <Label text="Patient advised to rest and stay hydrated. Follow up if symptoms persist." styleClass="modal-value" wrapText="true" />
+                                </VBox>
+                            </VBox>
+
+                            <Region VBox.vgrow="ALWAYS" minHeight="20.0" />
+
+                            <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                                <Button text="Cancel" onAction="#handleCloseModal" styleClass="btn-close-modal" />
+                                <Button text="Reviewed" onAction="#handleReviewed" styleClass="btn-reviewed" />
+                            </HBox>
+                        </children>
+                    </VBox>
+                </children>
+            </StackPane>
+        </StackPane>
+    </center>
+</BorderPane>
