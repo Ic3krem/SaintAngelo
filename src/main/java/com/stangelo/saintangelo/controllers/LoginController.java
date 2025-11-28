@@ -52,9 +52,10 @@ public class LoginController {
         } else if ("admin".equals(username) && "password".equals(password)) {
             fxmlFile = "/fxml/admin-dashboard-view.fxml";
             dashboardTitle = "Admin Dashboard";
-        }
-
-        if (fxmlFile != null) {
+        } else if ("public".equals(username) && "password".equals(password)) {
+            fxmlFile = "/fxml/public view.fxml";
+            dashboardTitle = "public Dashboard";
+        } if (fxmlFile != null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
                 Parent dashboardRoot = loader.load();
