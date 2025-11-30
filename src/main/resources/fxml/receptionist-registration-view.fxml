@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.shape.SVGPath?>
-<?import javafx.scene.text.Text?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
@@ -29,11 +16,12 @@
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Pane prefHeight="40.0" prefWidth="40.0">
-                            <children>
-                                <Circle fill="#8dc63f" layoutX="20.0" layoutY="20.0" radius="18.0" />
-                                <SVGPath content="M14 20 L26 20 M20 14 L20 26" stroke="WHITE" strokeWidth="4" />
-                            </children>
+                        <Pane prefHeight="56.0" prefWidth="60.0">
+                            <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/logo.png" />
+                                </image>
+                            </ImageView>
                         </Pane>
                         <VBox alignment="CENTER_LEFT">
                             <Text styleClass="logo-text" text="St. Angelo" />
@@ -46,27 +34,26 @@
                 </HBox>
 
                 <!-- Navigation with Actions -->
-                <Button onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="nav-button" text="Dashboard">
-                    <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/></graphic>
+                <Button maxWidth="Infinity" onAction="#handleNavDashboard" styleClass="nav-button" text="Dashboard">
+                    <graphic><SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#1a1a1a" scaleX="0.7" scaleY="0.7" /></graphic>
                 </Button>
                 <!-- ACTIVE -->
-                <Button onAction="#handleNavRegistration" maxWidth="Infinity" styleClass="nav-button, active" text="Registration">
-                    <graphic><SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="0.7" scaleY="0.7" fill="#1a1a1a"/></graphic>
+                <Button maxWidth="Infinity" onAction="#handleNavRegistration" styleClass="nav-button, active" text="Registration">
+                    <graphic><SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#1a1a1a" scaleX="0.7" scaleY="0.7" /></graphic>
                 </Button>
-                <Button onAction="#handleNavQueue" maxWidth="Infinity" styleClass="nav-button" text="Queue Management">
-                    <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                <Button maxWidth="Infinity" onAction="#handleNavQueue" styleClass="nav-button" text="Queue Management">
+                    <graphic><SVGPath content="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="#666" scaleX="0.7" scaleY="0.7" /></graphic>
                 </Button>
-                <Button onAction="#handleNavAppointments" maxWidth="Infinity" styleClass="nav-button" text="Appointments">
-                    <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                <Button maxWidth="Infinity" onAction="#handleNavAppointments" styleClass="nav-button" text="Appointments">
+                    <graphic><SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" fill="#666" scaleX="0.7" scaleY="0.7" /></graphic>
                 </Button>
-                <Button onAction="#handleNavDischarge" maxWidth="Infinity" styleClass="nav-button" text="Discharge">
-                    <graphic><SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" scaleX="0.7" scaleY="0.7" fill="#666"/></graphic>
+                <Button maxWidth="Infinity" onAction="#handleNavDischarge" styleClass="nav-button" text="Discharge">
+                    <graphic><SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#666" scaleX="0.7" scaleY="0.7" /></graphic>
                 </Button>
 
                 <Region VBox.vgrow="ALWAYS" />
 
                 <VBox spacing="15.0" styleClass="user-section">
-                    <Separator opacity="0.5" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <children>
                             <Circle fill="#e0e0e0" radius="20.0" />
@@ -78,7 +65,7 @@
                             </VBox>
                         </children>
                     </HBox>
-                    <Button onAction="#handleLogout" maxWidth="Infinity" styleClass="logout-button" text="Logout" />
+                    <Button maxWidth="Infinity" onAction="#handleLogout" styleClass="logout-button" text="Logout" />
                 </VBox>
             </children>
         </VBox>
@@ -101,9 +88,9 @@
                             <!-- Tab Headers -->
                             <HBox styleClass="reg-tab-header">
                                 <children>
-                                    <Button fx:id="btnTabNew" text="   +   Patient Registration Form   " styleClass="reg-tab-btn, reg-tab-active" onAction="#handleTabNewPatient" />
-                                    <Button fx:id="btnTabExisting" text="   👤   Existing Patient Form   " styleClass="reg-tab-btn, reg-tab-inactive" onAction="#handleTabExistingPatient" />
-                                    <Region HBox.hgrow="ALWAYS" style="-fx-border-color: transparent transparent transparent transparent; -fx-border-width: 0 0 1 0;" />
+                                    <Button fx:id="btnTabNew" onAction="#handleTabNewPatient" styleClass="reg-tab-btn, reg-tab-active" text="   +   Patient Registration Form   " />
+                                    <Button fx:id="btnTabExisting" onAction="#handleTabExistingPatient" styleClass="reg-tab-btn, reg-tab-inactive" text="   👤   Existing Patient Form   " />
+                                    <Region style="-fx-border-color: transparent transparent transparent transparent; -fx-border-width: 0 0 1 0;" HBox.hgrow="ALWAYS" />
                                 </children>
                             </HBox>
 
@@ -115,55 +102,55 @@
                                     <VBox fx:id="formNewPatient" spacing="20.0">
                                         <children>
                                             <VBox spacing="5.0">
-                                                <Label text="Full Name" styleClass="reg-form-label" />
+                                                <Label styleClass="reg-form-label" text="Full Name" />
                                                 <HBox spacing="20.0">
-                                                    <TextField promptText="First name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
-                                                    <TextField promptText="Last name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
+                                                    <TextField promptText="First name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
+                                                    <TextField promptText="Last name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
                                                 </HBox>
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <Label text="Phone number" styleClass="reg-form-label" />
-                                                <TextField promptText="Enter 10 digit number" maxWidth="600" styleClass="reg-text-field" />
+                                                <Label styleClass="reg-form-label" text="Phone number" />
+                                                <TextField maxWidth="600" promptText="Enter 10 digit number" styleClass="reg-text-field" />
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <Label text="Age" styleClass="reg-form-label" />
-                                                <TextField promptText="Enter the age of the patient" maxWidth="600" styleClass="reg-text-field" />
+                                                <Label styleClass="reg-form-label" text="Age" />
+                                                <TextField maxWidth="600" promptText="Enter the age of the patient" styleClass="reg-text-field" />
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <Label text="Chief Complaint" styleClass="reg-form-label" />
-                                                <TextArea promptText="Write the reason for the patients visit..." prefHeight="100.0" wrapText="true" styleClass="reg-text-area" />
+                                                <Label styleClass="reg-form-label" text="Chief Complaint" />
+                                                <TextArea prefHeight="100.0" promptText="Write the reason for the patients visit..." styleClass="reg-text-area" wrapText="true" />
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <Label text="Priority Level" styleClass="reg-form-label" />
-                                                <ComboBox promptText="Regular" maxWidth="Infinity" styleClass="reg-combo-box" />
+                                                <Label styleClass="reg-form-label" text="Priority Level" />
+                                                <ComboBox maxWidth="Infinity" promptText="Regular" styleClass="reg-combo-box" />
                                             </VBox>
                                             <HBox>
-                                                <Button text="Get Queue Number   →" styleClass="btn-get-queue" />
+                                                <Button styleClass="btn-get-queue" text="Get Queue Number   →" />
                                             </HBox>
                                         </children>
                                     </VBox>
 
                                     <!-- FORM 2: EXISTING PATIENT (Initially Hidden) -->
-                                    <VBox fx:id="formExistingPatient" spacing="20.0" visible="false" managed="false">
+                                    <VBox fx:id="formExistingPatient" managed="false" spacing="20.0" visible="false">
                                         <children>
                                             <!-- Simplified Form for Existing Patient -->
                                             <VBox spacing="5.0">
-                                                <Label text="Full Name" styleClass="reg-form-label" />
+                                                <Label styleClass="reg-form-label" text="Full Name" />
                                                 <HBox spacing="20.0">
-                                                    <TextField promptText="First name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
-                                                    <TextField promptText="Last name" HBox.hgrow="ALWAYS" styleClass="reg-text-field" />
+                                                    <TextField promptText="First name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
+                                                    <TextField promptText="Last name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
                                                 </HBox>
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <Label text="Chief Complaint" styleClass="reg-form-label" />
-                                                <TextArea promptText="Write the reason for the patients visit..." prefHeight="100.0" wrapText="true" styleClass="reg-text-area" />
+                                                <Label styleClass="reg-form-label" text="Chief Complaint" />
+                                                <TextArea prefHeight="100.0" promptText="Write the reason for the patients visit..." styleClass="reg-text-area" wrapText="true" />
                                             </VBox>
                                             <VBox spacing="5.0">
-                                                <Label text="Priority Level" styleClass="reg-form-label" />
-                                                <ComboBox promptText="Regular" maxWidth="Infinity" styleClass="reg-combo-box" />
+                                                <Label styleClass="reg-form-label" text="Priority Level" />
+                                                <ComboBox maxWidth="Infinity" promptText="Regular" styleClass="reg-combo-box" />
                                             </VBox>
                                             <HBox>
-                                                <Button text="Get Queue Number   →" styleClass="btn-get-queue" />
+                                                <Button styleClass="btn-get-queue" text="Get Queue Number   →" />
                                             </HBox>
                                         </children>
                                     </VBox>

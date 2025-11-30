@@ -103,17 +103,18 @@
                         </VBox>
 
                         <!-- Filter Bar -->
-                        <HBox alignment="CENTER_LEFT" prefWidth="858.0" spacing="15.0" styleClass="filter-bar-container">
+                        <HBox alignment="CENTER_LEFT" prefHeight="59.0" prefWidth="858.0" spacing="15.0" style="-fx-background-color: WHITE;" styleClass="filter-bar-container">
                             <children>
-                                <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="386.0" styleClass="search-field" HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <SVGPath content="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#999" scaleX="0.8" scaleY="0.8" />
-                                        <TextField promptText="Search by name, ID, or complaint..." style="-fx-background-color: transparent; -fx-pref-width: 300;">
-                                 <HBox.margin>
-                                    <Insets left="10.0" />
-                                 </HBox.margin></TextField>
-                                    </children>
-                                </HBox>
+                                  <SVGPath content="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#999">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </SVGPath>
+                                  <TextField blendMode="SRC_ATOP" promptText="Search by name, ID, or complaint..." style="-fx-background-color: WHITE; -fx-pref-width: 300;">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </TextField>
 
                                 <ComboBox promptText="All Status" styleClass="combo-box-filter" />
 
@@ -132,20 +133,20 @@
                         </HBox>
 
                         <!-- Records Table -->
-                        <VBox styleClass="table-container">
+                        <VBox prefHeight="390.0" prefWidth="858.0" styleClass="table-container">
                             <children>
                                 <!-- Table Header -->
-                                <GridPane styleClass="records-table-header">
+                                <GridPane prefHeight="53.0" prefWidth="858.0" styleClass="records-table-header">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="5" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="8.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="5" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="8.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
                                     </columnConstraints>
                                     <children>
                                         <Label styleClass="records-col-header" text="Patient ID" />
@@ -164,16 +165,19 @@
                            <rowConstraints>
                               <RowConstraints />
                            </rowConstraints>
+                           <VBox.margin>
+                              <Insets top="-9.0" />
+                           </VBox.margin>
                                 </GridPane>
 
                                 <!-- Row 1 -->
                                 <GridPane styleClass="records-table-row">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="17.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
@@ -203,10 +207,10 @@
                                 <GridPane styleClass="records-table-row">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="17.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
@@ -236,10 +240,10 @@
                                 <GridPane styleClass="records-table-row">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="17.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
@@ -269,10 +273,10 @@
                                 <GridPane styleClass="records-table-row">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="17.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
@@ -302,10 +306,10 @@
                                 <GridPane styleClass="records-table-row">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="20.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="15.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="17.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="12.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="5.0" />
