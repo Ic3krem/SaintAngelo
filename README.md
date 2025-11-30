@@ -1,6 +1,8 @@
 ﻿# SaintAngelo
-Tech Stack
-JavaFX
-Java
-XAMPP for shared databse through local network
+Tech Stack,
+JavaFX,
+Java,
+XAMPP for shared databse through local network,
+IDE: Intellij
+
 
