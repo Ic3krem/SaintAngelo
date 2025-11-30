@@ -2,14 +2,13 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
 <!-- Controller linked here -->
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
 
     <!-- LEFT SIDEBAR -->
@@ -195,7 +194,7 @@
                         <VBox styleClass="stat-card">
                             <children>
                                 <HBox alignment="CENTER_LEFT">
-                                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Recent System Activity" />
+                                    <Label blendMode="SRC_ATOP" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #000000;" text="Recent System Activity" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <Button style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
                                 </HBox>
