@@ -10,6 +10,8 @@ module com.stangelo.saintangelo {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.logging;
+    requires java.sql;
 
     // Export the main app package
     exports com.stangelo.saintangelo.app;
