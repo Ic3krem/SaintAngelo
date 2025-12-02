@@ -30,6 +30,13 @@ public class QueueService {
     
     // DAO for ticket number generation
     private static final TicketDAO ticketDAO = new TicketDAO();
+    
+    // Cached dashboard stats (updated together to ensure consistency)
+    private static volatile int cachedTotalToday = 0;
+    private static volatile int cachedWaitingCount = 0;
+    private static volatile int cachedAvgWaitTime = 0;
+    private static volatile long lastStatsUpdate = 0;
+    private static final long STATS_CACHE_DURATION_MS = 1000; // Cache for 1 second
 
     // =====================================================
     // PROPERTY ACCESSORS (for JavaFX binding)
@@ -298,5 +305,85 @@ public class QueueService {
      */
     public static int getWaitingCount() {
         return QueueManager.getInstance().size();
+    }
+    
+    // =====================================================
+    // DASHBOARD STATS (shared values for both dashboards)
+    // =====================================================
+    
+    /**
+     * Updates all dashboard stats at once to ensure consistency
+     * Both dashboards should call this before getting individual stats
+     * Always refreshes from database to ensure accuracy
+     */
+    public static synchronized void refreshDashboardStats() {
+        long now = System.currentTimeMillis();
+        // Always refresh if cache is stale (or force refresh)
+        if (now - lastStatsUpdate > STATS_CACHE_DURATION_MS) {
+            try {
+                // Sync queue data first
+                syncFromDatabase();
+                
+                // Get fresh stats directly from database
+                cachedTotalToday = ticketDAO.countTodayTickets();
+                cachedWaitingCount = QueueManager.getInstance().size();
+                cachedAvgWaitTime = ticketDAO.getAverageWaitTimeToday();
+                lastStatsUpdate = now;
+            } catch (Exception e) {
+                System.err.println("Error refreshing dashboard stats: " + e.getMessage());
+                e.printStackTrace();
+                // Keep old values on error
+            }
+        }
+    }
+    
+    /**
+     * Forces a refresh of dashboard stats, bypassing cache
+     * Use this when you need immediate fresh data from the database
+     */
+    public static synchronized void forceRefreshDashboardStats() {
+        try {
+            // Sync queue data first
+            syncFromDatabase();
+            
+            // Get fresh stats directly from database
+            cachedTotalToday = ticketDAO.countTodayTickets();
+            cachedWaitingCount = QueueManager.getInstance().size();
+            cachedAvgWaitTime = ticketDAO.getAverageWaitTimeToday();
+            lastStatsUpdate = System.currentTimeMillis();
+        } catch (Exception e) {
+            System.err.println("Error forcing refresh of dashboard stats: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Gets the total number of tickets created today
+     * Shared value for both Medical and Reception dashboards
+     * @return Total tickets created today
+     */
+    public static int getTotalTodayCount() {
+        refreshDashboardStats();
+        return cachedTotalToday;
+    }
+    
+    /**
+     * Gets the average wait time in minutes for today
+     * Shared value for both Medical and Reception dashboards
+     * @return Average wait time in minutes, or 0 if no data
+     */
+    public static int getAverageWaitTimeToday() {
+        refreshDashboardStats();
+        return cachedAvgWaitTime;
+    }
+    
+    /**
+     * Gets the waiting count (number of patients waiting)
+     * Shared value for both Medical and Reception dashboards
+     * @return Number of waiting patients
+     */
+    public static int getWaitingCountForDashboard() {
+        refreshDashboardStats();
+        return cachedWaitingCount;
     }
 }

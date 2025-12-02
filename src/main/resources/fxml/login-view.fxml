@@ -54,6 +54,12 @@
 
                 <!-- Added fx:id="loginButton" and onAction="#handleLoginButtonAction" -->
                 <Button fx:id="loginButton" maxWidth="1.0E8" mnemonicParsing="false" onAction="#handleLoginButtonAction" styleClass="login-btn" text="Log in" />
+                
+                <Hyperlink fx:id="publicViewLink" onAction="#handlePublicViewLinkAction" styleClass="forgot-link" text="Public View">
+                    <VBox.margin>
+                        <Insets top="15.0" />
+                    </VBox.margin>
+                </Hyperlink>
             </children>
             <padding>
                 <Insets left="50.0" right="50.0" />

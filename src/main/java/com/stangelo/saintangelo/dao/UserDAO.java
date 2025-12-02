@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,10 +44,15 @@ public class UserDAO extends BaseDAO {
                     String dbUsername = rs.getString("username");
                     String dbPassword = rs.getString("password");
                     String fullName = rs.getString("full_name");
+                    String email = rs.getString("email");
                     UserRole role = UserRole.valueOf(rs.getString("role"));
+                    String permissions = rs.getString("permissions");
+                    String status = rs.getString("status");
+                    Timestamp lastActiveTs = rs.getTimestamp("last_active");
+                    LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
                     
                     // Create user object with extracted data
-                    User user = new User(userId, dbUsername, dbPassword, fullName, role);
+                    User user = new User(userId, dbUsername, dbPassword, fullName, email, role, permissions, status, lastActive);
                     
                     // Now update last active (after we've extracted all data)
                     updateLastActive(userId);
@@ -108,6 +115,31 @@ public class UserDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             logError("Error finding user by ID: " + userId, e);
+        }
+        return null;
+    }
+
+    /**
+     * Finds a user by email
+     *
+     * @param email Email address
+     * @return User object if found, null otherwise
+     */
+    public User findByEmail(String email) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error finding user by email: " + email, e);
         }
         return null;
     }
@@ -279,9 +311,113 @@ public class UserDAO extends BaseDAO {
         String username = rs.getString("username");
         String password = rs.getString("password");
         String fullName = rs.getString("full_name");
+        String email = rs.getString("email");
         UserRole role = UserRole.valueOf(rs.getString("role"));
+        String permissions = rs.getString("permissions");
+        String status = rs.getString("status");
+        Timestamp lastActiveTs = rs.getTimestamp("last_active");
+        LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
 
-        return new User(userId, username, password, fullName, role);
+        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive);
+    }
+
+    /**
+     * Searches users by user ID or name
+     *
+     * @param searchTerm Search term (user ID or name)
+     * @return List of matching users
+     */
+    public List<User> search(String searchTerm) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE user_id LIKE ? OR full_name LIKE ? OR username LIKE ? ORDER BY created_at DESC";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + searchTerm + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error searching users: " + searchTerm, e);
+        }
+        return users;
+    }
+
+    /**
+     * Gets users filtered by status
+     *
+     * @param status Status filter (Active, Inactive, or null for all)
+     * @return List of users with the specified status
+     */
+    public List<User> findByStatus(String status) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE status = ? ORDER BY created_at DESC";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, status);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error finding users by status: " + status, e);
+        }
+        return users;
+    }
+
+    /**
+     * Gets users with search and status filter
+     *
+     * @param searchTerm Search term (optional)
+     * @param status Status filter (optional)
+     * @return List of filtered users
+     */
+    public List<User> searchWithFilters(String searchTerm, String status) {
+        List<User> users = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM users WHERE 1=1");
+        List<String> params = new ArrayList<>();
+        
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append(" AND (user_id LIKE ? OR full_name LIKE ? OR username LIKE ?)");
+            params.add("%" + searchTerm + "%");
+            params.add("%" + searchTerm + "%");
+            params.add("%" + searchTerm + "%");
+        }
+        
+        if (status != null && !status.equals("All Status") && !status.isEmpty()) {
+            sql.append(" AND status = ?");
+            params.add(status);
+        }
+        
+        sql.append(" ORDER BY created_at DESC");
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setString(i + 1, params.get(i));
+            }
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error searching users with filters", e);
+        }
+        return users;
     }
 }
 

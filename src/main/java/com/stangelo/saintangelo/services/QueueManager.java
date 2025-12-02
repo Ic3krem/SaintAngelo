@@ -87,6 +87,7 @@ public class QueueManager {
     /**
      * Syncs the in-memory queue with the database
      * Called on startup and when needed
+     * Only loads today's waiting tickets to match countWaitingTickets() behavior
      */
     public synchronized void syncFromDatabase() {
         logger.info("Syncing queue from database...");
@@ -94,8 +95,8 @@ public class QueueManager {
         // Clear current queue
         waitingQueue.clear();
         
-        // Load waiting tickets from database
-        List<Ticket> waitingTickets = ticketDAO.findByStatus(TicketStatus.WAITING);
+        // Load waiting tickets from database (only today's tickets to match countWaitingTickets())
+        List<Ticket> waitingTickets = ticketDAO.findWaitingTickets(Integer.MAX_VALUE);
         for (Ticket ticket : waitingTickets) {
             waitingQueue.offer(ticket);
         }

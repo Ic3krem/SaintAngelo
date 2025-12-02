@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
@@ -99,36 +99,57 @@
                                                 <children>
                                                     <Label styleClass="stat-title" text="Total Today" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label fx:id="totalTodayLabel" styleClass="stat-value" text="0" />
+                                                        <Label fx:id="totalTodayLabel" styleClass="stat-value" text="129" />
                                                         <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <SVGPath content="M0 30 Q10 20 20 25 T40 10 T60 25 T80 5" fill="TRANSPARENT" stroke="#0b7d56" strokeWidth="2" />
+                                                        <LineChart fx:id="totalTodayChart" createSymbols="false" legendVisible="false" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM" />
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT" />
+                                                            </yAxis>
+                                                        </LineChart>
                                                     </HBox>
-                                                    <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                                    <Label fx:id="totalTodayFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
                                             <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Waiting" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label fx:id="waitingCountLabel" styleClass="stat-value" text="0" />
+                                                        <Label fx:id="waitingCountLabel" styleClass="stat-value" text="25" />
                                                         <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <SVGPath content="M0 30 Q10 15 20 20 T40 10 T60 25 T80 20" fill="TRANSPARENT" stroke="#76ff03" strokeWidth="2" />
+                                                        <LineChart fx:id="waitingCountChart" createSymbols="false" legendVisible="false" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM" />
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT" />
+                                                            </yAxis>
+                                                        </LineChart>
                                                     </HBox>
-                                                    <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                                    <Label fx:id="waitingCountFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
                                             <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Avg. Wait Time" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="0" />
+                                                        <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="15" />
                                                         <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <SVGPath content="M0 25 L20 20 L40 10 L60 25 L80 5" fill="TRANSPARENT" stroke="#64ffda" strokeWidth="2" />
+                                                        <LineChart fx:id="avgWaitTimeChart" createSymbols="false" legendVisible="false" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM" />
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT" />
+                                                            </yAxis>
+                                                        </LineChart>
                                                     </HBox>
-                                                    <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
+                                                    <Label fx:id="avgWaitTimeFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
                                         </HBox>

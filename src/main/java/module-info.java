@@ -3,6 +3,7 @@ module com.stangelo.saintangelo {
     requires javafx.fxml;
     requires javafx.graphics;
     requires javafx.web;
+    requires javafx.media;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;

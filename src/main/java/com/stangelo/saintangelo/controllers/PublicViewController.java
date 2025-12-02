@@ -1,9 +1,12 @@
 package com.stangelo.saintangelo.controllers;
 
+import com.stangelo.saintangelo.models.Ticket;
 import com.stangelo.saintangelo.services.QueueService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -33,11 +36,12 @@ public class PublicViewController implements Initializable {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
-    private static final int MAX_QUEUE_NUMBER = 260;
-
+    
+    private Timeline syncTimeline;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialize clock for time and date
         Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {
             LocalDateTime now = LocalDateTime.now();
             timeLabel.setText(now.format(TIME_FORMATTER));
@@ -46,25 +50,50 @@ public class PublicViewController implements Initializable {
         clock.setCycleCount(Animation.INDEFINITE);
         clock.play();
 
+        // Bind "Now Serving" to the actual currently serving ticket from database
         if (nowServingNumberLabel != null) {
-            nowServingNumberLabel.textProperty().bind(QueueService.queueNumberAsStringBinding());
+            nowServingNumberLabel.textProperty().bind(QueueService.currentlyServingNumberBinding());
         }
 
-        QueueService.currentQueueNumberProperty().addListener((obs, oldVal, newVal) -> {
-            updateNextInQueue(newVal.intValue());
+        // Listen to currently serving ticket changes
+        QueueService.currentlyServingTicketProperty().addListener((obs, oldVal, newVal) -> {
+            updateNextInQueue();
         });
 
-        updateNextInQueue(QueueService.getCurrentQueueNumber());
+        // Listen to waiting queue changes
+        QueueService.getWaitingQueue().addListener((ListChangeListener<Ticket>) change -> {
+            updateNextInQueue();
+        });
+
+        // Initial sync from database
+        QueueService.syncFromDatabase();
+        updateNextInQueue();
+
+        // Set up periodic database sync (every 2.5 seconds)
+        syncTimeline = new Timeline(new KeyFrame(Duration.seconds(2.5), e -> {
+            QueueService.syncFromDatabase();
+            updateNextInQueue();
+        }));
+        syncTimeline.setCycleCount(Animation.INDEFINITE);
+        syncTimeline.play();
     }
 
-    private void updateNextInQueue(int currentNumber) {
+    /**
+     * Updates the "Next in Queue" section with actual waiting tickets from the database
+     */
+    private void updateNextInQueue() {
         nextQueueBox.getChildren().clear();
-        for (int i = 1; i <= 5; i++) {
-            // Calculate the next number with looping
-            int nextNumber = (currentNumber + i -1) % MAX_QUEUE_NUMBER + 1;
-            String formattedNumber = QueueService.formatQueueNumber(nextNumber);
-
-            Label numberLabel = new Label(formattedNumber);
+        
+        // Get the actual next 5 waiting tickets (priority-ordered)
+        ObservableList<Ticket> waitingTickets = QueueService.getWaitingQueue();
+        
+        int count = 0;
+        for (Ticket ticket : waitingTickets) {
+            if (count >= 5) break; // Only show first 5
+            
+            String ticketNumber = ticket.getTicketNumber() != null ? ticket.getTicketNumber() : "---";
+            
+            Label numberLabel = new Label(ticketNumber);
             numberLabel.getStyleClass().add("next-queue-number");
 
             VBox queueItem = new VBox(numberLabel);
@@ -73,6 +102,21 @@ public class PublicViewController implements Initializable {
             HBox.setHgrow(queueItem, javafx.scene.layout.Priority.ALWAYS);
 
             nextQueueBox.getChildren().add(queueItem);
+            count++;
+        }
+        
+        // Fill remaining slots with "---" if less than 5 tickets
+        while (count < 5) {
+            Label numberLabel = new Label("---");
+            numberLabel.getStyleClass().add("next-queue-number");
+
+            VBox queueItem = new VBox(numberLabel);
+            queueItem.getStyleClass().add("next-queue-item");
+            queueItem.setAlignment(Pos.CENTER);
+            HBox.setHgrow(queueItem, javafx.scene.layout.Priority.ALWAYS);
+
+            nextQueueBox.getChildren().add(queueItem);
+            count++;
         }
     }
 }

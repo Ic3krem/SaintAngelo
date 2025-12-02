@@ -1,5 +1,8 @@
 package com.stangelo.saintangelo.controllers;
 
+import com.stangelo.saintangelo.dao.UserDAO;
+import com.stangelo.saintangelo.models.User;
+import com.stangelo.saintangelo.models.UserRole;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,27 +13,600 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class AdminDashboardController implements Initializable {
 
+    // User Management FXML Fields
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> statusFilterComboBox;
+    @FXML
+    private VBox userTableContainer;
+    @FXML
+    private Button addUserButton;
+
+    private UserDAO userDAO;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialization logic (e.g., fetch stats) can go here
+        // Initialize UserDAO if we're on the user management view
+        if (userTableContainer != null) {
+            userDAO = new UserDAO();
+            initializeUserManagement();
+        }
+    }
+
+    /**
+     * Initializes the user management view
+     */
+    private void initializeUserManagement() {
+        // Initialize status filter combo box
+        if (statusFilterComboBox != null) {
+            statusFilterComboBox.getItems().addAll("All Status", "Active", "Inactive");
+            statusFilterComboBox.setValue("All Status");
+            statusFilterComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+                loadUsers();
+            });
+        }
+
+        // Setup search field listener
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+                loadUsers();
+            });
+        }
+
+        // Load initial users
+        loadUsers();
+    }
+
+    /**
+     * Loads users from database and populates the table
+     */
+    private void loadUsers() {
+        if (userTableContainer == null) return;
+
+        // Clear existing rows (except header)
+        userTableContainer.getChildren().clear();
+        addTableHeader();
+
+        // Get search term and status filter
+        String searchTerm = searchField != null ? searchField.getText().trim() : "";
+        String statusFilter = statusFilterComboBox != null && statusFilterComboBox.getValue() != null
+                ? statusFilterComboBox.getValue() : "All Status";
+
+        // Get users from database
+        List<User> users = userDAO.searchWithFilters(
+                searchTerm.isEmpty() ? null : searchTerm,
+                statusFilter.equals("All Status") ? null : statusFilter
+        );
+
+        // Populate table with users
+        for (User user : users) {
+            addUserRow(user);
+        }
+    }
+
+    /**
+     * Adds the table header row
+     */
+    private void addTableHeader() {
+        GridPane header = new GridPane();
+        header.getStyleClass().add("table-header-green");
+        
+        // Column constraints
+        header.getColumnConstraints().addAll(
+                createColumnConstraint(10.0),
+                createColumnConstraint(14.0),
+                createColumnConstraint(11.0),
+                createColumnConstraint(20.0),
+                createColumnConstraint(16.0),
+                createColumnConstraint(9.0),
+                createColumnConstraint(10.0),
+                createColumnConstraint(10.0)
+        );
+
+        // Header labels
+        header.add(createHeaderLabel("User ID"), 0, 0);
+        header.add(createHeaderLabel("Name"), 1, 0);
+        header.add(createHeaderLabel("Role"), 2, 0);
+        header.add(createHeaderLabel("Email"), 3, 0);
+        header.add(createHeaderLabel("Permissions"), 4, 0);
+        header.add(createHeaderLabel("Status"), 5, 0);
+        header.add(createHeaderLabel("Last Active"), 6, 0);
+        header.add(createHeaderLabel("Actions"), 7, 0);
+
+        userTableContainer.getChildren().add(header);
+    }
+
+    private javafx.scene.control.Label createHeaderLabel(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("table-col-header");
+        return label;
+    }
+
+    private javafx.scene.layout.ColumnConstraints createColumnConstraint(double percentWidth) {
+        javafx.scene.layout.ColumnConstraints col = new javafx.scene.layout.ColumnConstraints();
+        col.setHgrow(javafx.scene.layout.Priority.ALWAYS);
+        col.setPercentWidth(percentWidth);
+        return col;
+    }
+
+    /**
+     * Adds a user row to the table
+     */
+    private void addUserRow(User user) {
+        GridPane row = new GridPane();
+        row.getStyleClass().add("table-row-item");
+
+        // Column constraints
+        row.getColumnConstraints().addAll(
+                createColumnConstraint(10.0),
+                createColumnConstraint(13.0),
+                createColumnConstraint(12.0),
+                createColumnConstraint(20.0),
+                createColumnConstraint(15.0),
+                createColumnConstraint(10.0),
+                createColumnConstraint(10.0),
+                createColumnConstraint(10.0)
+        );
+
+        // User ID
+        Label userIdLabel = new Label(user.getId());
+        userIdLabel.getStyleClass().add("text-cell-bold");
+        row.add(userIdLabel, 0, 0);
+
+        // Name
+        Label nameLabel = new Label(user.getFullName());
+        nameLabel.getStyleClass().add("text-cell");
+        row.add(nameLabel, 1, 0);
+
+        // Role
+        Label roleLabel = new Label(getRoleDisplayName(user.getRole()));
+        roleLabel.getStyleClass().addAll("badge-role", getRoleStyleClass(user.getRole()));
+        row.add(roleLabel, 2, 0);
+
+        // Email
+        Label emailLabel = new Label(user.getEmail() != null ? user.getEmail() : "");
+        emailLabel.getStyleClass().add("text-cell");
+        row.add(emailLabel, 3, 0);
+
+        // Permissions
+        Label permissionsLabel = new Label(user.getPermissions() != null ? user.getPermissions() : "");
+        permissionsLabel.getStyleClass().add("text-cell");
+        row.add(permissionsLabel, 4, 0);
+
+        // Status
+        Label statusLabel = new Label(user.getStatus() != null ? user.getStatus() : "Active");
+        statusLabel.getStyleClass().add(user.getStatus() != null && user.getStatus().equals("Active") 
+                ? "status-active" : "status-inactive");
+        row.add(statusLabel, 5, 0);
+
+        // Last Active
+        Label lastActiveLabel = new Label(formatLastActive(user.getLastActive()));
+        lastActiveLabel.getStyleClass().add("text-cell");
+        row.add(lastActiveLabel, 6, 0);
+
+        // Actions
+        HBox actionsBox = new HBox(10);
+        actionsBox.setAlignment(Pos.CENTER);
+
+        // Edit button
+        Button editButton = new Button();
+        editButton.getStyleClass().add("btn-action-icon");
+        SVGPath editIcon = new SVGPath();
+        editIcon.setContent("M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z");
+        editIcon.setFill(javafx.scene.paint.Color.valueOf("#0b7d56"));
+        editIcon.setScaleX(0.7);
+        editIcon.setScaleY(0.7);
+        editButton.setGraphic(editIcon);
+        editButton.setOnAction(e -> handleEditUser(user));
+
+        // View button
+        Button viewButton = new Button();
+        viewButton.getStyleClass().add("btn-action-icon");
+        SVGPath viewIcon = new SVGPath();
+        viewIcon.setContent("M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z");
+        viewIcon.setFill(javafx.scene.paint.Color.valueOf("#0b7d56"));
+        viewIcon.setScaleX(0.7);
+        viewIcon.setScaleY(0.7);
+        viewButton.setGraphic(viewIcon);
+        viewButton.setOnAction(e -> handleViewUser(user));
+
+        // Delete button
+        Button deleteButton = new Button();
+        deleteButton.getStyleClass().add("btn-action-icon");
+        SVGPath deleteIcon = new SVGPath();
+        deleteIcon.setContent("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z");
+        deleteIcon.setFill(javafx.scene.paint.Color.valueOf("#d9534f"));
+        deleteIcon.setScaleX(0.7);
+        deleteIcon.setScaleY(0.7);
+        deleteButton.setGraphic(deleteIcon);
+        deleteButton.setOnAction(e -> handleDeleteUser(user));
+
+        actionsBox.getChildren().addAll(editButton, viewButton, deleteButton);
+        row.add(actionsBox, 7, 0);
+
+        userTableContainer.getChildren().add(row);
+    }
+
+    /**
+     * Gets the display name for a role
+     */
+    private String getRoleDisplayName(UserRole role) {
+        switch (role) {
+            case SUPER_ADMIN:
+            case ADMIN:
+                return "Admin";
+            case DOCTOR:
+                return "Doctor";
+            case STAFF:
+                return "Receptionist";
+            default:
+                return role.name();
+        }
+    }
+
+    /**
+     * Gets the CSS style class for a role
+     */
+    private String getRoleStyleClass(UserRole role) {
+        switch (role) {
+            case SUPER_ADMIN:
+            case ADMIN:
+                return "role-admin";
+            case DOCTOR:
+                return "role-doctor";
+            case STAFF:
+                return "role-receptionist";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Formats the last active timestamp
+     */
+    private String formatLastActive(LocalDateTime lastActive) {
+        if (lastActive == null) {
+            return "Never";
+        }
+
+        long minutesAgo = ChronoUnit.MINUTES.between(lastActive, LocalDateTime.now());
+        if (minutesAgo < 1) {
+            return "Now";
+        } else if (minutesAgo < 60) {
+            return minutesAgo + " min ago";
+        } else {
+            long hoursAgo = minutesAgo / 60;
+            if (hoursAgo < 24) {
+                return hoursAgo + " hour" + (hoursAgo > 1 ? "s" : "") + " ago";
+            } else {
+                long daysAgo = hoursAgo / 24;
+                return daysAgo + " day" + (daysAgo > 1 ? "s" : "") + " ago";
+            }
+        }
+    }
+
+    /**
+     * Handles edit user action
+     */
+    private void handleEditUser(User user) {
+        showUserEditDialog(user);
+    }
+
+    /**
+     * Handles view user action
+     */
+    private void handleViewUser(User user) {
+        showUserViewDialog(user);
+    }
+
+    /**
+     * Handles delete user action
+     */
+    private void handleDeleteUser(User user) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Delete User");
+        confirmAlert.setHeaderText("Confirm Deletion");
+        confirmAlert.setContentText("Are you sure you want to delete user " + user.getFullName() + " (" + user.getId() + ")?\n\nThis action cannot be undone.");
+
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (userDAO.delete(user.getId())) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "User deleted successfully.");
+                    loadUsers(); // Refresh table
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete user. Please try again.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Shows user edit dialog
+     */
+    private void showUserEditDialog(User user) {
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Edit User");
+        dialog.setHeaderText("Edit User Information");
+
+        // Create form
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField usernameField = new TextField(user.getUsername());
+        TextField fullNameField = new TextField(user.getFullName());
+        TextField emailField = new TextField(user.getEmail() != null ? user.getEmail() : "");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Leave blank to keep current password");
+        ComboBox<UserRole> roleComboBox = new ComboBox<>();
+        roleComboBox.getItems().addAll(UserRole.values());
+        roleComboBox.setValue(user.getRole());
+        TextField permissionsField = new TextField(user.getPermissions() != null ? user.getPermissions() : "");
+        ComboBox<String> statusComboBox = new ComboBox<>();
+        statusComboBox.getItems().addAll("Active", "Inactive");
+        statusComboBox.setValue(user.getStatus() != null ? user.getStatus() : "Active");
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(usernameField, 1, 0);
+        grid.add(new Label("Full Name:"), 0, 1);
+        grid.add(fullNameField, 1, 1);
+        grid.add(new Label("Email:"), 0, 2);
+        grid.add(emailField, 1, 2);
+        grid.add(new Label("Password:"), 0, 3);
+        grid.add(passwordField, 1, 3);
+        grid.add(new Label("Role:"), 0, 4);
+        grid.add(roleComboBox, 1, 4);
+        grid.add(new Label("Permissions:"), 0, 5);
+        grid.add(permissionsField, 1, 5);
+        grid.add(new Label("Status:"), 0, 6);
+        grid.add(statusComboBox, 1, 6);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                user.setUsername(usernameField.getText());
+                user.setFullName(fullNameField.getText());
+                user.setEmail(emailField.getText());
+                // Only update password if a new one was entered
+                String newPassword = passwordField.getText().trim();
+                if (!newPassword.isEmpty()) {
+                    user.setPassword(newPassword);
+                }
+                user.setRole(roleComboBox.getValue());
+                user.setPermissions(permissionsField.getText());
+                user.setStatus(statusComboBox.getValue());
+                return user;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(updatedUser -> {
+            if (userDAO.update(updatedUser, updatedUser.getEmail(), updatedUser.getPermissions(), updatedUser.getStatus())) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "User updated successfully.");
+                loadUsers(); // Refresh table
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update user. Please try again.");
+            }
+        });
+    }
+
+    /**
+     * Shows user view dialog
+     */
+    private void showUserViewDialog(User user) {
+        Alert viewAlert = new Alert(Alert.AlertType.INFORMATION);
+        viewAlert.setTitle("User Details");
+        viewAlert.setHeaderText("User Information");
+
+        StringBuilder content = new StringBuilder();
+        content.append("User ID: ").append(user.getId()).append("\n");
+        content.append("Username: ").append(user.getUsername()).append("\n");
+        content.append("Full Name: ").append(user.getFullName()).append("\n");
+        content.append("Email: ").append(user.getEmail() != null ? user.getEmail() : "N/A").append("\n");
+        content.append("Role: ").append(getRoleDisplayName(user.getRole())).append("\n");
+        content.append("Permissions: ").append(user.getPermissions() != null ? user.getPermissions() : "N/A").append("\n");
+        content.append("Status: ").append(user.getStatus() != null ? user.getStatus() : "Active").append("\n");
+        content.append("Last Active: ").append(formatLastActive(user.getLastActive()));
+
+        viewAlert.setContentText(content.toString());
+        viewAlert.showAndWait();
+    }
+
+    /**
+     * Handles add new user action
+     */
+    @FXML
+    public void handleAddUser(ActionEvent event) {
+        showAddUserDialog();
+    }
+
+    /**
+     * Shows add new user dialog
+     */
+    private void showAddUserDialog() {
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Add New User");
+        dialog.setHeaderText("Create New User Account");
+
+        // Create form
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userIdField = new TextField();
+        userIdField.setText(generateNextUserId());
+        userIdField.setEditable(false);
+        userIdField.setStyle("-fx-background-color: #f0f0f0;");
+        TextField usernameField = new TextField();
+        TextField fullNameField = new TextField();
+        TextField emailField = new TextField();
+        PasswordField passwordField = new PasswordField();
+        ComboBox<UserRole> roleComboBox = new ComboBox<>();
+        roleComboBox.getItems().addAll(UserRole.values());
+        roleComboBox.setValue(UserRole.STAFF);
+        TextField permissionsField = new TextField();
+        ComboBox<String> statusComboBox = new ComboBox<>();
+        statusComboBox.getItems().addAll("Active", "Inactive");
+        statusComboBox.setValue("Active");
+
+        // Set default permissions based on role
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                switch (newVal) {
+                    case DOCTOR:
+                        permissionsField.setText("Full Medical Access");
+                        break;
+                    case STAFF:
+                        permissionsField.setText("Registration & Queue");
+                        break;
+                    case ADMIN:
+                    case SUPER_ADMIN:
+                        permissionsField.setText("System Configuration");
+                        break;
+                }
+            }
+        });
+
+        grid.add(new Label("User ID:"), 0, 0);
+        grid.add(userIdField, 1, 0);
+        grid.add(new Label("Username:*"), 0, 1);
+        grid.add(usernameField, 1, 1);
+        grid.add(new Label("Full Name:*"), 0, 2);
+        grid.add(fullNameField, 1, 2);
+        grid.add(new Label("Email:*"), 0, 3);
+        grid.add(emailField, 1, 3);
+        grid.add(new Label("Password:*"), 0, 4);
+        grid.add(passwordField, 1, 4);
+        grid.add(new Label("Role:*"), 0, 5);
+        grid.add(roleComboBox, 1, 5);
+        grid.add(new Label("Permissions:"), 0, 6);
+        grid.add(permissionsField, 1, 6);
+        grid.add(new Label("Status:"), 0, 7);
+        grid.add(statusComboBox, 1, 7);
+
+        Label requiredLabel = new Label("* Required fields");
+        requiredLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 11px;");
+        grid.add(requiredLabel, 1, 8);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType saveButtonType = new ButtonType("Create User", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // Enable/disable save button based on required fields
+        Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+
+        // Validate required fields
+        Runnable validateFields = () -> {
+            boolean isValid = !usernameField.getText().trim().isEmpty() &&
+                    !fullNameField.getText().trim().isEmpty() &&
+                    !emailField.getText().trim().isEmpty() &&
+                    !passwordField.getText().trim().isEmpty() &&
+                    roleComboBox.getValue() != null;
+            saveButton.setDisable(!isValid);
+        };
+
+        usernameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        fullNameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                String userId = userIdField.getText().trim();
+                String username = usernameField.getText().trim();
+                String password = passwordField.getText().trim();
+                String fullName = fullNameField.getText().trim();
+                String email = emailField.getText().trim();
+                UserRole role = roleComboBox.getValue();
+                String permissions = permissionsField.getText().trim();
+                String status = statusComboBox.getValue();
+
+                User newUser = new User(userId, username, password, fullName, role);
+                newUser.setEmail(email);
+                newUser.setPermissions(permissions);
+                newUser.setStatus(status);
+
+                return newUser;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(newUser -> {
+            // Check if username already exists
+            if (userDAO.findByUsername(newUser.getUsername()) != null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Username already exists. Please choose a different username.");
+                return;
+            }
+
+            // Check if email already exists
+            if (userDAO.findByEmail(newUser.getEmail()) != null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Email already exists. Please use a different email.");
+                return;
+            }
+
+            if (userDAO.create(newUser, newUser.getEmail(), newUser.getPermissions())) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "User created successfully.");
+                loadUsers(); // Refresh table
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to create user. Please try again.");
+            }
+        });
+    }
+
+    /**
+     * Generates the next available user ID
+     */
+    private String generateNextUserId() {
+        List<User> allUsers = userDAO.findAll();
+        int maxId = 0;
+        
+        for (User user : allUsers) {
+            String userId = user.getId();
+            if (userId != null && userId.startsWith("U")) {
+                try {
+                    int idNum = Integer.parseInt(userId.substring(1));
+                    if (idNum > maxId) {
+                        maxId = idNum;
+                    }
+                } catch (NumberFormatException e) {
+                    // Skip invalid IDs
+                }
+            }
+        }
+        
+        return String.format("U%03d", maxId + 1);
     }
 
     // --- NAVIGATION HANDLERS ---

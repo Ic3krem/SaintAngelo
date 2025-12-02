@@ -6,9 +6,9 @@
 <?import javafx.scene.shape.*?>
 
 <StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
-   <VBox alignment="TOP_CENTER" spacing="40.0">
+   <VBox alignment="TOP_CENTER" maxWidth="1400.0" spacing="30.0" styleClass="main-container">
       <padding>
-         <Insets bottom="48.0" left="48.0" right="48.0" top="48.0" />
+         <Insets bottom="40.0" left="60.0" right="60.0" top="40.0" />
       </padding>
       
       <!-- 1. Header Section -->
@@ -25,21 +25,18 @@
          </VBox>
       </HBox>
 
-      <!-- 2. Main Center Section (Growable) -->
-      <VBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS">
+      <!-- 2. Main Center Section -->
+      <VBox alignment="CENTER" spacing="15.0">
          <Label styleClass="now-serving-label" text="Now Serving" />
          
          <!-- The Card -->
-         <StackPane styleClass="now-serving-card" VBox.vgrow="ALWAYS">
+         <StackPane styleClass="now-serving-card" maxHeight="400.0" maxWidth="500.0" minHeight="300.0" minWidth="400.0" prefHeight="350.0" prefWidth="450.0">
             <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="0" />
-            <VBox.margin>
-               <Insets bottom="20.0" top="10.0" />
-            </VBox.margin>
          </StackPane>
       </VBox>
 
       <!-- 3. Bottom "Next in Queue" Section -->
-      <VBox spacing="25.0" styleClass="next-queue-container">
+      <VBox spacing="20.0" styleClass="next-queue-container">
          <!-- Section Title with Icon -->
          <HBox alignment="CENTER_LEFT" spacing="15.0">
             <SVGPath content="M16 1L16 16M16 16L12 12M16 16L20 12" fill="TRANSPARENT" scaleX="1.2" scaleY="1.2" stroke="#363636" strokeWidth="3" />

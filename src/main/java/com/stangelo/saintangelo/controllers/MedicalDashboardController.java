@@ -19,6 +19,7 @@ import com.stangelo.saintangelo.models.TicketStatus;
 import com.stangelo.saintangelo.services.AuthService;
 import com.stangelo.saintangelo.services.QueueManager;
 import com.stangelo.saintangelo.services.QueueService;
+import com.stangelo.saintangelo.utils.AnnouncementService;
 
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
@@ -44,6 +45,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
@@ -54,6 +57,16 @@ public class MedicalDashboardController implements Initializable {
     @FXML private Label totalTodayLabel;
     @FXML private Label waitingLabel;
     @FXML private Label avgWaitTimeLabel;
+    
+    // Stats Charts
+    @FXML private LineChart<String, Number> totalTodayChart;
+    @FXML private LineChart<String, Number> waitingChart;
+    @FXML private LineChart<String, Number> avgWaitTimeChart;
+    
+    // Stats Footers
+    @FXML private Label totalTodayFooter;
+    @FXML private Label waitingFooter;
+    @FXML private Label avgWaitTimeFooter;
 
     // Patient Information (Treatment Tab)
     @FXML private Label patientIdLabel;
@@ -95,12 +108,11 @@ public class MedicalDashboardController implements Initializable {
         prescriptionDAO = new PrescriptionDAO();
         doctorDAO = new DoctorDAO();
         
-        // Sync from database first to ensure we have latest data
-        QueueService.syncFromDatabase();
-        
-        // Load dashboard data and current patient
+        // Load dashboard data and current patient (sync happens inside loadDashboardData)
         loadDashboardData();
         loadCurrentPatient();
+        updateCharts();
+        updateFooters();
         
         // Load queue management data if containers are available
         if (waitingQueueContainer != null || inProgressContainer != null || completedContainer != null) {
@@ -109,25 +121,157 @@ public class MedicalDashboardController implements Initializable {
     }
 
     private void loadDashboardData() {
-        // Load stats using QueueService (which uses QueueManager)
-        int waitingCount = QueueService.getWaitingCount();
-        if(waitingLabel != null) waitingLabel.setText(String.valueOf(waitingCount));
-        
-        // Total today from database
-        if(totalTodayLabel != null) {
-            int totalToday = ticketDAO.countTodayTickets();
+        // Refresh all stats at once to ensure consistency
+        QueueService.refreshDashboardStats();
+    
+        // Update Waiting count using shared QueueService method
+        if (waitingLabel != null) {
+            int waitingCount = QueueService.getWaitingCountForDashboard();
+            waitingLabel.setText(String.valueOf(waitingCount));
+        }
+    
+        // Update Total Today using shared QueueService method
+        if (totalTodayLabel != null) {
+            int totalToday = QueueService.getTotalTodayCount();
             totalTodayLabel.setText(String.valueOf(totalToday));
         }
-        
-        // Average wait time from database
-        if(avgWaitTimeLabel != null) {
-            int avgWaitTime = ticketDAO.getAverageWaitTimeToday();
+    
+        // Update Average Wait Time using shared QueueService method
+        if (avgWaitTimeLabel != null) {
+            int avgWaitTime = QueueService.getAverageWaitTimeToday();
             if (avgWaitTime > 0) {
                 avgWaitTimeLabel.setText(avgWaitTime + " min");
             } else {
                 avgWaitTimeLabel.setText("0 min");
             }
         }
+    }
+    
+    /**
+     * Updates the line charts with data from the last 7 days
+     */
+    private void updateCharts() {
+        if (ticketDAO == null) {
+            return;
+        }
+        
+        // Update Total Today Chart
+        if (totalTodayChart != null) {
+            updateLineChart(totalTodayChart, ticketDAO.getDailyTicketCountsLast7Days(), "#4ecdc4");
+        }
+        
+        // Update Waiting Chart
+        if (waitingChart != null) {
+            updateLineChart(waitingChart, ticketDAO.getDailyWaitingCountsLast7Days(), "#96f233");
+        }
+        
+        // Update Average Wait Time Chart
+        if (avgWaitTimeChart != null) {
+            updateLineChart(avgWaitTimeChart, ticketDAO.getDailyAverageWaitTimesLast7Days(), "#4ecdc4");
+        }
+    }
+    
+    /**
+     * Helper method to update a line chart with daily data
+     */
+    private void updateLineChart(LineChart<String, Number> chart, java.util.Map<java.time.LocalDate, Integer> data, String color) {
+        chart.getData().clear();
+        
+        // Create series
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        
+        // Format dates and add data points
+        java.time.format.DateTimeFormatter dayFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE");
+        for (java.util.Map.Entry<java.time.LocalDate, Integer> entry : data.entrySet()) {
+            String dayLabel = entry.getKey().format(dayFormatter);
+            series.getData().add(new XYChart.Data<>(dayLabel, entry.getValue()));
+        }
+        
+        chart.getData().add(series);
+        
+        // Style the chart
+        chart.setStyle("-fx-background-color: transparent;");
+        chart.setAnimated(true); // Enable animation for smooth on-load effect
+        chart.setCreateSymbols(false);
+        chart.setLegendVisible(false);
+        
+        // Hide axes
+        chart.getXAxis().setVisible(false);
+        chart.getYAxis().setVisible(false);
+        
+        // Style the line using CSS
+        String chartId = chart.getId();
+        if (chartId == null || chartId.isEmpty()) {
+            chartId = "chart-" + System.identityHashCode(chart);
+            chart.setId(chartId);
+        }
+        
+        // Apply style to the series line
+        javafx.application.Platform.runLater(() -> {
+            javafx.scene.Node line = series.getNode().lookup(".chart-series-line");
+            if (line != null) {
+                line.setStyle("-fx-stroke: " + color + "; -fx-stroke-width: 2px;");
+            }
+            // Also style via CSS lookup
+            javafx.scene.Node chartNode = chart.lookup(".chart-series-line");
+            if (chartNode != null) {
+                chartNode.setStyle("-fx-stroke: " + color + "; -fx-stroke-width: 2px;");
+            }
+        });
+    }
+    
+    /**
+     * Updates footer labels with comparison data based on graph data
+     */
+    private void updateFooters() {
+        if (ticketDAO == null) {
+            return;
+        }
+        
+        // Update Total Today Footer
+        if (totalTodayFooter != null) {
+            double currentAvg = ticketDAO.getDailyTicketCountsLast7Days().values().stream()
+                .mapToInt(Integer::intValue).average().orElse(0.0);
+            double previousAvg = ticketDAO.getAverageTicketCountPrevious7Days();
+            updateFooterLabel(totalTodayFooter, currentAvg, previousAvg);
+        }
+        
+        // Update Waiting Footer
+        if (waitingFooter != null) {
+            double currentAvg = ticketDAO.getDailyWaitingCountsLast7Days().values().stream()
+                .mapToInt(Integer::intValue).average().orElse(0.0);
+            double previousAvg = ticketDAO.getAverageWaitingCountPrevious7Days();
+            updateFooterLabel(waitingFooter, currentAvg, previousAvg);
+        }
+        
+        // Update Average Wait Time Footer
+        if (avgWaitTimeFooter != null) {
+            double currentAvg = ticketDAO.getDailyAverageWaitTimesLast7Days().values().stream()
+                .mapToInt(Integer::intValue).average().orElse(0.0);
+            double previousAvg = ticketDAO.getAverageWaitTimePrevious7Days();
+            updateFooterLabel(avgWaitTimeFooter, currentAvg, previousAvg);
+        }
+    }
+    
+    /**
+     * Helper method to format footer text with comparison
+     */
+    private void updateFooterLabel(Label footer, double current, double previous) {
+        if (previous == 0.0) {
+            footer.setText("No previous data available");
+            return;
+        }
+        
+        double difference = current - previous;
+        double percentChange = (difference / previous) * 100;
+        
+        String sign = difference >= 0 ? "+" : "";
+        String direction = difference >= 0 ? "Increased" : "Decreased";
+        int roundedDiff = (int) Math.round(Math.abs(difference));
+        int roundedPercent = (int) Math.round(Math.abs(percentChange));
+        
+        footer.setText(String.format("%s%d %s vs Last Week (%d%%)", 
+            sign, roundedDiff, direction, roundedPercent));
     }
     
     /**
@@ -209,9 +353,17 @@ public class MedicalDashboardController implements Initializable {
         if (nextTicket != null) {
             currentTicket = nextTicket;
             
+            // Play announcement and speak ticket number
+            String ticketNumber = nextTicket.getTicketNumber();
+            if (ticketNumber != null) {
+                AnnouncementService.announceAndSpeak(ticketNumber);
+            }
+            
             // Update UI
             loadCurrentPatient();
             loadDashboardData();
+            updateCharts();
+            updateFooters();
             
             showAlert(Alert.AlertType.INFORMATION, "Patient Called", 
                 "Now serving: " + nextTicket.getTicketNumber() + "\n" +
@@ -317,6 +469,8 @@ public class MedicalDashboardController implements Initializable {
                 // Reload UI
                 loadCurrentPatient();
                 loadDashboardData();
+                updateCharts();
+                updateFooters();
                 
                 showAlert(Alert.AlertType.INFORMATION, "Treatment Complete", 
                     "Prescription saved successfully and patient marked as completed.");
@@ -421,6 +575,8 @@ public class MedicalDashboardController implements Initializable {
             QueueService.syncFromDatabase();
             loadDashboardData();
             loadCurrentPatient();
+            updateCharts();
+            updateFooters();
         });
     }
 

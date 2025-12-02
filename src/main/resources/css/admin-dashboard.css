@@ -293,6 +293,15 @@
     -fx-font-weight: bold;
 }
 
+.status-inactive {
+    -fx-background-color: #f8d7da;
+    -fx-text-fill: #721c24;
+    -fx-padding: 4 12;
+    -fx-background-radius: 15;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
 /* Action Icons */
 .btn-action-icon {
     -fx-background-color: transparent;
@@ -302,6 +311,22 @@
 .btn-action-icon:hover {
     -fx-background-color: #f0f0f0;
     -fx-background-radius: 4;
+}
+
+/* Primary Button */
+.btn-primary {
+    -fx-background-color: #0b7d56;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #0a6b4a;
+}
+.btn-primary:pressed {
+    -fx-background-color: #095a3e;
 }
 /* --- USER & LOG MANAGEMENT STYLES --- */
 

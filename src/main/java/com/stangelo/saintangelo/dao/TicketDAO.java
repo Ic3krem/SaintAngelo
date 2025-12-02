@@ -353,6 +353,216 @@ public class TicketDAO extends BaseDAO {
     }
 
     /**
+     * Gets daily ticket counts for the last 7 days
+     * Returns a map where key is the date (as LocalDate) and value is the count
+     *
+     * @return Map of date to ticket count for last 7 days
+     */
+    public java.util.Map<java.time.LocalDate, Integer> getDailyTicketCountsLast7Days() {
+        java.util.Map<java.time.LocalDate, Integer> counts = new java.util.LinkedHashMap<>();
+        String sql = "SELECT DATE(created_time) AS date, COUNT(*) AS count " +
+                     "FROM tickets " +
+                     "WHERE DATE(created_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "GROUP BY DATE(created_time) " +
+                     "ORDER BY DATE(created_time)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                java.sql.Date date = rs.getDate("date");
+                int count = rs.getInt("count");
+                counts.put(date.toLocalDate(), count);
+            }
+        } catch (SQLException e) {
+            logError("Error getting daily ticket counts", e);
+        }
+        
+        // Fill in missing days with 0
+        java.time.LocalDate today = java.time.LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            java.time.LocalDate date = today.minusDays(i);
+            counts.putIfAbsent(date, 0);
+        }
+        
+        return counts;
+    }
+
+    /**
+     * Gets daily waiting ticket counts for the last 7 days
+     * Returns a map where key is the date (as LocalDate) and value is the count of waiting tickets
+     *
+     * @return Map of date to waiting ticket count for last 7 days
+     */
+    public java.util.Map<java.time.LocalDate, Integer> getDailyWaitingCountsLast7Days() {
+        java.util.Map<java.time.LocalDate, Integer> counts = new java.util.LinkedHashMap<>();
+        String sql = "SELECT DATE(created_time) AS date, COUNT(*) AS count " +
+                     "FROM tickets " +
+                     "WHERE DATE(created_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "AND status = 'WAITING' " +
+                     "GROUP BY DATE(created_time) " +
+                     "ORDER BY DATE(created_time)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                java.sql.Date date = rs.getDate("date");
+                int count = rs.getInt("count");
+                counts.put(date.toLocalDate(), count);
+            }
+        } catch (SQLException e) {
+            logError("Error getting daily waiting counts", e);
+        }
+        
+        // Fill in missing days with 0
+        java.time.LocalDate today = java.time.LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            java.time.LocalDate date = today.minusDays(i);
+            counts.putIfAbsent(date, 0);
+        }
+        
+        return counts;
+    }
+
+    /**
+     * Gets daily average wait times for the last 7 days
+     * Returns a map where key is the date (as LocalDate) and value is the average wait time in minutes
+     *
+     * @return Map of date to average wait time for last 7 days
+     */
+    public java.util.Map<java.time.LocalDate, Integer> getDailyAverageWaitTimesLast7Days() {
+        java.util.Map<java.time.LocalDate, Integer> waitTimes = new java.util.LinkedHashMap<>();
+        String sql = "SELECT DATE(created_time) AS date, AVG(TIMESTAMPDIFF(MINUTE, created_time, called_time)) AS avg_wait_time " +
+                     "FROM tickets " +
+                     "WHERE DATE(created_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "AND called_time IS NOT NULL " +
+                     "AND status IN ('CALLED', 'IN_SERVICE', 'COMPLETED') " +
+                     "GROUP BY DATE(created_time) " +
+                     "ORDER BY DATE(created_time)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                java.sql.Date date = rs.getDate("date");
+                double avgWaitTime = rs.getDouble("avg_wait_time");
+                if (!rs.wasNull()) {
+                    waitTimes.put(date.toLocalDate(), (int) Math.round(avgWaitTime));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting daily average wait times", e);
+        }
+        
+        // Fill in missing days with 0
+        java.time.LocalDate today = java.time.LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            java.time.LocalDate date = today.minusDays(i);
+            waitTimes.putIfAbsent(date, 0);
+        }
+        
+        return waitTimes;
+    }
+
+    /**
+     * Gets the average ticket count for the previous 7 days (8-14 days ago)
+     * Used for comparison with current period
+     *
+     * @return Average ticket count for previous 7 days
+     */
+    public double getAverageTicketCountPrevious7Days() {
+        String sql = "SELECT AVG(daily_count) AS avg_count FROM (" +
+                     "SELECT DATE(created_time) AS date, COUNT(*) AS daily_count " +
+                     "FROM tickets " +
+                     "WHERE DATE(created_time) >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) " +
+                     "AND DATE(created_time) < DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "GROUP BY DATE(created_time)" +
+                     ") AS subquery";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                double avgCount = rs.getDouble("avg_count");
+                if (!rs.wasNull()) {
+                    return avgCount;
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting average ticket count for previous period", e);
+        }
+        return 0.0;
+    }
+
+    /**
+     * Gets the average waiting count for the previous 7 days (8-14 days ago)
+     *
+     * @return Average waiting count for previous 7 days
+     */
+    public double getAverageWaitingCountPrevious7Days() {
+        String sql = "SELECT AVG(daily_count) AS avg_count FROM (" +
+                     "SELECT DATE(created_time) AS date, COUNT(*) AS daily_count " +
+                     "FROM tickets " +
+                     "WHERE DATE(created_time) >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) " +
+                     "AND DATE(created_time) < DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "AND status = 'WAITING' " +
+                     "GROUP BY DATE(created_time)" +
+                     ") AS subquery";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                double avgCount = rs.getDouble("avg_count");
+                if (!rs.wasNull()) {
+                    return avgCount;
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting average waiting count for previous period", e);
+        }
+        return 0.0;
+    }
+
+    /**
+     * Gets the average wait time for the previous 7 days (8-14 days ago)
+     *
+     * @return Average wait time in minutes for previous 7 days
+     */
+    public double getAverageWaitTimePrevious7Days() {
+        String sql = "SELECT AVG(avg_wait_time) AS overall_avg FROM (" +
+                     "SELECT DATE(created_time) AS date, AVG(TIMESTAMPDIFF(MINUTE, created_time, called_time)) AS avg_wait_time " +
+                     "FROM tickets " +
+                     "WHERE DATE(created_time) >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) " +
+                     "AND DATE(created_time) < DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "AND called_time IS NOT NULL " +
+                     "AND status IN ('CALLED', 'IN_SERVICE', 'COMPLETED') " +
+                     "GROUP BY DATE(created_time)" +
+                     ") AS subquery";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                double avgWaitTime = rs.getDouble("overall_avg");
+                if (!rs.wasNull()) {
+                    return avgWaitTime;
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting average wait time for previous period", e);
+        }
+        return 0.0;
+    }
+
+    /**
      * Gets the next ticket number for today
      * Follows the format A1-A10, B1-B10, etc.
      *
