@@ -14,7 +14,6 @@ module com.stangelo.saintangelo {
     // Database and logging modules
     requires java.sql;
     requires java.logging;
-    requires jbcrypt;
 
     // Export the main app package
     exports com.stangelo.saintangelo.app;

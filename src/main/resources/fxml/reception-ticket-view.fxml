@@ -100,7 +100,7 @@
                                         <!-- Big Number Box -->
                                         <VBox styleClass="ticket-number-box">
                                             <children>
-                                                <Label styleClass="ticket-number-big" text="A053" />
+                                                <Label fx:id="ticketNumberLabel" styleClass="ticket-number-big" text="---" />
                                             </children>
                                         </VBox>
 

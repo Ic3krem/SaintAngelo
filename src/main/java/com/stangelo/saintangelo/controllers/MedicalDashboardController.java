@@ -1,5 +1,25 @@
 package com.stangelo.saintangelo.controllers;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+import com.stangelo.saintangelo.dao.DoctorDAO;
+import com.stangelo.saintangelo.dao.PatientDAO;
+import com.stangelo.saintangelo.dao.PrescriptionDAO;
+import com.stangelo.saintangelo.dao.TicketDAO;
+import com.stangelo.saintangelo.models.Doctor;
+import com.stangelo.saintangelo.models.Patient;
+import com.stangelo.saintangelo.models.Prescription;
+import com.stangelo.saintangelo.models.PriorityLevel;
+import com.stangelo.saintangelo.models.Ticket;
+import com.stangelo.saintangelo.models.TicketStatus;
+import com.stangelo.saintangelo.services.AuthService;
+import com.stangelo.saintangelo.services.QueueManager;
+import com.stangelo.saintangelo.services.QueueService;
+
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,24 +32,21 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration; // Import for Animation Duration
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import javafx.scene.control.ButtonType;
+import javafx.util.Duration;
 
 public class MedicalDashboardController implements Initializable {
 
@@ -55,68 +72,261 @@ public class MedicalDashboardController implements Initializable {
     @FXML private Button btnQueue;
     @FXML private Button btnRecords;
     @FXML private Button btnLogout;
+    
+    // Queue Management Tab Containers
+    @FXML private TabPane queueTabPane;
+    @FXML private VBox waitingQueueContainer;
+    @FXML private VBox inProgressContainer;
+    @FXML private VBox completedContainer;
+    
+    // DAOs
+    private TicketDAO ticketDAO;
+    private PatientDAO patientDAO;
+    private PrescriptionDAO prescriptionDAO;
+    private DoctorDAO doctorDAO;
+    
+    // Current ticket being served by this doctor
+    private Ticket currentTicket;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        ticketDAO = new TicketDAO();
+        patientDAO = new PatientDAO();
+        prescriptionDAO = new PrescriptionDAO();
+        doctorDAO = new DoctorDAO();
+        
+        // Sync from database first to ensure we have latest data
+        QueueService.syncFromDatabase();
+        
+        // Load dashboard data and current patient
         loadDashboardData();
+        loadCurrentPatient();
+        
+        // Load queue management data if containers are available
+        if (waitingQueueContainer != null || inProgressContainer != null || completedContainer != null) {
+            loadQueueManagementData();
+        }
     }
 
     private void loadDashboardData() {
-        if(totalTodayLabel != null) totalTodayLabel.setText("129");
-        if(waitingLabel != null) waitingLabel.setText("30");
-        if(avgWaitTimeLabel != null) avgWaitTimeLabel.setText("129");
-
-        if(patientIdLabel != null) {
-            patientIdLabel.setText("A145");
-            patientNameLabel.setText("Patrick Claridad");
-            chiefComplaintLabel.setText("Backburner");
-            patientAgeLabel.setText("51");
+        // Load stats using QueueService (which uses QueueManager)
+        int waitingCount = QueueService.getWaitingCount();
+        if(waitingLabel != null) waitingLabel.setText(String.valueOf(waitingCount));
+        
+        // Total today from database
+        if(totalTodayLabel != null) {
+            int totalToday = ticketDAO.countTodayTickets();
+            totalTodayLabel.setText(String.valueOf(totalToday));
+        }
+        
+        // Average wait time from database
+        if(avgWaitTimeLabel != null) {
+            int avgWaitTime = ticketDAO.getAverageWaitTimeToday();
+            if (avgWaitTime > 0) {
+                avgWaitTimeLabel.setText(avgWaitTime + " min");
+            } else {
+                avgWaitTimeLabel.setText("0 min");
+            }
         }
     }
-
-    // --- ACTION HANDLERS FOR QUEUE TABLE ---
-
-    @FXML
-    private void handleEscalate(ActionEvent event) {
-        MenuItem item = (MenuItem) event.getSource();
-        String ticketId = (String) item.getUserData();
-        showAlert(Alert.AlertType.INFORMATION, "Escalate Priority",
-                "Patient with Ticket " + ticketId + " has been marked as EMERGENCY.");
-    }
-
-    @FXML
-    private void handleRemove(ActionEvent event) {
-        MenuItem item = (MenuItem) event.getSource();
-        String ticketId = (String) item.getUserData();
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirm Removal");
-        confirm.setHeaderText("Remove Patient " + ticketId + "?");
-        confirm.setContentText("Are you sure you want to remove this patient from the queue?");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            System.out.println("Removed patient: " + ticketId);
+    
+    /**
+     * Loads the current patient being served by this doctor
+     */
+    private void loadCurrentPatient() {
+        // First, try to get ticket assigned to this specific doctor
+        String doctorId = getDoctorId();
+        Ticket doctorTicket = null;
+        
+        if (doctorId != null && !doctorId.isEmpty()) {
+            // Check database directly for tickets assigned to this doctor
+            doctorTicket = ticketDAO.findCurrentlyServingByDoctor(doctorId);
+        }
+        
+        // If no ticket found for this doctor, try QueueService (general currently serving)
+        if (doctorTicket == null) {
+            doctorTicket = QueueService.getCurrentlyServingTicket();
+            
+            // Verify it's assigned to this doctor
+            if (doctorTicket != null && doctorId != null) {
+                if (!doctorId.equals(doctorTicket.getAssignedDoctorId())) {
+                    // Ticket is assigned to a different doctor
+                    doctorTicket = null;
+                }
+            }
+        }
+        
+        currentTicket = doctorTicket;
+        
+        if (currentTicket != null && currentTicket.getPatient() != null) {
+            Patient patient = currentTicket.getPatient();
+            if(patientIdLabel != null) patientIdLabel.setText(patient.getId());
+            if(patientNameLabel != null) patientNameLabel.setText(patient.getName());
+            if(chiefComplaintLabel != null) chiefComplaintLabel.setText(patient.getNotes() != null ? patient.getNotes() : "N/A");
+            if(patientAgeLabel != null) patientAgeLabel.setText(String.valueOf(patient.getAge()));
+        } else {
+            // No patient currently being served
+            if(patientIdLabel != null) patientIdLabel.setText("---");
+            if(patientNameLabel != null) patientNameLabel.setText("No patient");
+            if(chiefComplaintLabel != null) chiefComplaintLabel.setText("---");
+            if(patientAgeLabel != null) patientAgeLabel.setText("---");
         }
     }
+    
+    /**
+     * Handles calling the next patient in the queue
+     * Uses QueueService.dequeue() for proper queue operations
+     */
+    @FXML
+    private void handleCallNextPatient(ActionEvent event) {
+        // Get the current doctor's ID (from auth service or hardcoded for now)
+        String doctorId = getDoctorId();
+        
+        if (doctorId == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Doctor ID not found. Please log in again.");
+            return;
+        }
+        
+        // If there's a current patient, complete their treatment first
+        if (currentTicket != null) {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Complete Current Patient");
+            confirm.setHeaderText("You have a patient currently being served.");
+            confirm.setContentText("Do you want to complete the current patient and call the next one?");
+            
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
+                return;
+            }
+            
+            // Complete current service using QueueService
+            QueueService.completeCurrentService();
+        }
+        
+        // Dequeue the next patient (proper queue operation)
+        Ticket nextTicket = QueueService.dequeue(doctorId);
+        
+        if (nextTicket != null) {
+            currentTicket = nextTicket;
+            
+            // Update UI
+            loadCurrentPatient();
+            loadDashboardData();
+            
+            showAlert(Alert.AlertType.INFORMATION, "Patient Called", 
+                "Now serving: " + nextTicket.getTicketNumber() + "\n" +
+                "Patient: " + (nextTicket.getPatient() != null ? nextTicket.getPatient().getName() : "Unknown"));
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Queue Empty", "No patients waiting in the queue.");
+        }
+    }
+    
+    /**
+     * Gets the current doctor's ID
+     */
+    private String getDoctorId() {
+        // Try to get from AuthService
+        var currentUser = AuthService.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // The doctor ID might be different from user ID
+            // For now, we'll use a hardcoded mapping or the user ID
+            // In a real system, you'd have a doctors table linked to users
+            return "DOC001"; // Default to first doctor for demo
+        }
+        return "DOC001"; // Fallback for demo
+    }
+
 
     // --- TREATMENT HANDLERS ---
 
     @FXML
     private void handleCompleteTreatment() {
-        String medication = medicationField.getText();
-        String dosage = dosageField.getText();
-        String frequency = frequencyField.getText();
+        // Validate required fields
+        String medication = medicationField.getText().trim();
+        String dosage = dosageField.getText().trim();
+        String frequency = frequencyField.getText().trim();
+        String consultationNotes = consultationNotesArea != null ? consultationNotesArea.getText().trim() : "";
 
         if (medication.isEmpty() || dosage.isEmpty() || frequency.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Missing Information", "Please fill in all prescription details.");
+            showAlert(Alert.AlertType.ERROR, "Missing Information", "Please fill in all prescription details (medication, dosage, frequency).");
             return;
         }
-        showAlert(Alert.AlertType.INFORMATION, "Treatment Complete", "Prescription saved successfully.");
-        medicationField.clear();
-        dosageField.clear();
-        frequencyField.clear();
-        consultationNotesArea.clear();
+        
+        // Check if there's a current patient/ticket
+        if (currentTicket == null || currentTicket.getPatient() == null) {
+            showAlert(Alert.AlertType.WARNING, "No Patient", "No patient is currently being served. Please call a patient first.");
+            return;
+        }
+        
+        // Get doctor ID from ticket (assigned doctor) or fallback to current doctor
+        String doctorId = currentTicket.getAssignedDoctorId();
+        if (doctorId == null || doctorId.isEmpty()) {
+            doctorId = getDoctorId();
+        }
+        
+        if (doctorId == null || doctorId.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Doctor ID not found. Please log in again.");
+            return;
+        }
+        
+        Doctor doctor = doctorDAO.findById(doctorId);
+        if (doctor == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Doctor information not found in database.");
+            return;
+        }
+        
+        // Create prescription
+        String prescriptionId = "PR" + System.currentTimeMillis() % 100000;
+        Patient patient = currentTicket.getPatient();
+        
+        Prescription prescription = new Prescription(
+            prescriptionId,
+            patient,
+            doctor,
+            medication,
+            dosage,
+            frequency,
+            consultationNotes,
+            java.time.LocalDateTime.now(), // consultation date
+            null, // diagnosis - can be added later if needed
+            null  // treatment plan - can be added later if needed
+        );
+        
+        // Save prescription to database
+        boolean saved = prescriptionDAO.create(prescription);
+        
+        if (saved) {
+            // Mark ticket as completed
+            boolean ticketUpdated = ticketDAO.updateStatus(currentTicket.getVisitId(), TicketStatus.COMPLETED);
+            
+            if (ticketUpdated) {
+                // Complete the service in QueueService
+                QueueService.completeCurrentService();
+                
+                // Clear form
+                medicationField.clear();
+                dosageField.clear();
+                frequencyField.clear();
+                if (consultationNotesArea != null) {
+                    consultationNotesArea.clear();
+                }
+                
+                // Clear current ticket
+                currentTicket = null;
+                
+                // Reload UI
+                loadCurrentPatient();
+                loadDashboardData();
+                
+                showAlert(Alert.AlertType.INFORMATION, "Treatment Complete", 
+                    "Prescription saved successfully and patient marked as completed.");
+            } else {
+                showAlert(Alert.AlertType.WARNING, "Partial Success", 
+                    "Prescription saved, but failed to update ticket status. Please check manually.");
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to save prescription. Please try again.");
+        }
     }
 
     // --- NAVIGATION HANDLERS ---
@@ -206,11 +416,21 @@ public class MedicalDashboardController implements Initializable {
     @FXML
     private void handleNavCurrentPatient(ActionEvent event) {
         loadView(event, "/fxml/doctor-dashboard-view.fxml");
+        // Refresh data after view loads
+        javafx.application.Platform.runLater(() -> {
+            QueueService.syncFromDatabase();
+            loadDashboardData();
+            loadCurrentPatient();
+        });
     }
 
     @FXML
     private void handleNavQueue(ActionEvent event) {
         loadView(event, "/fxml/doctor-queue-management.fxml");
+        // Refresh queue data after view loads
+        javafx.application.Platform.runLater(() -> {
+            loadQueueManagementData();
+        });
     }
 
     @FXML
@@ -242,6 +462,573 @@ public class MedicalDashboardController implements Initializable {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load " + fxmlPath + "\nCheck if file exists in /fxml/ folder.");
         }
+    }
+
+    // --- QUEUE MANAGEMENT METHODS ---
+    
+    /**
+     * Loads and displays queue management data for all three tabs
+     */
+    private void loadQueueManagementData() {
+        if (waitingQueueContainer != null) {
+            loadWaitingQueue();
+        }
+        if (inProgressContainer != null) {
+            loadInProgressQueue();
+        }
+        if (completedContainer != null) {
+            loadCompletedQueue();
+        }
+    }
+    
+    /**
+     * Loads and displays waiting queue tickets
+     * Uses QueueManager to get tickets in the same order as Dashboard
+     */
+    private void loadWaitingQueue() {
+        if (waitingQueueContainer == null) return;
+        
+        waitingQueueContainer.getChildren().clear();
+        
+        // Sync from database first to ensure QueueManager has latest data
+        QueueService.syncFromDatabase();
+        
+        // Get all waiting tickets from QueueManager (uses PriorityQueue ordering)
+        List<Ticket> waitingTickets = QueueManager.getInstance().getAllWaiting();
+        
+        if (waitingTickets.isEmpty()) {
+            Label emptyLabel = new Label("No patients waiting");
+            emptyLabel.getStyleClass().add("queue-empty-label");
+            waitingQueueContainer.getChildren().add(emptyLabel);
+        } else {
+            int position = 1;
+            for (Ticket ticket : waitingTickets) {
+                HBox card = createWaitingQueueCard(ticket, position++);
+                waitingQueueContainer.getChildren().add(card);
+            }
+        }
+    }
+    
+    /**
+     * Creates a card for a waiting queue ticket
+     */
+    private HBox createWaitingQueueCard(Ticket ticket, int position) {
+        HBox card = new HBox(20);
+        card.getStyleClass().addAll("q-card", "q-card-waiting");
+        card.setAlignment(Pos.CENTER_LEFT);
+        
+        // Queue position number
+        StackPane positionCircle = new StackPane();
+        positionCircle.getStyleClass().add("queue-number-circle");
+        Label positionLabel = new Label(String.valueOf(position));
+        positionLabel.getStyleClass().add("queue-number-text");
+        positionCircle.getChildren().add(positionLabel);
+        
+        // Patient info
+        VBox patientInfo = new VBox(5);
+        patientInfo.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(patientInfo, Priority.ALWAYS);
+        
+        Patient patient = ticket.getPatient();
+        String patientName = patient != null ? patient.getName() : "Unknown";
+        int age = patient != null ? patient.getAge() : 0;
+        String ticketNumber = ticket.getTicketNumber();
+        String chiefComplaint = ticket.getServiceType() != null ? ticket.getServiceType() : "N/A";
+        String phoneNumber = patient != null && patient.getContactNumber() != null ? 
+                            patient.getContactNumber() : "N/A";
+        
+        // Name, age, priority badge
+        HBox nameRow = new HBox(10);
+        nameRow.setAlignment(Pos.CENTER_LEFT);
+        Label nameLabel = new Label(patientName);
+        nameLabel.getStyleClass().add("text-name");
+        Label ageLabel = new Label("• Age " + age);
+        ageLabel.getStyleClass().add("text-meta");
+        Label priorityBadge = new Label(getPriorityDisplayText(ticket.getPriority()));
+        priorityBadge.getStyleClass().addAll("badge-pill", getPriorityBadgeStyleClass(ticket.getPriority()));
+        nameRow.getChildren().addAll(nameLabel, ageLabel, priorityBadge);
+        
+        // Ticket ID, complaint, phone
+        HBox detailsRow = new HBox(15);
+        detailsRow.setAlignment(Pos.CENTER_LEFT);
+        Label ticketIdLabel = new Label("ID: " + ticketNumber);
+        ticketIdLabel.getStyleClass().add("text-sub");
+        Label complaintLabel = new Label("• " + chiefComplaint);
+        complaintLabel.getStyleClass().add("text-sub");
+        Label phoneLabel = new Label("📞 " + phoneNumber);
+        phoneLabel.getStyleClass().add("text-sub");
+        detailsRow.getChildren().addAll(ticketIdLabel, complaintLabel, phoneLabel);
+        
+        patientInfo.getChildren().addAll(nameRow, detailsRow);
+        
+        // Wait time
+        VBox waitTimeBox = new VBox(5);
+        waitTimeBox.setAlignment(Pos.CENTER_RIGHT);
+        Label waitTimeLabel = new Label("Wait Time");
+        waitTimeLabel.getStyleClass().add("text-meta");
+        long waitMinutes = java.time.Duration.between(ticket.getCreatedTime(), java.time.LocalDateTime.now()).toMinutes();
+        Label waitTimeValue = new Label(waitMinutes + " min");
+        waitTimeValue.getStyleClass().add("wait-time-text");
+        if (ticket.getPriority() == PriorityLevel.EMERGENCY) {
+            waitTimeValue.setStyle("-fx-text-fill: #e74c3c;");
+        }
+        waitTimeBox.getChildren().addAll(waitTimeLabel, waitTimeValue);
+        
+        // Remove button
+        Button removeBtn = new Button();
+        removeBtn.getStyleClass().add("icon-btn-trash");
+        removeBtn.setOnAction(e -> handleRemoveTicket(ticket));
+        javafx.scene.shape.SVGPath trashIcon = new javafx.scene.shape.SVGPath();
+        trashIcon.setContent("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z");
+        trashIcon.setFill(javafx.scene.paint.Color.WHITE);
+        trashIcon.setScaleX(0.7);
+        trashIcon.setScaleY(0.7);
+        removeBtn.setGraphic(trashIcon);
+        
+        // Escalate button
+        Button escalateBtn = new Button();
+        escalateBtn.getStyleClass().add("icon-btn-escalate");
+        escalateBtn.setOnAction(e -> handleEscalatePriority(ticket));
+        try {
+            javafx.scene.image.ImageView escalateIcon = new javafx.scene.image.ImageView(
+                new javafx.scene.image.Image(getClass().getResourceAsStream("/images/escalate.png"))
+            );
+            escalateIcon.setFitHeight(20);
+            escalateIcon.setFitWidth(20);
+            escalateIcon.setOpacity(0.8);
+            escalateBtn.setGraphic(escalateIcon);
+        } catch (Exception e) {
+            // If image not found, use text label
+            escalateBtn.setText("↑");
+            escalateBtn.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        }
+        
+        HBox actionButtons = new HBox(10);
+        actionButtons.setAlignment(Pos.CENTER_RIGHT);
+        actionButtons.getChildren().addAll(removeBtn, escalateBtn);
+        
+        card.getChildren().addAll(positionCircle, patientInfo, waitTimeBox, actionButtons);
+        
+        return card;
+    }
+    
+    /**
+     * Loads and displays in-progress tickets
+     */
+    private void loadInProgressQueue() {
+        if (inProgressContainer == null) return;
+        
+        inProgressContainer.getChildren().clear();
+        
+        List<Ticket> inProgressTickets = ticketDAO.findInServiceTickets();
+        
+        if (inProgressTickets.isEmpty()) {
+            Label emptyLabel = new Label("No patients currently in service");
+            emptyLabel.getStyleClass().add("queue-empty-label");
+            inProgressContainer.getChildren().add(emptyLabel);
+        } else {
+            for (Ticket ticket : inProgressTickets) {
+                HBox card = createInProgressCard(ticket);
+                inProgressContainer.getChildren().add(card);
+            }
+        }
+    }
+    
+    /**
+     * Creates a card for an in-progress ticket
+     */
+    private HBox createInProgressCard(Ticket ticket) {
+        HBox card = new HBox(20);
+        card.getStyleClass().addAll("q-card", "q-card-progress");
+        card.setAlignment(Pos.CENTER_LEFT);
+        
+        // Avatar circle
+        StackPane avatarPane = new StackPane();
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(25, javafx.scene.paint.Color.valueOf("#e3f2fd"));
+        javafx.scene.shape.SVGPath avatarIcon = new javafx.scene.shape.SVGPath();
+        avatarIcon.setContent("M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z");
+        avatarIcon.setScaleX(1.5);
+        avatarIcon.setScaleY(1.5);
+        avatarIcon.getStyleClass().add("avatar-circle-blue");
+        avatarPane.getChildren().addAll(circle, avatarIcon);
+        
+        // Patient info
+        VBox patientInfo = new VBox(5);
+        patientInfo.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(patientInfo, Priority.ALWAYS);
+        
+        Patient patient = ticket.getPatient();
+        String patientName = patient != null ? patient.getName() : "Unknown";
+        int age = patient != null ? patient.getAge() : 0;
+        String ticketNumber = ticket.getTicketNumber();
+        String chiefComplaint = ticket.getServiceType() != null ? ticket.getServiceType() : "N/A";
+        String doctorName = ticket.getAssignedDoctorName() != null ? ticket.getAssignedDoctorName() : "Unassigned";
+        
+        // Name, age, status badge
+        HBox nameRow = new HBox(10);
+        nameRow.setAlignment(Pos.CENTER_LEFT);
+        Label nameLabel = new Label(patientName);
+        nameLabel.getStyleClass().add("text-name");
+        Label ageLabel = new Label("• Age " + age);
+        ageLabel.getStyleClass().add("text-meta");
+        Label statusBadge = new Label("Consulting");
+        statusBadge.getStyleClass().addAll("badge-pill", "badge-consulting");
+        nameRow.getChildren().addAll(nameLabel, ageLabel, statusBadge);
+        
+        // Ticket ID, complaint, doctor
+        HBox detailsRow = new HBox(15);
+        detailsRow.setAlignment(Pos.CENTER_LEFT);
+        Label ticketIdLabel = new Label("ID: " + ticketNumber);
+        ticketIdLabel.getStyleClass().add("text-sub");
+        Label complaintLabel = new Label("• " + chiefComplaint);
+        complaintLabel.getStyleClass().add("text-sub");
+        Label doctorLabel = new Label("• Dr. " + doctorName);
+        doctorLabel.getStyleClass().add("text-sub");
+        detailsRow.getChildren().addAll(ticketIdLabel, complaintLabel, doctorLabel);
+        
+        patientInfo.getChildren().addAll(nameRow, detailsRow);
+        
+        // Delete button
+        Button deleteBtn = new Button();
+        deleteBtn.getStyleClass().add("icon-btn-trash");
+        deleteBtn.setOnAction(e -> handleDeleteInProgressTicket(ticket));
+        javafx.scene.shape.SVGPath trashIcon = new javafx.scene.shape.SVGPath();
+        trashIcon.setContent("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z");
+        trashIcon.setFill(javafx.scene.paint.Color.WHITE);
+        trashIcon.setScaleX(0.7);
+        trashIcon.setScaleY(0.7);
+        deleteBtn.setGraphic(trashIcon);
+        
+        HBox actionButtons = new HBox(10);
+        actionButtons.setAlignment(Pos.CENTER_RIGHT);
+        actionButtons.getChildren().add(deleteBtn);
+        
+        card.getChildren().addAll(avatarPane, patientInfo, actionButtons);
+        
+        return card;
+    }
+    
+    /**
+     * Loads and displays completed tickets for today
+     */
+    private void loadCompletedQueue() {
+        if (completedContainer == null) return;
+        
+        completedContainer.getChildren().clear();
+        
+        List<Ticket> completedTickets = ticketDAO.findCompletedToday();
+        
+        if (completedTickets.isEmpty()) {
+            Label emptyLabel = new Label("No completed visits today");
+            emptyLabel.getStyleClass().add("queue-empty-label");
+            completedContainer.getChildren().add(emptyLabel);
+        } else {
+            for (Ticket ticket : completedTickets) {
+                HBox card = createCompletedCard(ticket);
+                completedContainer.getChildren().add(card);
+            }
+        }
+    }
+    
+    /**
+     * Creates a card for a completed ticket
+     */
+    private HBox createCompletedCard(Ticket ticket) {
+        HBox card = new HBox(20);
+        card.getStyleClass().addAll("q-card", "q-card-completed");
+        card.setAlignment(Pos.CENTER_LEFT);
+        
+        // Checkmark circle
+        StackPane checkPane = new StackPane();
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(20, javafx.scene.paint.Color.valueOf("#2e7d32"));
+        javafx.scene.shape.SVGPath checkIcon = new javafx.scene.shape.SVGPath();
+        checkIcon.setContent("M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z");
+        checkIcon.setFill(javafx.scene.paint.Color.WHITE);
+        checkIcon.setScaleX(0.8);
+        checkIcon.setScaleY(0.8);
+        checkPane.getChildren().addAll(circle, checkIcon);
+        
+        // Patient info
+        VBox patientInfo = new VBox(5);
+        patientInfo.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(patientInfo, Priority.ALWAYS);
+        
+        Patient patient = ticket.getPatient();
+        String patientName = patient != null ? patient.getName() : "Unknown";
+        int age = patient != null ? patient.getAge() : 0;
+        String ticketNumber = ticket.getTicketNumber();
+        String chiefComplaint = ticket.getServiceType() != null ? ticket.getServiceType() : "N/A";
+        
+        // Format completion time
+        String completedTime = "N/A";
+        if (ticket.getCalledTime() != null) {
+            completedTime = ticket.getCalledTime().format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a"));
+        }
+        
+        // Name, age, priority badge
+        HBox nameRow = new HBox(10);
+        nameRow.setAlignment(Pos.CENTER_LEFT);
+        Label nameLabel = new Label(patientName);
+        nameLabel.getStyleClass().add("text-name");
+        Label ageLabel = new Label("• Age " + age);
+        ageLabel.getStyleClass().add("text-meta");
+        Label priorityBadge = new Label(getPriorityDisplayText(ticket.getPriority()));
+        priorityBadge.getStyleClass().addAll("badge-pill", getPriorityBadgeStyleClass(ticket.getPriority()));
+        nameRow.getChildren().addAll(nameLabel, ageLabel, priorityBadge);
+        
+        // Ticket ID, complaint, completion time
+        HBox detailsRow = new HBox(15);
+        detailsRow.setAlignment(Pos.CENTER_LEFT);
+        Label ticketIdLabel = new Label("ID: " + ticketNumber);
+        ticketIdLabel.getStyleClass().add("text-sub");
+        Label complaintLabel = new Label("• " + chiefComplaint);
+        complaintLabel.getStyleClass().add("text-sub");
+        Label timeLabel = new Label("• Completed at " + completedTime);
+        timeLabel.getStyleClass().add("text-sub");
+        detailsRow.getChildren().addAll(ticketIdLabel, complaintLabel, timeLabel);
+        
+        patientInfo.getChildren().addAll(nameRow, detailsRow);
+        
+        // View Details button
+        Button viewDetailsBtn = new Button("View Details");
+        viewDetailsBtn.getStyleClass().add("btn-view-details");
+        viewDetailsBtn.setOnAction(e -> handleViewPatientDetails(ticket));
+        
+        card.getChildren().addAll(checkPane, patientInfo, viewDetailsBtn);
+        
+        return card;
+    }
+    
+    /**
+     * Gets display text for priority level
+     */
+    private String getPriorityDisplayText(PriorityLevel priority) {
+        if (priority == null) return "Regular";
+        switch (priority) {
+            case EMERGENCY: return "Emergency";
+            case SENIOR_CITIZEN: return "Senior";
+            default: return "Regular";
+        }
+    }
+    
+    /**
+     * Gets CSS style class for priority badge
+     */
+    private String getPriorityBadgeStyleClass(PriorityLevel priority) {
+        if (priority == null) return "badge-blue";
+        switch (priority) {
+            case EMERGENCY: return "badge-red";
+            case SENIOR_CITIZEN: return "badge-yellow";
+            default: return "badge-blue";
+        }
+    }
+    
+    /**
+     * Handles removing/skipping a ticket from the waiting queue
+     */
+    private void handleRemoveTicket(Ticket ticket) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Remove Patient");
+        confirmAlert.setHeaderText("Remove Patient from Queue?");
+        confirmAlert.setContentText("Are you sure you want to remove " + 
+            (ticket.getPatient() != null ? ticket.getPatient().getName() : "this patient") + 
+            " from the queue?");
+        
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                boolean removed = ticketDAO.removeTicket(ticket.getVisitId());
+                if (removed) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Patient removed from queue.");
+                    // Refresh queue data
+                    QueueService.syncFromDatabase();
+                    loadQueueManagementData();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to remove patient from queue.");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Handles escalating a ticket's priority to Emergency
+     */
+    private void handleEscalatePriority(Ticket ticket) {
+        if (ticket.getPriority() == PriorityLevel.EMERGENCY) {
+            showAlert(Alert.AlertType.INFORMATION, "Already Emergency", 
+                "This patient already has Emergency priority.");
+            return;
+        }
+        
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Escalate Priority");
+        confirmAlert.setHeaderText("Escalate to Emergency Priority?");
+        confirmAlert.setContentText("Are you sure you want to escalate " + 
+            (ticket.getPatient() != null ? ticket.getPatient().getName() : "this patient") + 
+            " to Emergency priority?");
+        
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                boolean updated = ticketDAO.updatePriority(ticket.getVisitId(), PriorityLevel.EMERGENCY);
+                if (updated) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Priority escalated to Emergency.");
+                    // Refresh queue data
+                    QueueService.syncFromDatabase();
+                    loadQueueManagementData();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to escalate priority.");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Handles deleting a ticket from the in-progress queue
+     */
+    private void handleDeleteInProgressTicket(Ticket ticket) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Delete Ticket");
+        confirmAlert.setHeaderText("Delete Ticket from In Progress?");
+        confirmAlert.setContentText("Are you sure you want to permanently delete the ticket for " + 
+            (ticket.getPatient() != null ? ticket.getPatient().getName() : "this patient") + 
+            "? This action cannot be undone.");
+        
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                boolean deleted = ticketDAO.deleteTicket(ticket.getVisitId());
+                if (deleted) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Ticket deleted successfully.");
+                    // Sync with QueueManager and refresh queue data
+                    QueueService.syncFromDatabase();
+                    loadQueueManagementData();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete ticket. It may be referenced by other records.");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Handles viewing patient details
+     */
+    private void handleViewPatientDetails(Ticket ticket) {
+        Patient patient = ticket.getPatient();
+        if (patient == null) {
+            showAlert(Alert.AlertType.WARNING, "No Patient Data", "Patient information not available.");
+            return;
+        }
+        
+        // Load full patient data from database
+        Patient fullPatient = patientDAO.findById(patient.getId());
+        if (fullPatient == null) {
+            fullPatient = patient; // Use ticket patient if not found
+        }
+        
+        // Create and show patient details dialog
+        showPatientDetailsDialog(fullPatient, ticket);
+    }
+    
+    /**
+     * Shows a dialog with patient details
+     */
+    private void showPatientDetailsDialog(Patient patient, Ticket ticket) {
+        javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Patient Details");
+        dialog.setHeaderText("Patient Information");
+        
+        javafx.scene.control.DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setContent(createPatientDetailsContent(patient, ticket));
+        dialogPane.getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+        
+        dialog.showAndWait();
+    }
+    
+    /**
+     * Creates the content for patient details dialog
+     */
+    private javafx.scene.Node createPatientDetailsContent(Patient patient, Ticket ticket) {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(500);
+        
+        // Patient Information Section
+        Label patientHeader = new Label("Patient Information");
+        patientHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        VBox patientInfo = new VBox(8);
+        patientInfo.getChildren().addAll(
+            createDetailRow("Name:", patient.getName()),
+            createDetailRow("Age:", String.valueOf(patient.getAge())),
+            createDetailRow("Phone:", patient.getContactNumber() != null ? patient.getContactNumber() : "N/A"),
+            createDetailRow("Gender:", patient.getGender() != null ? patient.getGender() : "N/A"),
+            createDetailRow("Address:", patient.getHomeAddress() != null ? patient.getHomeAddress() : "N/A"),
+            createDetailRow("Blood Type:", patient.getBloodType() != null ? patient.getBloodType() : "N/A"),
+            createDetailRow("Senior Citizen:", patient.isSeniorCitizen() ? "Yes" : "No")
+        );
+        
+        // Emergency Contact Section
+        Label emergencyHeader = new Label("Emergency Contact");
+        emergencyHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        VBox emergencyInfo = new VBox(8);
+        emergencyInfo.getChildren().addAll(
+            createDetailRow("Contact Person:", 
+                patient.getEmergencycontactPerson() != null ? patient.getEmergencycontactPerson() : "N/A"),
+            createDetailRow("Contact Number:", 
+                patient.getEmergencycontactNumber() != null ? patient.getEmergencycontactNumber() : "N/A")
+        );
+        
+        // Medical Information Section
+        Label medicalHeader = new Label("Medical Information");
+        medicalHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        VBox medicalInfo = new VBox(8);
+        medicalInfo.getChildren().addAll(
+            createDetailRow("Allergies:", patient.getAllergies() != null ? patient.getAllergies() : "None"),
+            createDetailRow("Current Medications:", 
+                patient.getCurrentMedications() != null ? patient.getCurrentMedications() : "None"),
+            createDetailRow("Diagnosis:", patient.getDiagnosis() != null ? patient.getDiagnosis() : "N/A"),
+            createDetailRow("Treatment Plan:", 
+                patient.getTreatmentPlan() != null ? patient.getTreatmentPlan() : "N/A"),
+            createDetailRow("Notes:", patient.getNotes() != null ? patient.getNotes() : "None")
+        );
+        
+        // Visit Information Section
+        Label visitHeader = new Label("Visit Information");
+        visitHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        VBox visitInfo = new VBox(8);
+        visitInfo.getChildren().addAll(
+            createDetailRow("Ticket Number:", ticket.getTicketNumber()),
+            createDetailRow("Visit ID:", ticket.getVisitId()),
+            createDetailRow("Chief Complaint:", 
+                ticket.getServiceType() != null ? ticket.getServiceType() : "N/A"),
+            createDetailRow("Priority:", getPriorityDisplayText(ticket.getPriority())),
+            createDetailRow("Status:", ticket.getStatus().name()),
+            createDetailRow("Created:", 
+                ticket.getCreatedTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+        );
+        
+        content.getChildren().addAll(
+            patientHeader, patientInfo,
+            emergencyHeader, emergencyInfo,
+            medicalHeader, medicalInfo,
+            visitHeader, visitInfo
+        );
+        
+        return content;
+    }
+    
+    /**
+     * Creates a detail row for patient information
+     */
+    private HBox createDetailRow(String label, String value) {
+        HBox row = new HBox(10);
+        Label labelLabel = new Label(label);
+        labelLabel.setStyle("-fx-font-weight: bold; -fx-min-width: 150px;");
+        Label valueLabel = new Label(value != null ? value : "N/A");
+        valueLabel.setWrapText(true);
+        row.getChildren().addAll(labelLabel, valueLabel);
+        return row;
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
