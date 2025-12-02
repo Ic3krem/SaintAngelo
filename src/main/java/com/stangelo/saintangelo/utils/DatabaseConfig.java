@@ -20,10 +20,10 @@ public class DatabaseConfig {
     private static final String CONFIG_FILE = "database.properties";
     private static Properties properties = new Properties();
 
-    // Default configuration values (for XAMPP)
-    private static final String DEFAULT_DB_URL = "jdbc:mysql://192.168.100.25:3306/saintangelo_hospital";
-    private static final String DEFAULT_DB_USERNAME = "app_user";
-    private static final String DEFAULT_DB_PASSWORD = "SaintAngelo";
+    // Default configuration values (for shared LAN database)
+    private static final String DEFAULT_DB_URL = "jdbc:mysql://192.168.1.91:3306/saintangelo_hospital";
+    private static final String DEFAULT_DB_USERNAME = "root";
+    private static final String DEFAULT_DB_PASSWORD = "";
     private static final String DEFAULT_DB_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     static {
@@ -35,12 +35,15 @@ public class DatabaseConfig {
      * Falls back to defaults if file not found
      */
     private static void loadConfiguration() {
-        try (InputStream input = DatabaseConfig.class.getClassLoader().getResourceAsStream(CONFIG_FILE)) {
+        try (InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(CONFIG_FILE)) {
             if (input != null) {
                 properties.load(input);
                 logger.info("Database configuration loaded from " + CONFIG_FILE);
+                logger.info("DB URL: " + properties.getProperty("db.url", "not set"));
+                logger.info("DB Username: " + properties.getProperty("db.username", "not set"));
+                logger.info("DB Password: " + (properties.getProperty("db.password", "").isEmpty() ? "(empty)" : "***"));
             } else {
-                logger.info("Configuration file not found. Using default values.");
+                logger.warning("Configuration file '" + CONFIG_FILE + "' not found in classpath. Using default values.");
                 setDefaultProperties();
             }
         } catch (IOException e) {
@@ -78,13 +81,13 @@ public class DatabaseConfig {
     }
 
     /**
-     * Gets database password from configuration
-     *
-     * @return Database password
-     */
-    public static String getDatabasePassword() {
-        return properties.getProperty("db.password", DEFAULT_DB_PASSWORD);
-    }
+* Gets database password from configuration
+*
+* @return Database password
+*/
+public static String getDatabasePassword() {
+return properties.getProperty("db.password", DEFAULT_DB_PASSWORD);
+}
 
     /**
      * Gets database driver class name
@@ -102,4 +105,3 @@ public class DatabaseConfig {
         loadConfiguration();
     }
 }
-

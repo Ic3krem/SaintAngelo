@@ -1,5 +1,13 @@
 package com.stangelo.saintangelo.controllers;
 
+import java.io.IOException;
+
+import com.stangelo.saintangelo.dao.UserDAO;
+import com.stangelo.saintangelo.models.User;
+import com.stangelo.saintangelo.models.UserRole;
+import com.stangelo.saintangelo.services.AuthService;
+import com.stangelo.saintangelo.utils.DatabaseConnection;
+
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,8 +22,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
-
 public class LoginController {
 
     @FXML
@@ -27,35 +33,105 @@ public class LoginController {
     @FXML
     private Button loginButton;
 
-    @FXML
-    public void handleLoginButtonAction() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+    private UserDAO userDAO;
+    private AuthService authService;
 
-        // Directly attempt to load the dashboard based on credentials
-        if (!loadDashboardForCredentials(username, password)) {
-            showAlert("Login Failed", "Invalid username or password. Please try again.");
-            System.out.println("Login Failed.");
+    @FXML
+    public void initialize() {
+        // Initialize DAO and AuthService
+        userDAO = new UserDAO();
+        authService = AuthService.getInstance();
+
+        // Test database connection on initialization
+        if (!DatabaseConnection.testConnection()) {
+            String dbUrl = DatabaseConnection.getDatabaseUrl();
+            showAlert("Database Connection Error",
+                    "Cannot connect to shared database. Please ensure:\n" +
+                            "1. The database server at 192.168.100.25 is running\n" +
+                            "2. You are connected to the LAN network\n" +
+                            "3. Database 'saintangelo_hospital' exists on the server\n" +
+                            "4. Connection settings in database.properties are correct\n" +
+                            "   Current URL: " + dbUrl + "\n" +
+                            "5. Firewall allows connection to port 3306\n" +
+                            "6. Check the console/logs for detailed error messages");
         }
     }
 
-    private boolean loadDashboardForCredentials(String username, String password) {
+    @FXML
+    public void handleLoginButtonAction() {
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText();
+
+        // Validate input
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert("Validation Error", "Please enter both username and password.");
+            return;
+        }
+
+        // Authenticate user from database
+        try {
+            User authenticatedUser = userDAO.authenticate(username, password);
+
+            if (authenticatedUser != null) {
+                // Set current user in session
+                authService.setCurrentUser(authenticatedUser);
+
+                // Load appropriate dashboard based on user role
+                if (loadDashboardForUser(authenticatedUser)) {
+                    // Clear password field for security
+                    passwordField.clear();
+                } else {
+                    authService.logout();
+                    showAlert("Error", "Failed to load dashboard. Please try again.");
+                }
+            } else {
+                showAlert("Login Failed", 
+                    "Invalid username or password. Please try again.\n\n" +
+                    "Note: Check console logs for detailed error information.");
+                // Clear password field
+                passwordField.clear();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Login Error", 
+                "An error occurred during login: " + e.getMessage() + "\n\n" +
+                "Please check the console for details.");
+            passwordField.clear();
+        }
+    }
+
+    /**
+     * Loads the appropriate dashboard based on user role
+     *
+     * @param user Authenticated user
+     * @return true if dashboard loaded successfully, false otherwise
+     */
+    private boolean loadDashboardForUser(User user) {
         String fxmlFile = null;
         String dashboardTitle = null;
+        UserRole role = user.getRole();
 
-        if ("reception".equals(username) && "password".equals(password)) {
-            fxmlFile = "/fxml/receptionist-dashboard-view.fxml";
-            dashboardTitle = "Receptionist Dashboard";
-        } else if ("doctor".equals(username) && "password".equals(password)) {
-            fxmlFile = "/fxml/doctor-dashboard-view.fxml";
-            dashboardTitle = "Doctor Dashboard";
-        } else if ("admin".equals(username) && "password".equals(password)) {
-            fxmlFile = "/fxml/admin-dashboard-view.fxml";
-            dashboardTitle = "Admin Dashboard";
-        } else if ("public".equals(username) && "password".equals(password)) {
-            fxmlFile = "/fxml/public view.fxml";
-            dashboardTitle = "public Dashboard";
-        } if (fxmlFile != null) {
+        // Map user role to appropriate dashboard
+        switch (role) {
+            case STAFF:
+                fxmlFile = "/fxml/receptionist-dashboard-view.fxml";
+                dashboardTitle = "Receptionist Dashboard - " + user.getFullName();
+                break;
+            case DOCTOR:
+                fxmlFile = "/fxml/doctor-dashboard-view.fxml";
+                dashboardTitle = "Doctor Dashboard - " + user.getFullName();
+                break;
+            case ADMIN:
+            case SUPER_ADMIN:
+                fxmlFile = "/fxml/admin-dashboard-view.fxml";
+                dashboardTitle = "Admin Dashboard - " + user.getFullName();
+                break;
+            default:
+                showAlert("Access Denied", "Your account does not have access to any dashboard.");
+                return false;
+        }
+
+        if (fxmlFile != null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
                 Parent dashboardRoot = loader.load();
@@ -104,8 +180,28 @@ public class LoginController {
         return false;
     }
 
+    /**
+     * Shows an alert dialog
+     *
+     * @param title Alert title
+     * @param message Alert message
+     */
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Shows an information alert dialog
+     *
+     * @param title Alert title
+     * @param message Alert message
+     */
+    private void showInfoAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

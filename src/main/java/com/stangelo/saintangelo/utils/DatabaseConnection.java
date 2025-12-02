@@ -56,12 +56,34 @@ public class DatabaseConnection {
     public static Connection getConnection() {
         try {
             // Check if connection exists and is still valid
-            if (connection != null && !connection.isClosed()) {
-                return connection;
+            if (connection != null) {
+                try {
+                    if (!connection.isClosed()) {
+                        // Try to validate connection (isValid might not be available in all JDBC versions)
+                        try {
+                            if (connection.isValid(2)) {
+                                return connection;
+                            }
+                        } catch (AbstractMethodError | NoSuchMethodError e) {
+                            // isValid() not available, just check if not closed
+                            return connection;
+                        }
+                    }
+                } catch (SQLException e) {
+                    // Connection is invalid, reset it
+                    logger.warning("Existing connection is invalid, creating new one: " + e.getMessage());
+                    connection = null;
+                }
             }
 
             // Load MySQL JDBC driver
-            Class.forName(getDbDriver());
+            try {
+                Class.forName(getDbDriver());
+                logger.info("JDBC Driver loaded: " + getDbDriver());
+            } catch (ClassNotFoundException e) {
+                logger.log(Level.SEVERE, "MySQL JDBC Driver not found. Make sure mysql-connector-j is in the classpath.", e);
+                return null;
+            }
 
             // Establish connection with retry logic
             connection = establishConnectionWithRetry();
@@ -72,11 +94,9 @@ public class DatabaseConnection {
 
             return connection;
 
-        } catch (ClassNotFoundException e) {
-            logger.log(Level.SEVERE, "MySQL JDBC Driver not found. Make sure mysql-connector-j is in the classpath.", e);
-            return null;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Failed to establish database connection", e);
+            connection = null; // Reset connection on failure
             return null;
         }
     }
@@ -92,7 +112,14 @@ public class DatabaseConnection {
 
         for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
             try {
-                Connection conn = DriverManager.getConnection(getDbUrl(), getDbUsername(), getDbPassword());
+                String url = getDbUrl();
+                String username = getDbUsername();
+                String password = getDbPassword();
+                
+                logger.info(String.format("Attempting connection (attempt %d/%d): URL=%s, Username=%s", 
+                    attempt, MAX_RETRY_ATTEMPTS, url, username));
+                
+                Connection conn = DriverManager.getConnection(url, username, password);
 
                 // Set connection properties for better performance
                 conn.setAutoCommit(true);
@@ -102,7 +129,14 @@ public class DatabaseConnection {
 
             } catch (SQLException e) {
                 lastException = e;
-                logger.warning("Database connection attempt " + attempt + " failed: " + e.getMessage());
+                String errorMsg = String.format("Database connection attempt %d failed: %s\n" +
+                        "URL: %s\nUsername: %s\nError Code: %d\nSQL State: %s",
+                        attempt, e.getMessage(), getDbUrl(), getDbUsername(), 
+                        e.getErrorCode(), e.getSQLState());
+                logger.severe(errorMsg);
+                
+                // Print stack trace for debugging
+                logger.log(Level.SEVERE, "Full exception details:", e);
 
                 if (attempt < MAX_RETRY_ATTEMPTS) {
                     try {
@@ -141,15 +175,43 @@ public class DatabaseConnection {
      * @return true if connection is successful, false otherwise
      */
     public static boolean testConnection() {
-        try (Connection conn = getConnection()) {
+        logger.info("Starting database connection test...");
+        try {
+            // Reset connection to force a fresh connection attempt
+            connection = null;
+            
+            Connection conn = getConnection();
             if (conn != null && !conn.isClosed()) {
                 // Test with a simple query
-                conn.createStatement().executeQuery("SELECT 1");
-                logger.info("Database connection test successful");
-                return true;
+                try {
+                    conn.createStatement().executeQuery("SELECT 1");
+                    logger.info("Database connection test successful");
+                    return true;
+                } catch (SQLException e) {
+                    logger.log(Level.SEVERE, "Connection exists but query failed: " + e.getMessage(), e);
+                    connection = null; // Reset invalid connection
+                    return false;
+                }
+            } else {
+                logger.severe("getConnection() returned null or closed connection");
+                return false;
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Database connection test failed", e);
+            String errorDetails = String.format(
+                "Database connection test failed!\n" +
+                "URL: %s\n" +
+                "Username: %s\n" +
+                "Error: %s\n" +
+                "Error Code: %d\n" +
+                "SQL State: %s",
+                getDbUrl(), getDbUsername(), e.getMessage(), 
+                e.getErrorCode(), e.getSQLState()
+            );
+            logger.log(Level.SEVERE, errorDetails, e);
+            connection = null; // Reset connection on failure
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Unexpected error during connection test: " + e.getMessage(), e);
+            connection = null;
         }
         return false;
     }

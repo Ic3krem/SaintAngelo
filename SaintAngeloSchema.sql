@@ -232,13 +232,13 @@ CREATE TABLE IF NOT EXISTS reports (
 -- SAMPLE DATA (Optional - for testing)
 -- =====================================================
 
--- Insert sample users
+-- Insert sample users (plain text passwords for development)
 INSERT INTO users (user_id, username, password, full_name, email, role, permissions, status) VALUES
-('U001', 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Admin User', 'admin@stangelo.com', 'ADMIN', 'System Configuration', 'Active'),
-('U002', 'doctor', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Dr. John Diaz', 'john.diaz@stangelo.com', 'DOCTOR', 'Full Medical Access', 'Active'),
-('U003', 'reception', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Angelo Castro', 'angelo.castro@stangelo.com', 'STAFF', 'Registration & Queue', 'Active'),
-('U004', 'sarah.lee', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Dr. Sarah Lee', 'sarah.lee@stangelo.com', 'DOCTOR', 'Full Medical Access', 'Active'),
-('U005', 'maria.santos', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Maria Santos', 'maria.santos@stangelo.com', 'STAFF', 'Registration & Queue', 'Active');
+('U001', 'admin', 'password', 'Admin User', 'admin@stangelo.com', 'ADMIN', 'System Configuration', 'Active'),
+('U002', 'doctor', 'password', 'Dr. John Diaz', 'john.diaz@stangelo.com', 'DOCTOR', 'Full Medical Access', 'Active'),
+('U003', 'reception', 'password', 'Angelo Castro', 'angelo.castro@stangelo.com', 'STAFF', 'Registration & Queue', 'Active'),
+('U004', 'sarah.lee', 'password', 'Dr. Sarah Lee', 'sarah.lee@stangelo.com', 'DOCTOR', 'Full Medical Access', 'Active'),
+('U005', 'maria.santos', 'password', 'Maria Santos', 'maria.santos@stangelo.com', 'STAFF', 'Registration & Queue', 'Active');
 
 -- Insert sample doctors
 INSERT INTO doctors (doctor_id, user_id, name, email, specialization, department, building_number, status) VALUES
