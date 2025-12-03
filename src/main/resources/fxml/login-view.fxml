@@ -57,7 +57,7 @@
                 
                 <Hyperlink fx:id="publicViewLink" onAction="#handlePublicViewLinkAction" styleClass="forgot-link" text="Public View">
                     <VBox.margin>
-                        <Insets top="15.0" />
+                        <Insets bottom="10.0" top="10.0" />
                     </VBox.margin>
                 </Hyperlink>
             </children>

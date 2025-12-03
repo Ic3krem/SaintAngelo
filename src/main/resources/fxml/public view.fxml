@@ -6,9 +6,9 @@
 <?import javafx.scene.shape.*?>
 
 <StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
-   <VBox alignment="TOP_CENTER" maxWidth="Infinity" spacing="30.0" styleClass="main-container" StackPane.alignment="CENTER">
+   <VBox alignment="TOP_CENTER" maxWidth="Infinity" spacing="30.0" styleClass="main-container" VBox.vgrow="ALWAYS">
       <padding>
-         <Insets bottom="2.0%" left="3.0%" right="3.0%" top="2.0%" />
+         <Insets bottom="40.0" left="60.0" right="60.0" top="40.0" />
       </padding>
       
       <!-- 1. Header Section -->
