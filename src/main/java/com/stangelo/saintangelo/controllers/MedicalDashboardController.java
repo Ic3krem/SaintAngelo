@@ -507,7 +507,7 @@ public class MedicalDashboardController implements Initializable {
             HBox titleBar = new HBox();
             titleBar.setAlignment(Pos.CENTER_LEFT);
             titleBar.setPadding(new Insets(10, 5, 5, 10));
-            titleBar.setStyle("-fx-background-color: #007345; -fx-background-radius: 30 30 0 0;");
+            titleBar.setStyle("-fx-background-color: #007345; -fx-background-radius: 0;");
 
             Label titleLabel = new Label("Saint Angelo Medical Center");
             titleLabel.setTextFill(Color.WHITE);

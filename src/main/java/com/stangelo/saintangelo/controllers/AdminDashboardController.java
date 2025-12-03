@@ -3,6 +3,7 @@ package com.stangelo.saintangelo.controllers;
 import com.stangelo.saintangelo.dao.UserDAO;
 import com.stangelo.saintangelo.models.User;
 import com.stangelo.saintangelo.models.UserRole;
+import com.stangelo.saintangelo.services.AuthService;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -45,10 +46,19 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private Button addUserButton;
 
+    // User Profile Fields (present in all admin views)
+    @FXML
+    private Label userNameLabel;
+    @FXML
+    private Label userRoleLabel;
+
     private UserDAO userDAO;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Update user info display
+        updateUserInfo();
+        
         // Initialize UserDAO if we're on the user management view
         if (userTableContainer != null) {
             userDAO = new UserDAO();
@@ -653,7 +663,7 @@ public class AdminDashboardController implements Initializable {
             HBox titleBar = new HBox();
             titleBar.setAlignment(Pos.CENTER_LEFT);
             titleBar.setPadding(new Insets(10, 5, 5, 10));
-            titleBar.setStyle("-fx-background-color: #007345; -fx-background-radius: 30 30 0 0;");
+            titleBar.setStyle("-fx-background-color: #007345; -fx-background-radius: 0;");
 
             Label titleLabel = new Label("Saint Angelo Medical Center");
             titleLabel.setTextFill(Color.WHITE);
@@ -721,6 +731,12 @@ public class AdminDashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // Get the controller instance to update user info
+            AdminDashboardController controller = loader.getController();
+            if (controller != null) {
+                controller.updateUserInfo();
+            }
+
             // 1. Set initial opacity to 0 (Invisible)
             root.setOpacity(0);
 
@@ -736,6 +752,21 @@ public class AdminDashboardController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load " + fxmlPath + "\nCheck if file exists in /fxml/ folder.");
+        }
+    }
+
+    /**
+     * Updates the user name and role labels from the current logged-in user
+     */
+    private void updateUserInfo() {
+        User currentUser = AuthService.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            if (userNameLabel != null) {
+                userNameLabel.setText(currentUser.getFullName());
+            }
+            if (userRoleLabel != null) {
+                userRoleLabel.setText(getRoleDisplayName(currentUser.getRole()));
+            }
         }
     }
 

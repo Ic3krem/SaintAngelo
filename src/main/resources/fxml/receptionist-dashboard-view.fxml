@@ -12,7 +12,7 @@
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox minWidth="200.0" maxWidth="300.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox maxWidth="300.0" minWidth="200.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <!-- Logo -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -83,69 +83,78 @@
                         <!-- Main Grid Layout -->
                         <GridPane hgap="25.0" vgap="25.0">
                             <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="70.0" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
+                                <!-- LEFT COLUMN: Takes remaining space -->
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="500.0" />
+                                <!-- RIGHT COLUMN: Fixed width for recent calls sidebar -->
+                                <ColumnConstraints hgrow="NEVER" minWidth="300.0" prefWidth="320.0" maxWidth="350.0" halignment="RIGHT" />
                             </columnConstraints>
                             <rowConstraints>
-                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints valignment="TOP" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
 
-                                <!-- LEFT COLUMN -->
-                                <VBox spacing="25.0">
+                                <!-- LEFT COLUMN CONTENT -->
+                                <VBox spacing="25.0" GridPane.columnIndex="0">
                                     <children>
+                                        <!-- Stat Cards Row -->
                                         <HBox spacing="20.0">
-                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+                                            <!-- Card 1 -->
+                                            <VBox maxWidth="Infinity" styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Total Today" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                         <Label fx:id="totalTodayLabel" styleClass="stat-value" text="129" />
                                                         <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <LineChart fx:id="totalTodayChart" createSymbols="false" legendVisible="false" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                        <!-- minWidth=0 prevents chart from exploding layout -->
+                                                        <LineChart fx:id="totalTodayChart" createSymbols="false" legendVisible="false" minWidth="0" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
                                                             <xAxis>
-                                                                <CategoryAxis side="BOTTOM" />
+                                                                <CategoryAxis side="BOTTOM" visible="false" />
                                                             </xAxis>
                                                             <yAxis>
-                                                                <NumberAxis side="LEFT" />
+                                                                <NumberAxis side="LEFT" visible="false" />
                                                             </yAxis>
                                                         </LineChart>
                                                     </HBox>
                                                     <Label fx:id="totalTodayFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
-                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+
+                                            <!-- Card 2 -->
+                                            <VBox maxWidth="Infinity" styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Waiting" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                         <Label fx:id="waitingCountLabel" styleClass="stat-value" text="25" />
                                                         <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <LineChart fx:id="waitingCountChart" createSymbols="false" legendVisible="false" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                        <LineChart fx:id="waitingCountChart" createSymbols="false" legendVisible="false" minWidth="0" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
                                                             <xAxis>
-                                                                <CategoryAxis side="BOTTOM" />
+                                                                <CategoryAxis side="BOTTOM" visible="false" />
                                                             </xAxis>
                                                             <yAxis>
-                                                                <NumberAxis side="LEFT" />
+                                                                <NumberAxis side="LEFT" visible="false" />
                                                             </yAxis>
                                                         </LineChart>
                                                     </HBox>
                                                     <Label fx:id="waitingCountFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
-                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+
+                                            <!-- Card 3 -->
+                                            <VBox maxWidth="Infinity" styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Avg. Wait Time" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                         <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="15" />
                                                         <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <LineChart fx:id="avgWaitTimeChart" createSymbols="false" legendVisible="false" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                        <LineChart fx:id="avgWaitTimeChart" createSymbols="false" legendVisible="false" minWidth="0" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
                                                             <xAxis>
-                                                                <CategoryAxis side="BOTTOM" />
+                                                                <CategoryAxis side="BOTTOM" visible="false" />
                                                             </xAxis>
                                                             <yAxis>
-                                                                <NumberAxis side="LEFT" />
+                                                                <NumberAxis side="LEFT" visible="false" />
                                                             </yAxis>
                                                         </LineChart>
                                                     </HBox>
@@ -168,7 +177,7 @@
                                                 </children>
                                             </VBox>
                                             <Button maxWidth="Infinity" onAction="#handleRefreshQueue" styleClass="btn-call-next" text="Refresh Queue" />
-                                            
+
                                             <!-- Queue Display Section -->
                                             <VBox spacing="10.0" style="-fx-padding: 15 0 0 0;">
                                                 <Label styleClass="section-header" text="Waiting Queue" />
@@ -182,7 +191,8 @@
                                 </VBox>
 
                                 <!-- RIGHT COLUMN: Recent Calls -->
-                                <VBox styleClass="recent-calls-panel" GridPane.columnIndex="1">
+                                <!-- Added VBox.vgrow to ensure it stretches full height of the row -->
+                                <VBox alignment="TOP_LEFT" styleClass="recent-calls-panel" GridPane.columnIndex="1">
                                     <children>
                                         <Label styleClass="section-header" text="Recent Calls" />
                                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">

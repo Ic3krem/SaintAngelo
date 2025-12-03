@@ -9,16 +9,14 @@
 
 .left-pane {
     -fx-background-color: #ffffff;
-    /* Top-Left: 0, Top-Right: 0, Bottom-Right: 0, Bottom-Left: 30 */
-    -fx-background-radius: 0 0 0 30;
-    -fx-border-radius: 0 0 0 30;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
 
 .right-pane {
     -fx-background-color: #ffffff;
-    /* Top-Left: 0, Top-Right: 0, Bottom-Right: 30, Bottom-Left: 0 */
-    -fx-background-radius: 0 0 30 0;
-    -fx-border-radius: 0 0 30 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
 
 /* Typography - Left Side */
