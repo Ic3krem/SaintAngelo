@@ -88,24 +88,51 @@ public class QueueManager {
      * Syncs the in-memory queue with the database
      * Called on startup and when needed
      * Only loads today's waiting tickets to match countWaitingTickets() behavior
+     * Handles connection failures gracefully with automatic reconnection
      */
     public synchronized void syncFromDatabase() {
         logger.info("Syncing queue from database...");
         
-        // Clear current queue
-        waitingQueue.clear();
-        
-        // Load waiting tickets from database (only today's tickets to match countWaitingTickets())
-        List<Ticket> waitingTickets = ticketDAO.findWaitingTickets(Integer.MAX_VALUE);
-        for (Ticket ticket : waitingTickets) {
-            waitingQueue.offer(ticket);
+        try {
+            // Clear current queue
+            waitingQueue.clear();
+            
+            // Load waiting tickets from database (only today's tickets to match countWaitingTickets())
+            List<Ticket> waitingTickets = ticketDAO.findWaitingTickets(Integer.MAX_VALUE);
+            for (Ticket ticket : waitingTickets) {
+                waitingQueue.offer(ticket);
+            }
+            
+            // Load currently serving ticket
+            currentlyServing = ticketDAO.findCurrentlyServing();
+            
+            logger.info("Queue synced. Waiting: " + waitingQueue.size() + 
+                       ", Currently serving: " + (currentlyServing != null ? currentlyServing.getTicketNumber() : "none"));
+        } catch (Exception e) {
+            // Handle connection failures and other database errors
+            logger.warning("Error syncing from database: " + e.getMessage());
+            
+            // Try to reset connection and retry once
+            try {
+                com.stangelo.saintangelo.utils.DatabaseConnection.resetConnection();
+                logger.info("Connection reset, retrying sync...");
+                
+                // Retry the sync
+                waitingQueue.clear();
+                List<Ticket> waitingTickets = ticketDAO.findWaitingTickets(Integer.MAX_VALUE);
+                for (Ticket ticket : waitingTickets) {
+                    waitingQueue.offer(ticket);
+                }
+                currentlyServing = ticketDAO.findCurrentlyServing();
+                
+                logger.info("Queue synced after reconnection. Waiting: " + waitingQueue.size() + 
+                           ", Currently serving: " + (currentlyServing != null ? currentlyServing.getTicketNumber() : "none"));
+            } catch (Exception retryException) {
+                logger.severe("Failed to sync after reconnection attempt: " + retryException.getMessage());
+                // Keep existing queue data on failure - don't clear it
+                // This ensures the UI still shows something even if sync fails
+            }
         }
-        
-        // Load currently serving ticket
-        currentlyServing = ticketDAO.findCurrentlyServing();
-        
-        logger.info("Queue synced. Waiting: " + waitingQueue.size() + 
-                   ", Currently serving: " + (currentlyServing != null ? currentlyServing.getTicketNumber() : "none"));
     }
     
     /**

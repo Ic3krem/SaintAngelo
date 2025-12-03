@@ -69,10 +69,15 @@ public class PublicViewController implements Initializable {
         QueueService.syncFromDatabase();
         updateNextInQueue();
 
-        // Set up periodic database sync (every 2.5 seconds)
-        syncTimeline = new Timeline(new KeyFrame(Duration.seconds(2.5), e -> {
-            QueueService.syncFromDatabase();
-            updateNextInQueue();
+        // Set up periodic database sync (every 3 seconds - reduced frequency for better network stability)
+        syncTimeline = new Timeline(new KeyFrame(Duration.seconds(3), e -> {
+            try {
+                QueueService.syncFromDatabase();
+                updateNextInQueue();
+            } catch (Exception ex) {
+                // Silently handle sync errors - UI will show last known state
+                // Errors are already logged in QueueManager
+            }
         }));
         syncTimeline.setCycleCount(Animation.INDEFINITE);
         syncTimeline.play();

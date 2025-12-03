@@ -254,10 +254,26 @@ INSERT INTO patients (patient_id, first_name, last_name, age, phone_number, gend
 ('A138', 'Sofia', 'Villanueva', 35, '0956-789-0123', 'Female', '654 Maple Dr, City', 'Fracture', 'REGULAR', 'Carlos Villanueva', '0956-789-0124', FALSE, 'O-', '2024-12-20', '2025-11-25');
 
 -- Insert sample tickets
+-- Note: Using NOW() for WAITING tickets so they appear when querying by CURDATE()
+-- For IN_SERVICE and COMPLETED, using fixed dates is fine as they're historical
 INSERT INTO tickets (visit_id, ticket_number, patient_id, status, priority, service_type, assigned_doctor_id, created_time, wait_time_minutes) VALUES
-('Q001', 'A1', 'A145', 'IN_SERVICE', 'REGULAR', 'Consultation', 'DOC001', '2025-11-28 10:00:00', 15),
-('Q002', 'A2', 'A144', 'WAITING', 'EMERGENCY', 'Consultation', 'DOC002', '2025-11-28 10:05:00', 8),
+('Q001', 'A1', 'A145', 'IN_SERVICE', 'REGULAR', 'Consultation', 'DOC001', NOW() - INTERVAL 60 MINUTE, 15),
+('Q002', 'A2', 'A144', 'WAITING', 'EMERGENCY', 'Consultation', 'DOC002', NOW() - INTERVAL 55 MINUTE, 8),
 ('Q003', 'A3', 'A143', 'COMPLETED', 'REGULAR', 'Consultation', 'DOC001', '2025-11-28 09:30:00', 22);
+
+-- Insert additional waiting tickets for queue population
+-- Using NOW() with time intervals to ensure tickets appear when querying by CURDATE()
+INSERT INTO tickets (visit_id, ticket_number, patient_id, status, priority, service_type, assigned_doctor_id, created_time, wait_time_minutes) VALUES
+('Q004', 'A4', 'A142', 'WAITING', 'REGULAR', 'Consultation', 'DOC001', NOW() - INTERVAL 50 MINUTE, 0),
+('Q005', 'A5', 'A138', 'WAITING', 'REGULAR', 'Consultation', 'DOC001', NOW() - INTERVAL 45 MINUTE, 0),
+('Q006', 'A6', 'A145', 'WAITING', 'REGULAR', 'Follow-up', 'DOC001', NOW() - INTERVAL 40 MINUTE, 0),
+('Q007', 'A7', 'A143', 'WAITING', 'REGULAR', 'Consultation', 'DOC002', NOW() - INTERVAL 35 MINUTE, 0),
+('Q008', 'A8', 'A142', 'WAITING', 'REGULAR', 'General Checkup', 'DOC001', NOW() - INTERVAL 30 MINUTE, 0),
+('Q009', 'A9', 'A144', 'WAITING', 'EMERGENCY', 'Urgent Consultation', 'DOC002', NOW() - INTERVAL 25 MINUTE, 0),
+('Q010', 'A10', 'A138', 'WAITING', 'REGULAR', 'Consultation', 'DOC001', NOW() - INTERVAL 20 MINUTE, 0),
+('Q011', 'B1', 'A145', 'WAITING', 'REGULAR', 'Consultation', 'DOC001', NOW() - INTERVAL 15 MINUTE, 0),
+('Q012', 'B2', 'A143', 'WAITING', 'REGULAR', 'Follow-up', 'DOC002', NOW() - INTERVAL 10 MINUTE, 0),
+('Q013', 'B3', 'A142', 'WAITING', 'REGULAR', 'Consultation', 'DOC001', NOW() - INTERVAL 5 MINUTE, 0);
 
 -- Insert sample appointments
 INSERT INTO appointments (appointment_id, patient_id, doctor_id, appointment_date, appointment_time, purpose, status, notes) VALUES
@@ -414,6 +430,30 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
+
+-- =====================================================
+-- UPDATE EXISTING TICKETS (Optional - run if tickets already exist with old dates)
+-- =====================================================
+-- If you already have tickets in the database with old dates (not today),
+-- run this UPDATE to set their created_time to today so they appear in the queue:
+--
+-- UPDATE tickets 
+-- SET created_time = NOW() - INTERVAL (RAND() * 60) MINUTE
+-- WHERE status = 'WAITING' AND DATE(created_time) != CURDATE();
+--
+-- Or update specific tickets by visit_id:
+--
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 55 MINUTE WHERE visit_id = 'Q002';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 50 MINUTE WHERE visit_id = 'Q004';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 45 MINUTE WHERE visit_id = 'Q005';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 40 MINUTE WHERE visit_id = 'Q006';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 35 MINUTE WHERE visit_id = 'Q007';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 30 MINUTE WHERE visit_id = 'Q008';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 25 MINUTE WHERE visit_id = 'Q009';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 20 MINUTE WHERE visit_id = 'Q010';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 15 MINUTE WHERE visit_id = 'Q011';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 10 MINUTE WHERE visit_id = 'Q012';
+-- UPDATE tickets SET created_time = NOW() - INTERVAL 5 MINUTE WHERE visit_id = 'Q013';
 
 -- =====================================================
 -- END OF SCHEMA
