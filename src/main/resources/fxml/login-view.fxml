@@ -7,10 +7,10 @@
 
 <!-- Root HBox: Added fx:controller to link to your Java class -->
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: transparent; -fx-background-radius: 0 0 30 30;" styleClass="main-container" stylesheets="@../css/login-view.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.LoginController">
+<HBox style="-fx-background-color: transparent; -fx-background-radius: 0 0 30 30;" styleClass="main-container" stylesheets="@../css/login-view.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.LoginController">
     <children>
         <!-- Left Pane: Round only Bottom-Left (0 0 0 30) -->
-        <VBox alignment="CENTER_LEFT" prefHeight="600.0" prefWidth="525.0" style="-fx-background-radius: 0 0 0 30;" styleClass="left-pane" HBox.hgrow="ALWAYS">
+        <VBox alignment="CENTER_LEFT" minWidth="300.0" prefWidth="525.0" style="-fx-background-radius: 0 0 0 30;" styleClass="left-pane" HBox.hgrow="ALWAYS">
             <children>
                 <ImageView fitHeight="150.0" fitWidth="144.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -67,7 +67,7 @@
         </VBox>
 
         <!-- Right Pane: Round only Bottom-Right (0 0 30 0) -->
-        <StackPane prefHeight="600.0" prefWidth="400.0" style="-fx-background-radius: 0 0 30 0;" styleClass="right-pane" HBox.hgrow="ALWAYS">
+        <StackPane minWidth="200.0" prefWidth="400.0" style="-fx-background-radius: 0 0 30 0;" styleClass="right-pane" HBox.hgrow="ALWAYS">
             <children>
                 <ImageView fitHeight="482.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="false" StackPane.alignment="CENTER">
                     <image>

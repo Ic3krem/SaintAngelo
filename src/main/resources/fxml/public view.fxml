@@ -6,9 +6,9 @@
 <?import javafx.scene.shape.*?>
 
 <StackPane stylesheets="@../css/public_display.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.PublicViewController">
-   <VBox alignment="TOP_CENTER" maxWidth="1400.0" spacing="30.0" styleClass="main-container">
+   <VBox alignment="TOP_CENTER" maxWidth="Infinity" spacing="30.0" styleClass="main-container" StackPane.alignment="CENTER">
       <padding>
-         <Insets bottom="40.0" left="60.0" right="60.0" top="40.0" />
+         <Insets bottom="2.0%" left="3.0%" right="3.0%" top="2.0%" />
       </padding>
       
       <!-- 1. Header Section -->
@@ -30,7 +30,7 @@
          <Label styleClass="now-serving-label" text="Now Serving" />
          
          <!-- The Card -->
-         <StackPane styleClass="now-serving-card" maxHeight="400.0" maxWidth="500.0" minHeight="300.0" minWidth="400.0" prefHeight="350.0" prefWidth="450.0">
+         <StackPane styleClass="now-serving-card" maxHeight="Infinity" maxWidth="Infinity" minHeight="250.0" minWidth="300.0" prefHeight="350.0" prefWidth="450.0">
             <Label fx:id="nowServingNumberLabel" styleClass="now-serving-number" text="0" />
          </StackPane>
       </VBox>

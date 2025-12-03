@@ -1,6 +1,11 @@
 /* Import base styles */
 @import "medical-dashboard.css";
 
+/* Ensure base font size is set for responsive sizing */
+.root {
+    -fx-font-size: 16px; /* Base font size for em calculations */
+}
+
 /* --- RECEPTION SPECIFIC STYLES --- */
 
 /* Main Layout Spacing */

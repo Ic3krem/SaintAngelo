@@ -3,6 +3,7 @@
     /* Linear gradient matching the design: Light Green to Dark Green */
     -fx-background-color: linear-gradient(to bottom right, #E7F1DD 0%, #88c6a5 40%, #007345 100%);
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+    -fx-font-size: 16px; /* Base font size for em calculations */
 }
 
 /* Main Container */
@@ -12,31 +13,31 @@
 
 /* Header Text */
 .title-label {
-    -fx-font-size: 28px;
+    -fx-font-size: 1.75em;
     -fx-text-fill: #1E293B;
     -fx-font-weight: normal;
 }
 
 .subtitle-label {
-    -fx-font-size: 16px;
+    -fx-font-size: 1em;
     -fx-text-fill: rgba(30, 41, 59, 0.8);
 }
 
 .time-label {
-    -fx-font-size: 36px;
+    -fx-font-size: 2.25em;
     -fx-text-fill: #1E293B;
     -fx-font-weight: normal;
 }
 
 .date-label {
-    -fx-font-size: 16px;
+    -fx-font-size: 1em;
     -fx-text-fill: rgba(30, 41, 59, 0.8);
     -fx-alignment: CENTER_RIGHT;
 }
 
 /* Now Serving Section */
 .now-serving-label {
-    -fx-font-size: 36px;
+    -fx-font-size: 2.25em;
     -fx-text-fill: rgba(30, 41, 59, 0.9);
     -fx-font-weight: normal;
 }
@@ -50,7 +51,7 @@
 }
 
 .now-serving-number {
-    -fx-font-size: 120px; /* Reduced from 200px for better sizing */
+    -fx-font-size: 7.5em; /* Responsive font size */
     -fx-text-fill: #007345;
     -fx-font-weight: bold;
 }
@@ -63,7 +64,7 @@
 }
 
 .next-queue-title {
-    -fx-font-size: 24px;
+    -fx-font-size: 1.5em;
     -fx-text-fill: #1E293B; /* Dark grey for readability */
     -fx-font-weight: 500;
 }
@@ -71,14 +72,14 @@
 .next-queue-item {
     -fx-background-color: rgba(255, 255, 255, 0.5); /* lighter glass effect */
     -fx-background-radius: 14;
-    -fx-padding: 12 0;
+    -fx-padding: 0.75em 0;
     -fx-alignment: center;
-    -fx-min-width: 140px;
-    -fx-max-width: 160px;
+    -fx-min-width: 8.75em;
+    -fx-max-width: 10em;
 }
 
 .next-queue-number {
-    -fx-font-size: 40px;
+    -fx-font-size: 2.5em;
     -fx-text-fill: #292929;
     -fx-font-weight: normal;
 }

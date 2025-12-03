@@ -11,6 +11,7 @@
     -input-border: #e0e0e0;
     -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
     -fx-background-color: #f4fcf8;
+    -fx-font-size: 16px; /* Base font size for em calculations */
 }
 
 /* Sidebar Styles */
