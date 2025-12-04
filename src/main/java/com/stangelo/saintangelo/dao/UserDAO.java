@@ -419,5 +419,56 @@ public class UserDAO extends BaseDAO {
         }
         return users;
     }
+
+    /**
+     * Gets total number of users in the system.
+     *
+     * @return total user count
+     */
+    public int countAllUsers() {
+        String sql = "SELECT COUNT(*) FROM users";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            logError("Error counting all users", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Counts users by role.
+     *
+     * @param role UserRole to count
+     * @return number of users with the given role
+     */
+    public int countByRole(UserRole role) {
+        if (role == null) {
+            return 0;
+        }
+
+        String sql = "SELECT COUNT(*) FROM users WHERE role = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, role.name());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error counting users by role: " + role, e);
+        }
+
+        return 0;
+    }
 }
 

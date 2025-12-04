@@ -319,5 +319,27 @@ public class PatientDAO extends BaseDAO {
         }
         return null;
     }
+
+    /**
+     * Gets total number of patients in the system.
+     *
+     * @return total patient count
+     */
+    public int countAllPatients() {
+        String sql = "SELECT COUNT(*) FROM patients";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            logError("Error counting all patients", e);
+        }
+
+        return 0;
+    }
 }
 

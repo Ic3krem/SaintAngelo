@@ -1,6 +1,11 @@
 package com.stangelo.saintangelo.controllers;
 
+import com.stangelo.saintangelo.dao.ActivityLogDAO;
+import com.stangelo.saintangelo.dao.PatientDAO;
+import com.stangelo.saintangelo.dao.TicketDAO;
 import com.stangelo.saintangelo.dao.UserDAO;
+import com.stangelo.saintangelo.models.ActivityLog;
+import com.stangelo.saintangelo.models.ActivityType;
 import com.stangelo.saintangelo.models.User;
 import com.stangelo.saintangelo.models.UserRole;
 import com.stangelo.saintangelo.services.AuthService;
@@ -15,12 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
@@ -29,12 +29,29 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class AdminDashboardController implements Initializable {
+
+    // --- DASHBOARD STAT TILES ---
+    @FXML
+    private Label totalUsersLabel;
+    @FXML
+    private Label totalPatientsLabel;
+    @FXML
+    private Label avgWaitTimeLabel;
+
+    // --- DASHBOARD CHARTS & ACTIVITY ---
+    @FXML
+    private HBox patientFlowChart;
+    @FXML
+    private VBox systemUsageContainer;
+    @FXML
+    private VBox recentActivityContainer;
 
     // User Management FXML Fields
     @FXML
@@ -52,20 +69,232 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private Label userRoleLabel;
 
+    // DAOs
     private UserDAO userDAO;
+    private PatientDAO patientDAO;
+    private TicketDAO ticketDAO;
+    private ActivityLogDAO activityLogDAO;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Update user info display
         updateUserInfo();
-        
-        // Initialize UserDAO if we're on the user management view
+
+        // Determine which admin view we are on by checking which FXML fields are present
+        if (totalUsersLabel != null) {
+            // Dashboard view
+            userDAO = new UserDAO();
+            patientDAO = new PatientDAO();
+            ticketDAO = new TicketDAO();
+            activityLogDAO = new ActivityLogDAO();
+            initializeDashboard();
+        }
+
         if (userTableContainer != null) {
+            // User management view
             userDAO = new UserDAO();
             initializeUserManagement();
         }
     }
 
+    // --- DASHBOARD INITIALIZATION ---
+    private void initializeDashboard() {
+        loadTopTiles();
+        populatePatientFlowChart();
+        populateSystemUsageStats();
+        populateRecentActivity();
+    }
+
+    private void loadTopTiles() {
+        if (totalUsersLabel != null && userDAO != null) {
+            totalUsersLabel.setText(String.valueOf(userDAO.countAllUsers()));
+        }
+        if (totalPatientsLabel != null && patientDAO != null) {
+            totalPatientsLabel.setText(String.valueOf(patientDAO.countAllPatients()));
+        }
+        if (avgWaitTimeLabel != null && ticketDAO != null) {
+            int avgWait = ticketDAO.getAverageWaitTimeToday();
+            avgWaitTimeLabel.setText(avgWait + " min");
+        }
+    }
+
+    private void populatePatientFlowChart() {
+        if (patientFlowChart == null || ticketDAO == null) return;
+
+        patientFlowChart.getChildren().clear();
+        Map<LocalDate, Integer> counts = ticketDAO.getDailyTicketCountsLast7Days();
+
+        int max = counts.values().stream().max(Integer::compareTo).orElse(0);
+        int safeMax = Math.max(max, 1);
+
+        LocalDate today = LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            int count = counts.getOrDefault(date, 0);
+
+            VBox column = new VBox(5);
+            column.setAlignment(Pos.BOTTOM_CENTER);
+
+            Region bar = new Region();
+            bar.getStyleClass().add("chart-bar");
+            double heightRatio = (double) count / safeMax;
+            bar.setPrefWidth(30);
+            bar.setPrefHeight(20 + heightRatio * 110);
+
+            Label value = new Label(String.valueOf(count));
+            value.getStyleClass().add("chart-label");
+
+            Label label = new Label(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+            label.getStyleClass().add("chart-label");
+
+            column.getChildren().addAll(bar, value, label);
+            patientFlowChart.getChildren().add(column);
+        }
+    }
+
+    private void populateSystemUsageStats() {
+        if (systemUsageContainer == null || userDAO == null) return;
+
+        systemUsageContainer.getChildren().clear();
+        int doctors = userDAO.countByRole(UserRole.DOCTOR);
+        int admins = userDAO.countByRole(UserRole.ADMIN) + userDAO.countByRole(UserRole.SUPER_ADMIN);
+        int reception = userDAO.countByRole(UserRole.STAFF);
+
+        int total = doctors + admins + reception;
+        if (total == 0) {
+            Label placeholder = new Label("No user statistics available.");
+            placeholder.getStyleClass().add("stat-footer");
+            systemUsageContainer.getChildren().add(placeholder);
+            return;
+        }
+
+        addUsageRow("Doctors", doctors, total, "fill-blue");
+        addUsageRow("Receptionists", reception, total, "fill-green");
+        addUsageRow("Admins", admins, total, "fill-purple");
+    }
+
+    private void addUsageRow(String labelText, int count, int total, String colorClass) {
+        double percentage = total == 0 ? 0 : (count * 100.0 / total);
+
+        VBox wrapper = new VBox(5);
+        wrapper.getStyleClass().add("usage-row");
+
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label label = new Label(labelText);
+        label.getStyleClass().add("usage-label");
+
+        Label percent = new Label(String.format("%.0f%%", percentage));
+        percent.getStyleClass().add("usage-percent");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        header.getChildren().addAll(label, spacer, percent);
+
+        StackPane track = new StackPane();
+        track.getStyleClass().add("progress-track");
+        track.setPrefWidth(220);
+
+        Region fill = new Region();
+        fill.getStyleClass().addAll("progress-fill", colorClass);
+        track.getChildren().add(fill);
+        StackPane.setAlignment(fill, Pos.CENTER_LEFT);
+        fill.prefWidthProperty().bind(track.widthProperty().multiply(percentage / 100));
+
+        wrapper.getChildren().addAll(header, track);
+        systemUsageContainer.getChildren().add(wrapper);
+    }
+
+    private void populateRecentActivity() {
+        if (recentActivityContainer == null || activityLogDAO == null) return;
+
+        recentActivityContainer.getChildren().clear();
+        List<ActivityLog> logs = activityLogDAO.findRecent(3);
+
+        if (logs.isEmpty()) {
+            Label placeholder = new Label("No activity recorded yet.");
+            placeholder.getStyleClass().add("stat-footer");
+            recentActivityContainer.getChildren().add(placeholder);
+            return;
+        }
+
+        for (int i = 0; i < logs.size(); i++) {
+            ActivityLog log = logs.get(i);
+            HBox row = new HBox(15);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("activity-item");
+
+            Label badge = new Label(mapActivityBadgeText(log.getActivityType()));
+            badge.getStyleClass().addAll("badge-tag", mapActivityBadgeStyle(log.getActivityType()));
+
+            Label description = new Label(buildActivityDescription(log));
+            description.getStyleClass().add("activity-text");
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            row.getChildren().addAll(badge, description, spacer);
+            recentActivityContainer.getChildren().add(row);
+
+            if (i < logs.size() - 1) {
+                recentActivityContainer.getChildren().add(new Separator());
+            }
+        }
+    }
+
+    private String buildActivityDescription(ActivityLog log) {
+        StringBuilder builder = new StringBuilder();
+        if (log.getUser() != null) {
+            builder.append(log.getUser().getFullName()).append(" - ");
+        }
+        if (log.getDetails() != null && !log.getDetails().trim().isEmpty()) {
+            builder.append(log.getDetails().trim());
+        } else {
+            builder.append(log.getAction());
+        }
+        return builder.toString();
+    }
+
+    private String mapActivityBadgeText(ActivityType type) {
+        if (type == null) {
+            return "system";
+        }
+        switch (type) {
+            case PATIENT:
+            case QUEUE:
+            case APPOINTMENT:
+            case DISCHARGE:
+                return "medical";
+            case USER_MANAGEMENT:
+            case REPORT:
+                return "admin";
+            case LOGIN:
+            default:
+                return "system";
+        }
+    }
+
+    private String mapActivityBadgeStyle(ActivityType type) {
+        if (type == null) {
+            return "tag-system";
+        }
+        switch (type) {
+            case PATIENT:
+            case QUEUE:
+            case APPOINTMENT:
+            case DISCHARGE:
+                return "tag-medical";
+            case USER_MANAGEMENT:
+            case REPORT:
+                return "tag-registration";
+            case LOGIN:
+            default:
+                return "tag-system";
+        }
+    }
+
+    // --- USER MANAGEMENT VIEW ---
     /**
      * Initializes the user management view
      */

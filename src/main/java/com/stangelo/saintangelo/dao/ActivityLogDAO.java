@@ -77,6 +77,60 @@ public class ActivityLogDAO extends BaseDAO {
         return logs;
     }
 
+    /**
+     * Returns the most recent activity logs up to the provided limit.
+     *
+     * @param limit maximum number of records to return
+     * @return list of ActivityLog objects ordered by newest first
+     */
+    public List<ActivityLog> findRecent(int limit) {
+        List<ActivityLog> logs = new ArrayList<>();
+        if (limit <= 0) {
+            return logs;
+        }
+
+        String sql = "SELECT * FROM activity_logs ORDER BY timestamp DESC LIMIT ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, limit);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    logs.add(mapResultSetToActivityLog(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error retrieving recent activity logs", e);
+        }
+
+        return logs;
+    }
+
+    /**
+     * Retrieves all activity logs ordered by newest first.
+     *
+     * @return list of all activity logs
+     */
+    public List<ActivityLog> findAll() {
+        List<ActivityLog> logs = new ArrayList<>();
+        String sql = "SELECT * FROM activity_logs ORDER BY timestamp DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                logs.add(mapResultSetToActivityLog(rs));
+            }
+        } catch (SQLException e) {
+            logError("Error retrieving all activity logs", e);
+        }
+
+        return logs;
+    }
+
     private ActivityLog mapResultSetToActivityLog(ResultSet rs) throws SQLException {
         int logId = rs.getInt("log_id");
         String userId = rs.getString("user_id");
