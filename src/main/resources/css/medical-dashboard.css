@@ -9,6 +9,7 @@
     -input-border: #e0e0e0;
     -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
     -fx-background-color: #f4fcf8; /* Main background */
+    -fx-font-size: 16px; /* Base font size for em calculations */
 }
 
 /* Sidebar Styles */
@@ -19,7 +20,7 @@
 }
 
 .logo-text {
-    -fx-font-size: 20px;
+    -fx-font-size: 1.25em;
     -fx-font-weight: bold;
     -fx-fill: -text-dark;
     -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
@@ -29,8 +30,8 @@
     -fx-background-color: transparent;
     -fx-text-fill: -text-muted;
     -fx-alignment: CENTER_LEFT;
-    -fx-font-size: 14px;
-    -fx-padding: 12 15;
+    -fx-font-size: 0.875em;
+    -fx-padding: 0.75em 0.9375em;
     -fx-background-radius: 8;
     -fx-cursor: hand;
 }
@@ -61,18 +62,18 @@
 
 /* Main Content Area */
 .content-area {
-    -fx-padding: 40;
+    -fx-padding: 2.5em;
     -fx-background-color: transparent;
 }
 
 .page-title {
-    -fx-font-size: 28px;
+    -fx-font-size: 1.75em;
     -fx-font-weight: 800;
     -fx-fill: -text-dark;
 }
 
 .page-subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 0.875em;
     -fx-fill: -text-muted;
 }
 
@@ -85,19 +86,19 @@
 }
 
 .stat-title {
-    -fx-font-size: 16px;
+    -fx-font-size: 1em;
     -fx-font-weight: bold;
     -fx-text-fill: -primary-green;
 }
 
 .stat-value {
-    -fx-font-size: 32px;
+    -fx-font-size: 2em;
     -fx-font-weight: bold;
     -fx-text-fill: -text-dark;
 }
 
 .stat-footer {
-    -fx-font-size: 11px;
+    -fx-font-size: 0.6875em;
     -fx-text-fill: -text-muted;
 }
 

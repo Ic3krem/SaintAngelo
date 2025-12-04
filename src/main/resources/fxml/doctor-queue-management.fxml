@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.geometry.Point3D?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -16,16 +18,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
+<BorderPane styleClass="root" stylesheets="@../css/medical-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.MedicalDashboardController">
 
     <!-- LEFT SIDEBAR (Unchanged) -->
     <left>
-        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox minWidth="200.0" maxWidth="300.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
@@ -101,207 +101,26 @@
                         </VBox>
 
                         <!-- Tab Pane for Queue Sections -->
-                        <TabPane styleClass="queue-tab-pane" tabClosingPolicy="UNAVAILABLE">
+                        <TabPane fx:id="queueTabPane" styleClass="queue-tab-pane" tabClosingPolicy="UNAVAILABLE">
                             <tabs>
                                 <!-- TAB 1: WAITING QUEUE -->
-                                <Tab text="Waiting Queue (6)">
+                                <Tab text="Waiting Queue">
                                     <content>
-                                        <VBox spacing="15.0">
-                                            <!-- Card 1 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-waiting">
-                                                <StackPane styleClass="queue-number-circle">
-                                                    <Label styleClass="queue-number-text" text="1" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Elena Martinez" />
-                                                        <Label styleClass="text-meta" text="• Age 42" />
-                                                        <Label styleClass="badge-pill, badge-blue" text="Regular" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: Q001" />
-                                                        <Label styleClass="text-sub" text="• Fever" />
-                                                        <Label styleClass="text-sub" text="📞 0912-345-6789" />
-                                                    </HBox>
-                                                </VBox>
-                                                <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                                                    <Label styleClass="text-meta" text="Wait Time" />
-                                                    <Label styleClass="wait-time-text" text="15 min" />
-                                                </VBox>
-                                                <Button styleClass="icon-btn-trash">
-                                                    <graphic>
-                                                        <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="WHITE" scaleX="0.6" scaleY="0.6" />
-                                                    </graphic>
-                                                </Button>
-                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" opacity="0.8">
-                                                    <image>
-                                                        <Image url="@../images/escalate.png" />
-                                                    </image>
-                                                </ImageView>
-                                            </HBox>
-
-                                            <!-- Card 2 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-waiting">
-                                                <StackPane styleClass="queue-number-circle">
-                                                    <Label styleClass="queue-number-text" text="2" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Robert Chen" />
-                                                        <Label styleClass="text-meta" text="• Age 35" />
-                                                        <Label styleClass="badge-pill, badge-red" text="! Urgent" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: Q002" />
-                                                        <Label styleClass="text-sub" text="• Chest Pain" />
-                                                        <Label styleClass="text-sub" text="📞 0923-456-7890" />
-                                                    </HBox>
-                                                </VBox>
-                                                <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                                                    <Label styleClass="text-meta" text="Wait Time" />
-                                                    <Label style="-fx-text-fill: #e74c3c;" styleClass="wait-time-text" text="8 min" /> <!-- Red for urgent -->
-                                                </VBox>
-                                                <Button styleClass="icon-btn-trash">
-                                                    <graphic>
-                                                        <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="WHITE" scaleX="0.6" scaleY="0.6" />
-                                                    </graphic>
-                                                </Button>
-                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" opacity="0.8">
-                                                    <image>
-                                                        <Image url="@../images/escalate.png" />
-                                                    </image>
-                                                </ImageView>
-                                            </HBox>
-
-                                            <!-- Card 3 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-waiting">
-                                                <StackPane styleClass="queue-number-circle">
-                                                    <Label styleClass="queue-number-text" text="3" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Sarah Johnson" />
-                                                        <Label styleClass="text-meta" text="• Age 28" />
-                                                        <Label styleClass="badge-pill, badge-blue" text="Regular" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: Q003" />
-                                                        <Label styleClass="text-sub" text="• Headache" />
-                                                        <Label styleClass="text-sub" text="📞 0934-567-8901" />
-                                                    </HBox>
-                                                </VBox>
-                                                <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                                                    <Label styleClass="text-meta" text="Wait Time" />
-                                                    <Label styleClass="wait-time-text" text="22 min" />
-                                                </VBox>
-                                                <Button styleClass="icon-btn-trash">
-                                                    <graphic>
-                                                        <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="WHITE" scaleX="0.6" scaleY="0.6" />
-                                                    </graphic>
-                                                </Button>
-                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" opacity="0.8">
-                                                    <image>
-                                                        <Image url="@../images/escalate.png" />
-                                                    </image>
-                                                </ImageView>
-                                            </HBox>
-                                        </VBox>
+                                        <VBox fx:id="waitingQueueContainer" spacing="15.0" />
                                     </content>
                                 </Tab>
 
                                 <!-- TAB 2: IN PROGRESS -->
-                                <Tab text="In Progress (2)">
+                                <Tab text="In Progress">
                                     <content>
-                                        <VBox spacing="15.0">
-                                            <!-- Card 1 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-progress">
-                                                <StackPane>
-                                                    <Circle fill="#e3f2fd" radius="25.0" />
-                                                    <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="1.5" scaleY="1.5" styleClass="avatar-circle-blue" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Patrick Claridad" />
-                                                        <Label styleClass="text-meta" text="• Age 51" />
-                                                        <Label styleClass="badge-pill, badge-consulting" text="Consulting" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: A145" />
-                                                        <Label styleClass="text-sub" text="• Backburner" />
-                                                        <Label styleClass="text-sub" text="• Dr. John Diaz" />
-                                                    </HBox>
-                                                </VBox>
-                                            </HBox>
-
-                                            <!-- Card 2 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-progress">
-                                                <StackPane>
-                                                    <Circle fill="#e3f2fd" radius="25.0" />
-                                                    <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" scaleX="1.5" scaleY="1.5" styleClass="avatar-circle-blue" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Lisa Reyes" />
-                                                        <Label styleClass="text-meta" text="• Age 39" />
-                                                        <Label styleClass="badge-pill, badge-consulting" text="Consulting" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: A146" />
-                                                        <Label styleClass="text-sub" text="• Cough" />
-                                                        <Label styleClass="text-sub" text="• Dr. Sarah Lee" />
-                                                    </HBox>
-                                                </VBox>
-                                            </HBox>
-                                        </VBox>
+                                        <VBox fx:id="inProgressContainer" spacing="15.0" />
                                     </content>
                                 </Tab>
 
                                 <!-- TAB 3: COMPLETED -->
-                                <Tab text="Completed Today (3)">
+                                <Tab text="Completed Today">
                                     <content>
-                                        <VBox spacing="15.0">
-                                            <!-- Card 1 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-completed">
-                                                <StackPane>
-                                                    <Circle fill="#2e7d32" radius="20.0" />
-                                                    <SVGPath content="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Juan Dela Cruz" />
-                                                        <Label styleClass="text-meta" text="• Age 45" />
-                                                        <Label styleClass="badge-pill, badge-blue" text="Regular" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: A143" />
-                                                        <Label styleClass="text-sub" text="• Fever" />
-                                                        <Label styleClass="text-sub" text="• Completed at 10:45 AM" />
-                                                    </HBox>
-                                                </VBox>
-                                                <Button styleClass="btn-view-details" text="View Details" />
-                                            </HBox>
-
-                                            <!-- Card 2 -->
-                                            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="q-card, q-card-completed">
-                                                <StackPane>
-                                                    <Circle fill="#2e7d32" radius="20.0" />
-                                                    <SVGPath content="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
-                                                </StackPane>
-                                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="text-name" text="Ana Reyes" />
-                                                        <Label styleClass="text-meta" text="• Age 28" />
-                                                        <Label styleClass="badge-pill, badge-blue" text="Regular" />
-                                                    </HBox>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                                        <Label styleClass="text-sub" text="ID: A142" />
-                                                        <Label styleClass="text-sub" text="• Cough" />
-                                                        <Label styleClass="text-sub" text="• Completed at 10:30 AM" />
-                                                    </HBox>
-                                                </VBox>
-                                                <Button styleClass="btn-view-details" text="View Details" />
-                                            </HBox>
-                                        </VBox>
+                                        <VBox fx:id="completedContainer" spacing="15.0" />
                                     </content>
                                 </Tab>
                             </tabs>

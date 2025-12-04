@@ -9,11 +9,11 @@
 
 <!-- Controller linked here -->
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
+<BorderPane styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox minWidth="200.0" maxWidth="300.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <!-- Logo -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -72,8 +72,8 @@
                             <Circle fill="#e0e0e0" radius="20.0" />
                             <VBox>
                                 <children>
-                                    <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
-                                    <Label style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
+                                    <Label fx:id="userNameLabel" style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
+                                    <Label fx:id="userRoleLabel" style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
                                 </children>
                             </VBox>
                         </children>

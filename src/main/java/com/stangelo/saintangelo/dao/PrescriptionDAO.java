@@ -53,6 +53,34 @@ public class PrescriptionDAO extends BaseDAO {
         return prescriptions;
     }
 
+    /**
+     * Finds prescriptions by patient and doctor (for a specific visit)
+     *
+     * @param patientId Patient ID
+     * @param doctorId Doctor ID
+     * @return List of prescriptions matching patient and doctor, ordered by date DESC
+     */
+    public List<Prescription> findByPatientAndDoctor(String patientId, String doctorId) {
+        List<Prescription> prescriptions = new ArrayList<>();
+        String sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND doctor_id = ? ORDER BY consultation_date DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, patientId);
+            stmt.setString(2, doctorId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    prescriptions.add(mapResultSetToPrescription(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error finding prescriptions by patient and doctor: " + patientId + ", " + doctorId, e);
+        }
+        return prescriptions;
+    }
+
     public boolean create(Prescription prescription) {
         String sql = "INSERT INTO prescriptions (prescription_id, patient_id, doctor_id, medication, dosage, " +
                 "frequency, consultation_notes, diagnosis, treatment_plan, consultation_date) " +

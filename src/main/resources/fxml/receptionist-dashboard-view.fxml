@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
+<BorderPane styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox maxWidth="300.0" minWidth="200.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <!-- Logo -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -83,52 +83,82 @@
                         <!-- Main Grid Layout -->
                         <GridPane hgap="25.0" vgap="25.0">
                             <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="70.0" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
+                                <!-- LEFT COLUMN: Takes remaining space -->
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="500.0" />
+                                <!-- RIGHT COLUMN: Fixed width for recent calls sidebar -->
+                                <ColumnConstraints hgrow="NEVER" minWidth="300.0" prefWidth="320.0" maxWidth="350.0" halignment="RIGHT" />
                             </columnConstraints>
                             <rowConstraints>
-                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints valignment="TOP" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
 
-                                <!-- LEFT COLUMN -->
-                                <VBox spacing="25.0">
+                                <!-- LEFT COLUMN CONTENT -->
+                                <VBox spacing="25.0" GridPane.columnIndex="0">
                                     <children>
+                                        <!-- Stat Cards Row -->
                                         <HBox spacing="20.0">
-                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+                                            <!-- Card 1 -->
+                                            <VBox maxWidth="Infinity" styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Total Today" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="stat-value" text="129" />
+                                                        <Label fx:id="totalTodayLabel" styleClass="stat-value" text="129" />
                                                         <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <SVGPath content="M0 30 Q10 20 20 25 T40 10 T60 25 T80 5" fill="TRANSPARENT" stroke="#0b7d56" strokeWidth="2" />
+                                                        <!-- minWidth=0 prevents chart from exploding layout -->
+                                                        <LineChart fx:id="totalTodayChart" createSymbols="false" legendVisible="false" minWidth="0" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM" visible="false" />
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT" visible="false" />
+                                                            </yAxis>
+                                                        </LineChart>
                                                     </HBox>
-                                                    <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                                    <Label fx:id="totalTodayFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
-                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+
+                                            <!-- Card 2 -->
+                                            <VBox maxWidth="Infinity" styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Waiting" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="stat-value" text="30" />
+                                                        <Label fx:id="waitingCountLabel" styleClass="stat-value" text="25" />
                                                         <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <SVGPath content="M0 30 Q10 15 20 20 T40 10 T60 25 T80 20" fill="TRANSPARENT" stroke="#76ff03" strokeWidth="2" />
+                                                        <LineChart fx:id="waitingCountChart" createSymbols="false" legendVisible="false" minWidth="0" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM" visible="false" />
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT" visible="false" />
+                                                            </yAxis>
+                                                        </LineChart>
                                                     </HBox>
-                                                    <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                                    <Label fx:id="waitingCountFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
-                                            <VBox styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
+
+                                            <!-- Card 3 -->
+                                            <VBox maxWidth="Infinity" styleClass="stat-card-reception" HBox.hgrow="ALWAYS">
                                                 <children>
                                                     <Label styleClass="stat-title" text="Avg. Wait Time" />
                                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                        <Label styleClass="stat-value" text="129" />
+                                                        <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="15" />
                                                         <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
                                                         <Region HBox.hgrow="ALWAYS" />
-                                                        <SVGPath content="M0 25 L20 20 L40 10 L60 25 L80 5" fill="TRANSPARENT" stroke="#64ffda" strokeWidth="2" />
+                                                        <LineChart fx:id="avgWaitTimeChart" createSymbols="false" legendVisible="false" minWidth="0" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: transparent;">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM" visible="false" />
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT" visible="false" />
+                                                            </yAxis>
+                                                        </LineChart>
                                                     </HBox>
-                                                    <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
+                                                    <Label fx:id="avgWaitTimeFooter" styleClass="stat-footer" text="Loading..." />
                                                 </children>
                                             </VBox>
                                         </HBox>
@@ -138,92 +168,37 @@
                                             <Label styleClass="serving-section-title" text="Current Number Being Served" />
                                             <VBox styleClass="serving-card-gradient">
                                                 <children>
-                                                    <Label fx:id="queueNumberLabel" styleClass="serving-number-huge" text="0" />
+                                                    <Label fx:id="queueNumberLabel" styleClass="serving-number-huge" text="---" />
                                                     <Label styleClass="serving-status-label" text="Now Serving" />
+                                                    <HBox alignment="CENTER" spacing="5.0" style="-fx-padding: 10 0 0 0;">
+                                                        <Label style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px;" text="Doctor:" />
+                                                        <Label fx:id="assignedDoctorLabel" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Not Yet Assigned" />
+                                                    </HBox>
                                                 </children>
                                             </VBox>
-                                            <Button maxWidth="Infinity" onAction="#handleNextQueueNumber" styleClass="btn-call-next" text="Call Next Number" />
+                                            <Button maxWidth="Infinity" onAction="#handleRefreshQueue" styleClass="btn-call-next" text="Refresh Queue" />
+
+                                            <!-- Queue Display Section -->
+                                            <VBox spacing="10.0" style="-fx-padding: 15 0 0 0;">
+                                                <Label styleClass="section-header" text="Waiting Queue" />
+                                                <VBox fx:id="queueListContainer" spacing="8.0" styleClass="queue-list-container">
+                                                    <!-- Queue items will be populated dynamically -->
+                                                    <Label style="-fx-text-fill: #888; -fx-font-style: italic;" text="No patients in queue" />
+                                                </VBox>
+                                            </VBox>
                                         </VBox>
                                     </children>
                                 </VBox>
 
                                 <!-- RIGHT COLUMN: Recent Calls -->
-                                <VBox styleClass="recent-calls-panel" GridPane.columnIndex="1">
+                                <!-- Added VBox.vgrow to ensure it stretches full height of the row -->
+                                <VBox alignment="TOP_LEFT" styleClass="recent-calls-panel" GridPane.columnIndex="1">
                                     <children>
                                         <Label styleClass="section-header" text="Recent Calls" />
                                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
                                             <content>
-                                                <VBox spacing="15.0">
-                                                    <VBox styleClass="recent-call-card">
-                                                        <children>
-                                                            <HBox alignment="CENTER_LEFT">
-                                                                <Label styleClass="ticket-id" text="A042" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="call-time-small" text="14:23" />
-                                                            </HBox>
-                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                                <Label styleClass="call-category" text="General Inquiry" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="badge-regular-call" text="Regular" />
-                                                            </HBox>
-                                                        </children>
-                                                    </VBox>
-                                                    <VBox styleClass="recent-call-card">
-                                                        <children>
-                                                            <HBox alignment="CENTER_LEFT">
-                                                                <Label styleClass="ticket-id" text="A041" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="call-time-small" text="14:18" />
-                                                            </HBox>
-                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                                <Label styleClass="call-category" text="Consultation" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label style="-fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; -fx-padding: 2 8; -fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;" text="Emergency" />
-                                                            </HBox>
-                                                        </children>
-                                                    </VBox>
-                                                    <VBox styleClass="recent-call-card">
-                                                        <children>
-                                                            <HBox alignment="CENTER_LEFT">
-                                                                <Label styleClass="ticket-id" text="A040" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="call-time-small" text="14:12" />
-                                                            </HBox>
-                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                                <Label styleClass="call-category" text="Payment" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="badge-regular-call" text="Regular" />
-                                                            </HBox>
-                                                        </children>
-                                                    </VBox>
-                                                    <VBox styleClass="recent-call-card">
-                                                        <children>
-                                                            <HBox alignment="CENTER_LEFT">
-                                                                <Label styleClass="ticket-id" text="A039" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="call-time-small" text="14:08" />
-                                                            </HBox>
-                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                                <Label styleClass="call-category" text="Documentation" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="badge-regular-call" text="Regular" />
-                                                            </HBox>
-                                                        </children>
-                                                    </VBox>
-                                                    <VBox styleClass="recent-call-card">
-                                                        <children>
-                                                            <HBox alignment="CENTER_LEFT">
-                                                                <Label styleClass="ticket-id" text="A038" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="call-time-small" text="14:03" />
-                                                            </HBox>
-                                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                                                <Label styleClass="call-category" text="General Inquiry" />
-                                                                <Region HBox.hgrow="ALWAYS" />
-                                                                <Label styleClass="badge-regular-call" text="Regular" />
-                                                            </HBox>
-                                                        </children>
-                                                    </VBox>
+                                                <VBox fx:id="recentCallsContainer" spacing="15.0">
+                                                    <!-- Recent calls will be populated dynamically -->
                                                 </VBox>
                                             </content>
                                         </ScrollPane>

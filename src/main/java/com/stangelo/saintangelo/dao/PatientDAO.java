@@ -1,11 +1,15 @@
 package com.stangelo.saintangelo.dao;
 
-import com.stangelo.saintangelo.models.Patient;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.stangelo.saintangelo.models.Patient;
 
 /**
  * Data Access Object for Patient entity
@@ -288,8 +292,9 @@ public class PatientDAO extends BaseDAO {
      * Helper method to map priority from Patient to database string
      */
     private String mapPriorityToString(Patient patient) {
-        // This is a placeholder - Patient model needs PriorityLevel enum
-        // For now, default to REGULAR
+        if (patient.isSeniorCitizen()) {
+            return "SENIOR_CITIZEN";
+        }
         return "REGULAR";
     }
 

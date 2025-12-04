@@ -8,11 +8,11 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
+<BorderPane styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox minWidth="200.0" maxWidth="300.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
@@ -104,28 +104,28 @@
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Full Name" />
                                                 <HBox spacing="20.0">
-                                                    <TextField promptText="First name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
-                                                    <TextField promptText="Last name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
+                                                    <TextField fx:id="firstNameField" promptText="First name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
+                                                    <TextField fx:id="lastNameField" promptText="Last name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
                                                 </HBox>
                                             </VBox>
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Phone number" />
-                                                <TextField maxWidth="600" promptText="Enter 10 digit number" styleClass="reg-text-field" />
+                                                <TextField fx:id="phoneNumberField" maxWidth="600" promptText="Enter 10 digit number" styleClass="reg-text-field" />
                                             </VBox>
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Age" />
-                                                <TextField maxWidth="600" promptText="Enter the age of the patient" styleClass="reg-text-field" />
+                                                <TextField fx:id="ageField" maxWidth="600" promptText="Enter the age of the patient" styleClass="reg-text-field" />
                                             </VBox>
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Chief Complaint" />
-                                                <TextArea prefHeight="100.0" promptText="Write the reason for the patients visit..." styleClass="reg-text-area" wrapText="true" />
+                                                <TextArea fx:id="chiefComplaintArea" prefHeight="100.0" promptText="Write the reason for the patients visit..." styleClass="reg-text-area" wrapText="true" />
                                             </VBox>
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Priority Level" />
-                                                <ComboBox maxWidth="Infinity" promptText="Regular" styleClass="reg-combo-box" />
+                                                <ComboBox fx:id="priorityComboBox" maxWidth="Infinity" promptText="Regular" styleClass="reg-combo-box" />
                                             </VBox>
                                             <HBox>
-                                                <Button styleClass="btn-get-queue" text="Get Queue Number   →" />
+                                                <Button onAction="#handleRegisterPatient" styleClass="btn-get-queue" text="Get Queue Number   →" />
                                             </HBox>
                                         </children>
                                     </VBox>
@@ -133,24 +133,29 @@
                                     <!-- FORM 2: EXISTING PATIENT (Initially Hidden) -->
                                     <VBox fx:id="formExistingPatient" managed="false" spacing="20.0" visible="false">
                                         <children>
-                                            <!-- Simplified Form for Existing Patient -->
+                                            <!-- Search for Existing Patient -->
                                             <VBox spacing="5.0">
-                                                <Label styleClass="reg-form-label" text="Full Name" />
-                                                <HBox spacing="20.0">
-                                                    <TextField promptText="First name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
-                                                    <TextField promptText="Last name" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
+                                                <Label styleClass="reg-form-label" text="Search Patient (by phone number)" />
+                                                <HBox spacing="10.0">
+                                                    <TextField fx:id="searchPhoneField" promptText="Enter phone number" styleClass="reg-text-field" HBox.hgrow="ALWAYS" />
+                                                    <Button onAction="#handleSearchPatient" styleClass="btn-get-queue" text="Search" />
                                                 </HBox>
+                                            </VBox>
+                                            <!-- Patient Info Display -->
+                                            <VBox fx:id="existingPatientInfo" managed="false" spacing="5.0" visible="false">
+                                                <Label fx:id="existingPatientNameLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Patient Name" />
+                                                <Label fx:id="existingPatientDetailsLabel" style="-fx-text-fill: #666;" text="Age: -- | Phone: --" />
                                             </VBox>
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Chief Complaint" />
-                                                <TextArea prefHeight="100.0" promptText="Write the reason for the patients visit..." styleClass="reg-text-area" wrapText="true" />
+                                                <TextArea fx:id="existingChiefComplaintArea" prefHeight="100.0" promptText="Write the reason for the patients visit..." styleClass="reg-text-area" wrapText="true" />
                                             </VBox>
                                             <VBox spacing="5.0">
                                                 <Label styleClass="reg-form-label" text="Priority Level" />
-                                                <ComboBox maxWidth="Infinity" promptText="Regular" styleClass="reg-combo-box" />
+                                                <ComboBox fx:id="existingPriorityComboBox" maxWidth="Infinity" promptText="Regular" styleClass="reg-combo-box" />
                                             </VBox>
                                             <HBox>
-                                                <Button styleClass="btn-get-queue" text="Get Queue Number   →" />
+                                                <Button fx:id="btnRegisterExisting" disable="true" onAction="#handleRegisterExistingPatient" styleClass="btn-get-queue" text="Get Queue Number   →" />
                                             </HBox>
                                         </children>
                                     </VBox>

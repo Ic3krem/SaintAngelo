@@ -3,6 +3,7 @@ module com.stangelo.saintangelo {
     requires javafx.fxml;
     requires javafx.graphics;
     requires javafx.web;
+    requires javafx.media;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -14,7 +15,6 @@ module com.stangelo.saintangelo {
     // Database and logging modules
     requires java.sql;
     requires java.logging;
-    requires jbcrypt;
 
     // Export the main app package
     exports com.stangelo.saintangelo.app;

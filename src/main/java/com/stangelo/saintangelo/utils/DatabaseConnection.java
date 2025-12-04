@@ -59,15 +59,36 @@ public class DatabaseConnection {
             if (connection != null) {
                 try {
                     if (!connection.isClosed()) {
-                        // Try to validate connection (isValid might not be available in all JDBC versions)
+                        // Try to validate connection with a longer timeout for network connections
                         try {
-                            if (connection.isValid(2)) {
-                                return connection;
+                            // Use 5 seconds timeout for validation to account for network latency
+                            if (connection.isValid(5)) {
+                                // Additional check: try a simple query to ensure connection is really alive
+                                try {
+                                    connection.createStatement().execute("SELECT 1");
+                                    return connection;
+                                } catch (SQLException e) {
+                                    // Connection appears valid but query fails - connection is stale
+                                    logger.warning("Connection validation query failed, connection is stale: " + e.getMessage());
+                                    connection = null;
+                                }
+                            } else {
+                                logger.warning("Connection validation failed, connection is invalid");
+                                connection = null;
                             }
                         } catch (AbstractMethodError | NoSuchMethodError e) {
-                            // isValid() not available, just check if not closed
-                            return connection;
+                            // isValid() not available, try a simple query instead
+                            try {
+                                connection.createStatement().execute("SELECT 1");
+                                return connection;
+                            } catch (SQLException queryException) {
+                                logger.warning("Connection test query failed: " + queryException.getMessage());
+                                connection = null;
+                            }
                         }
+                    } else {
+                        logger.info("Connection is closed, creating new one");
+                        connection = null;
                     }
                 } catch (SQLException e) {
                     // Connection is invalid, reset it

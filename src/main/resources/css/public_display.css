@@ -3,49 +3,55 @@
     /* Linear gradient matching the design: Light Green to Dark Green */
     -fx-background-color: linear-gradient(to bottom right, #E7F1DD 0%, #88c6a5 40%, #007345 100%);
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+    -fx-font-size: 16px; /* Base font size for em calculations */
+}
+
+/* Main Container */
+.main-container {
+    -fx-alignment: center;
 }
 
 /* Header Text */
 .title-label {
-    -fx-font-size: 36px;
+    -fx-font-size: 1.75em;
     -fx-text-fill: #1E293B;
     -fx-font-weight: normal;
 }
 
 .subtitle-label {
-    -fx-font-size: 20px;
+    -fx-font-size: 1em;
     -fx-text-fill: rgba(30, 41, 59, 0.8);
 }
 
 .time-label {
-    -fx-font-size: 48px;
+    -fx-font-size: 2.25em;
     -fx-text-fill: #1E293B;
     -fx-font-weight: normal;
 }
 
 .date-label {
-    -fx-font-size: 20px;
+    -fx-font-size: 1em;
     -fx-text-fill: rgba(30, 41, 59, 0.8);
     -fx-alignment: CENTER_RIGHT;
 }
 
 /* Now Serving Section */
 .now-serving-label {
-    -fx-font-size: 48px;
+    -fx-font-size: 2.25em;
     -fx-text-fill: rgba(30, 41, 59, 0.9);
     -fx-font-weight: normal;
 }
 
 .now-serving-card {
     -fx-background-color: white;
-    -fx-background-radius: 24;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 50, 0, 0, 25);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 30, 0, 0, 15);
     -fx-alignment: center;
-    -fx-padding: 20;
+    -fx-padding: 30;
 }
 
 .now-serving-number {
-    -fx-font-size: 200px; /* Large font for visibility */
+    -fx-font-size: 7.5em; /* Responsive font size */
     -fx-text-fill: #007345;
     -fx-font-weight: bold;
 }
@@ -54,25 +60,26 @@
 .next-queue-container {
     -fx-background-color: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
     -fx-background-radius: 16;
-    -fx-padding: 25 32;
+    -fx-padding: 20 28;
 }
 
 .next-queue-title {
-    -fx-font-size: 30px;
+    -fx-font-size: 1.5em;
     -fx-text-fill: #1E293B; /* Dark grey for readability */
     -fx-font-weight: 500;
 }
 
 .next-queue-item {
     -fx-background-color: rgba(255, 255, 255, 0.5); /* lighter glass effect */
-    -fx-background-radius: 16;
-    -fx-padding: 15 0;
+    -fx-background-radius: 14;
+    -fx-padding: 0.75em 0;
     -fx-alignment: center;
-    -fx-min-width: 180px;
+    -fx-min-width: 8.75em;
+    -fx-max-width: 10em;
 }
 
 .next-queue-number {
-    -fx-font-size: 50px;
+    -fx-font-size: 2.5em;
     -fx-text-fill: #292929;
     -fx-font-weight: normal;
 }

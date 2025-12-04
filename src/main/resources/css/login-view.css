@@ -4,33 +4,32 @@
     /* Remove radius from the container so it doesn't clip or double-draw */
     -fx-background-radius: 0;
     -fx-border-radius: 0;
+    -fx-font-size: 16px; /* Base font size for em calculations */
 }
 
 .left-pane {
     -fx-background-color: #ffffff;
-    /* Top-Left: 0, Top-Right: 0, Bottom-Right: 0, Bottom-Left: 30 */
-    -fx-background-radius: 0 0 0 30;
-    -fx-border-radius: 0 0 0 30;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
 
 .right-pane {
     -fx-background-color: #ffffff;
-    /* Top-Left: 0, Top-Right: 0, Bottom-Right: 30, Bottom-Left: 0 */
-    -fx-background-radius: 0 0 30 0;
-    -fx-border-radius: 0 0 30 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
 
 /* Typography - Left Side */
 .header-label {
     -fx-font-family: "Segoe UI", sans-serif;
-    -fx-font-size: 28px;
+    -fx-font-size: 1.75em;
     -fx-font-weight: bold;
     -fx-text-fill: #000000;
 }
 
 .field-label {
     -fx-font-family: "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-size: 0.875em;
     -fx-text-fill: #333333;
 }
 
@@ -39,8 +38,8 @@
     -fx-background-color: #f3f4f6;
     -fx-background-radius: 5;
     -fx-border-color: transparent;
-    -fx-padding: 12px;
-    -fx-font-size: 14px;
+    -fx-padding: 0.75em;
+    -fx-font-size: 0.875em;
 }
 
 .text-field:focused {
@@ -53,7 +52,7 @@
 /* Links */
 .forgot-link {
     -fx-text-fill: #0f7a48;
-    -fx-font-size: 13px;
+    -fx-font-size: 0.8125em;
     -fx-underline: false;
     -fx-border-color: transparent;
     -fx-padding: 0;
@@ -71,10 +70,10 @@
 .login-btn {
     -fx-background-color: #046c4e;
     -fx-text-fill: white;
-    -fx-font-size: 16px;
+    -fx-font-size: 1em;
     -fx-font-weight: bold;
     -fx-background-radius: 5;
-    -fx-padding: 10px;
+    -fx-padding: 0.625em;
     -fx-cursor: hand;
 }
 

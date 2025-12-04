@@ -21,7 +21,7 @@ public class DatabaseConfig {
     private static Properties properties = new Properties();
 
     // Default configuration values (for shared LAN database)
-    private static final String DEFAULT_DB_URL = "jdbc:mysql://192.168.1.91:3306/saintangelo_hospital";
+    private static final String DEFAULT_DB_URL = "jdbc:mysql://10.192.165.212:3306/saintangelo_hospital";
     private static final String DEFAULT_DB_USERNAME = "root";
     private static final String DEFAULT_DB_PASSWORD = "";
     private static final String DEFAULT_DB_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -64,11 +64,24 @@ public class DatabaseConfig {
 
     /**
      * Gets database URL from configuration
+     * Adds timeout parameters to prevent connection link failures
      *
-     * @return Database URL
+     * @return Database URL with timeout parameters
      */
     public static String getDatabaseUrl() {
-        return properties.getProperty("db.url", DEFAULT_DB_URL);
+        String baseUrl = properties.getProperty("db.url", DEFAULT_DB_URL);
+        
+        // Add timeout parameters if not already present
+        if (!baseUrl.contains("connectTimeout") && !baseUrl.contains("socketTimeout")) {
+            String separator = baseUrl.contains("?") ? "&" : "?";
+            baseUrl += separator + "connectTimeout=5000" +  // 5 seconds to establish connection
+                       "&socketTimeout=30000" +            // 30 seconds for socket operations
+                       "&autoReconnect=true" +             // Auto-reconnect on connection loss
+                       "&useSSL=false" +                   // Disable SSL for local network
+                       "&serverTimezone=UTC";              // Set timezone to avoid warnings
+        }
+        
+        return baseUrl;
     }
 
     /**

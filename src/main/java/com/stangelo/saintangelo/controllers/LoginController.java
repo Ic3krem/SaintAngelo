@@ -16,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Screen;
@@ -32,6 +33,9 @@ public class LoginController {
 
     @FXML
     private Button loginButton;
+
+    @FXML
+    private Hyperlink publicViewLink;
 
     private UserDAO userDAO;
     private AuthService authService;
@@ -206,5 +210,43 @@ public class LoginController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    /**
+     * Handles the Public View link action to open the public display view
+     */
+    @FXML
+    public void handlePublicViewLinkAction() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/public view.fxml"));
+            Parent publicViewRoot = loader.load();
+
+            // Set initial opacity to 0 for fade animation
+            publicViewRoot.setOpacity(0);
+
+            Stage publicViewStage = new Stage();
+            publicViewStage.setTitle("Public View - St. Angelo Medical Center");
+            publicViewStage.setScene(new Scene(publicViewRoot));
+
+            // Set to full screen
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            publicViewStage.setX(bounds.getMinX());
+            publicViewStage.setY(bounds.getMinY());
+            publicViewStage.setWidth(bounds.getWidth());
+            publicViewStage.setHeight(bounds.getHeight());
+            publicViewStage.setMaximized(true);
+
+            publicViewStage.show();
+
+            // Play fade transition
+            FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), publicViewRoot);
+            fadeTransition.setFromValue(0.0);
+            fadeTransition.setToValue(1.0);
+            fadeTransition.play();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load the public view.\nCheck that /fxml/public view.fxml exists in resources.");
+        }
     }
 }

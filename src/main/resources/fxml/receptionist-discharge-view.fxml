@@ -22,11 +22,11 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="768.0" minWidth="1024.0" prefHeight="800.0" prefWidth="1200.0" styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
+<BorderPane styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox minWidth="200.0" maxWidth="300.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
@@ -102,8 +102,8 @@
                             <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="filter-bar-container">
                                 <children>
                                       <SVGPath content="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#999" />
-                                      <TextField promptText="Search patient name or ID..." style="-fx-background-color: transparent; -fx-pref-width: 300;" />
-                                    <ComboBox prefHeight="26.0" prefWidth="126.0" promptText="All Status" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 4;">
+                                      <TextField fx:id="searchField" onAction="#handleSearch" promptText="Search patient name or ID..." style="-fx-background-color: transparent; -fx-pref-width: 300;" />
+                                    <ComboBox fx:id="statusFilterComboBox" onAction="#handleStatusFilter" prefHeight="26.0" prefWidth="126.0" promptText="All Status" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 4;">
                               <HBox.margin>
                                  <Insets />
                               </HBox.margin>
@@ -117,93 +117,28 @@
                                     <!-- Header Row -->
                                     <GridPane styleClass="table-header-row">
                                         <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="12" />
                                             <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="18" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="18" />
+                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="17" />
                                             <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
                                         </columnConstraints>
                                         <children>
                                             <Label styleClass="table-header-label" text="Patient ID" />
                                             <Label styleClass="table-header-label" text="Name" GridPane.columnIndex="1" />
                                             <Label styleClass="table-header-label" text="Department" GridPane.columnIndex="2" />
-                                            <Label styleClass="table-header-label" text="Status" GridPane.columnIndex="3" />
-                                            <Label styleClass="table-header-label" text="Action" GridPane.columnIndex="4" />
+                                            <Label styleClass="table-header-label" text="Assigned Doctor" GridPane.columnIndex="3" />
+                                            <Label styleClass="table-header-label" text="Status" GridPane.columnIndex="4" />
+                                            <Label styleClass="table-header-label" text="Action" GridPane.columnIndex="5" />
                                         </children>
                               <rowConstraints>
                                  <RowConstraints />
                               </rowConstraints>
                                     </GridPane>
 
-                                    <!-- Row 1: Ready -->
-                                    <GridPane styleClass="table-data-row">
-                                        <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                        </columnConstraints>
-                                        <children>
-                                            <Label style="-fx-font-weight: bold; -fx-text-fill: #333;" text="A144" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #555555;" text="Maria Santos" GridPane.columnIndex="1" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #777777;" text="Cardiology" GridPane.columnIndex="2" />
-                                            <Label styleClass="badge-ready" text="Ready" GridPane.columnIndex="3" />
-                                            <Button styleClass="btn-action-discharge" text="Discharge" GridPane.columnIndex="4" />
-                                        </children>
-                              <rowConstraints>
-                                 <RowConstraints />
-                              </rowConstraints>
-                                    </GridPane>
-
-                                    <!-- Row 2: Pending Process -->
-                                    <GridPane styleClass="table-data-row">
-                                        <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                        </columnConstraints>
-                                        <children>
-                                            <Label style="-fx-font-weight: bold; -fx-text-fill: #333;" text="A143" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #555555;" text="Juan Dela Cruz" GridPane.columnIndex="1" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #777777;" text="General" GridPane.columnIndex="2" />
-                                            <Label styleClass="badge-pending-review" text="Pending Review" GridPane.columnIndex="3" />
-                                            <Button onAction="#handleProcess" styleClass="btn-action-process" text="Process" GridPane.columnIndex="4" />
-                                        </children>
-                              <rowConstraints>
-                                 <RowConstraints />
-                              </rowConstraints>
-                                    </GridPane>
-
-                                    <!-- Row 3: Cleared -->
-                                    <GridPane styleClass="table-data-row">
-                                        <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="25" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
-                                        </columnConstraints>
-                                        <children>
-                                            <Label style="-fx-font-weight: bold; -fx-text-fill: #333;" text="A138" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #555555;" text="Sofia Villanueva" GridPane.columnIndex="1" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #777777;" text="Orthopedics" GridPane.columnIndex="2" />
-                                            <Label styleClass="badge-cleared" text="Cleared" GridPane.columnIndex="3" />
-                                            <!-- FIXED: textFill -> style -->
-                                            <Label style="-fx-text-fill: #999;" text="---" GridPane.columnIndex="4" />
-                                        </children>
-                              <rowConstraints>
-                                 <RowConstraints />
-                              </rowConstraints>
-                                    </GridPane>
+                                    <!-- Dynamic Rows Container -->
+                                    <VBox fx:id="dischargeTableContainer" />
 
                                 </children>
                             </VBox>
@@ -232,25 +167,25 @@
 
                                 <VBox GridPane.columnIndex="0" GridPane.rowIndex="0">
                                     <Label styleClass="modal-label" text="Full Name" />
-                                    <Label styleClass="modal-value" text="Juan Dela Cruz" />
+                                    <Label fx:id="modalPatientName" styleClass="modal-value" text="" />
                                 </VBox>
                                 <VBox GridPane.columnIndex="1" GridPane.rowIndex="0">
                                     <Label styleClass="modal-label" text="Phone no." />
-                                    <Label styleClass="modal-value" text="0912-345-6789" />
+                                    <Label fx:id="modalPatientPhone" styleClass="modal-value" text="" />
                                 </VBox>
 
                                 <VBox GridPane.columnIndex="0" GridPane.rowIndex="1">
                                     <Label styleClass="modal-label" text="Age" />
-                                    <Label styleClass="modal-value" text="45" />
+                                    <Label fx:id="modalPatientAge" styleClass="modal-value" text="" />
                                 </VBox>
                                 <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <Label styleClass="modal-label" text="Doctor Assigned" />
-                                    <Label styleClass="modal-value" text="Dr. Sarah Lee" />
+                                    <Label fx:id="modalDoctorAssigned" styleClass="modal-value" text="" />
                                 </VBox>
 
                                 <VBox GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
                                     <Label styleClass="modal-label" text="Chief Complaint" />
-                                    <Label styleClass="modal-value" text="High fever and severe headache" />
+                                    <Label fx:id="modalChiefComplaint" styleClass="modal-value" text="" />
                                 </VBox>
                         <rowConstraints>
                            <RowConstraints />
@@ -266,17 +201,17 @@
                             <VBox spacing="10.0">
                                 <VBox>
                                     <Label styleClass="modal-label" text="Prescription" />
-                                    <Label styleClass="modal-value" text="Paracetamol (500mg) - 3x daily for 5 days" />
+                                    <Label fx:id="modalPrescription" styleClass="modal-value" text="" />
                                 </VBox>
                                 <HBox spacing="20.0">
                                     <VBox HBox.hgrow="ALWAYS">
                                         <Label styleClass="modal-label" text="Consultation Date" />
-                                        <Label styleClass="modal-value" text="2025-11-28" />
+                                        <Label fx:id="modalConsultationDate" styleClass="modal-value" text="" />
                                     </VBox>
                                 </HBox>
                                 <VBox>
                                     <Label styleClass="modal-label" text="Consultation Notes" />
-                                    <Label styleClass="modal-value" text="Patient advised to rest and stay hydrated. Follow up if symptoms persist." wrapText="true" />
+                                    <Label fx:id="modalConsultationNotes" styleClass="modal-value" text="" wrapText="true" />
                                 </VBox>
                             </VBox>
 
