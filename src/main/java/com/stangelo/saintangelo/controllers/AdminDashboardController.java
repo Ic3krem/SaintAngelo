@@ -712,28 +712,37 @@ public class AdminDashboardController implements Initializable {
         ComboBox<UserRole> roleComboBox = new ComboBox<>();
         roleComboBox.getItems().addAll(UserRole.values());
         roleComboBox.setValue(UserRole.STAFF);
+
         TextField permissionsField = new TextField();
+        permissionsField.setEditable(false);
+        permissionsField.setStyle("-fx-background-color: #f0f0f0;");
         ComboBox<String> statusComboBox = new ComboBox<>();
         statusComboBox.getItems().addAll("Active", "Inactive");
         statusComboBox.setValue("Active");
 
-        // Set default permissions based on role
-        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                switch (newVal) {
-                    case DOCTOR:
-                        permissionsField.setText("Full Medical Access");
-                        break;
-                    case STAFF:
-                        permissionsField.setText("Registration & Queue");
-                        break;
-                    case ADMIN:
-                    case SUPER_ADMIN:
-                        permissionsField.setText("System Configuration");
-                        break;
-                }
+        // Helper to set permissions text based on role
+        java.util.function.Consumer<UserRole> applyPermissionsForRole = role -> {
+            if (role == null) {
+                permissionsField.clear();
+                return;
             }
-        });
+            switch (role) {
+                case DOCTOR:
+                    permissionsField.setText("Full Medical Access");
+                    break;
+                case STAFF:
+                    permissionsField.setText("Registration & Queue");
+                    break;
+                case ADMIN:
+                case SUPER_ADMIN:
+                    permissionsField.setText("System Configuration");
+                    break;
+            }
+        };
+
+        // Initialize and react to role changes
+        applyPermissionsForRole.accept(roleComboBox.getValue());
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> applyPermissionsForRole.accept(newVal));
 
         grid.add(new Label("User ID:"), 0, 0);
         grid.add(userIdField, 1, 0);
