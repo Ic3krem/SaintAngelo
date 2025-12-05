@@ -20,7 +20,7 @@
                         <Pane prefHeight="56.0" prefWidth="60.0">
                             <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
                                 <image>
-                                    <Image url="@../images/logo.png" />
+                                    <Image url="@../images/updatedlogo1.png" />
                                 </image>
                             </ImageView>
                         </Pane>
@@ -86,7 +86,7 @@
                                 <!-- LEFT COLUMN: Takes remaining space -->
                                 <ColumnConstraints hgrow="ALWAYS" minWidth="500.0" />
                                 <!-- RIGHT COLUMN: Fixed width for recent calls sidebar -->
-                                <ColumnConstraints hgrow="NEVER" minWidth="300.0" prefWidth="320.0" maxWidth="350.0" halignment="RIGHT" />
+                                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="350.0" minWidth="300.0" prefWidth="320.0" />
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints valignment="TOP" vgrow="SOMETIMES" />
