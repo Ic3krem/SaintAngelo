@@ -15,6 +15,9 @@ module com.stangelo.saintangelo {
     // Database and logging modules
     requires java.sql;
     requires java.logging;
+    
+    // PDF generation
+    requires org.apache.pdfbox;
 
     // Export the main app package
     exports com.stangelo.saintangelo.app;

@@ -1,8 +1,11 @@
 package com.stangelo.saintangelo.controllers;
 
+import com.stangelo.saintangelo.dao.ActivityLogDAO;
 import com.stangelo.saintangelo.dao.PatientDAO;
 import com.stangelo.saintangelo.dao.TicketDAO;
 import com.stangelo.saintangelo.dao.UserDAO;
+import com.stangelo.saintangelo.models.ActivityLog;
+import com.stangelo.saintangelo.models.ActivityType;
 import com.stangelo.saintangelo.models.User;
 import com.stangelo.saintangelo.models.UserRole;
 import com.stangelo.saintangelo.services.AuthService;
@@ -19,12 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
@@ -38,6 +36,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,8 +44,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import java.util.*;
 
 public class AdminDashboardController implements Initializable {
+
+    // --- DASHBOARD STAT TILES ---
+    @FXML
+    private Label totalUsersLabel;
+    @FXML
+    private Label totalPatientsLabel;
+    @FXML
+    private Label avgWaitTimeLabel;
+
+    // --- DASHBOARD CHARTS & ACTIVITY ---
+    @FXML
+    private HBox patientFlowChart;
+    @FXML
+    private VBox systemUsageContainer;
+    @FXML
+    private VBox recentActivityContainer;
 
     // User Management FXML Fields
     @FXML
@@ -106,6 +122,11 @@ public class AdminDashboardController implements Initializable {
     private UserDAO userDAO;
     private PatientDAO patientDAO;
     private TicketDAO ticketDAO;
+    // DAOs
+    private UserDAO userDAO;
+    private PatientDAO patientDAO;
+    private TicketDAO ticketDAO;
+    private ActivityLogDAO activityLogDAO;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -116,6 +137,19 @@ public class AdminDashboardController implements Initializable {
         updateUserInfo();
 
         if (userTableContainer != null) {
+        // Determine which admin view we are on by checking which FXML fields are present
+        if (totalUsersLabel != null) {
+            // Dashboard view
+            userDAO = new UserDAO();
+            patientDAO = new PatientDAO();
+            ticketDAO = new TicketDAO();
+            activityLogDAO = new ActivityLogDAO();
+            initializeDashboard();
+        }
+
+        if (userTableContainer != null) {
+            // User management view
+            userDAO = new UserDAO();
             initializeUserManagement();
         }
 
@@ -128,6 +162,207 @@ public class AdminDashboardController implements Initializable {
         }
     }
 
+    // --- DASHBOARD INITIALIZATION ---
+    private void initializeDashboard() {
+        loadTopTiles();
+        populatePatientFlowChart();
+        populateSystemUsageStats();
+        populateRecentActivity();
+    }
+
+    private void loadTopTiles() {
+        if (totalUsersLabel != null && userDAO != null) {
+            totalUsersLabel.setText(String.valueOf(userDAO.countAllUsers()));
+        }
+        if (totalPatientsLabel != null && patientDAO != null) {
+            totalPatientsLabel.setText(String.valueOf(patientDAO.countAllPatients()));
+        }
+        if (avgWaitTimeLabel != null && ticketDAO != null) {
+            int avgWait = ticketDAO.getAverageWaitTimeToday();
+            avgWaitTimeLabel.setText(avgWait + " min");
+        }
+    }
+
+    private void populatePatientFlowChart() {
+        if (patientFlowChart == null || ticketDAO == null) return;
+
+        patientFlowChart.getChildren().clear();
+        Map<LocalDate, Integer> counts = ticketDAO.getDailyTicketCountsLast7Days();
+
+        int max = counts.values().stream().max(Integer::compareTo).orElse(0);
+        int safeMax = Math.max(max, 1);
+
+        LocalDate today = LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            int count = counts.getOrDefault(date, 0);
+
+            VBox column = new VBox(5);
+            column.setAlignment(Pos.BOTTOM_CENTER);
+
+            Region bar = new Region();
+            bar.getStyleClass().add("chart-bar");
+            double heightRatio = (double) count / safeMax;
+            bar.setPrefWidth(30);
+            bar.setPrefHeight(20 + heightRatio * 110);
+
+            Label value = new Label(String.valueOf(count));
+            value.getStyleClass().add("chart-label");
+
+            Label label = new Label(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+            label.getStyleClass().add("chart-label");
+
+            column.getChildren().addAll(bar, value, label);
+            patientFlowChart.getChildren().add(column);
+        }
+    }
+
+    private void populateSystemUsageStats() {
+        if (systemUsageContainer == null || userDAO == null) return;
+
+        systemUsageContainer.getChildren().clear();
+        int doctors = userDAO.countByRole(UserRole.DOCTOR);
+        int admins = userDAO.countByRole(UserRole.ADMIN) + userDAO.countByRole(UserRole.SUPER_ADMIN);
+        int reception = userDAO.countByRole(UserRole.STAFF);
+
+        int total = doctors + admins + reception;
+        if (total == 0) {
+            Label placeholder = new Label("No user statistics available.");
+            placeholder.getStyleClass().add("stat-footer");
+            systemUsageContainer.getChildren().add(placeholder);
+            return;
+        }
+
+        addUsageRow("Doctors", doctors, total, "fill-blue");
+        addUsageRow("Receptionists", reception, total, "fill-green");
+        addUsageRow("Admins", admins, total, "fill-purple");
+    }
+
+    private void addUsageRow(String labelText, int count, int total, String colorClass) {
+        double percentage = total == 0 ? 0 : (count * 100.0 / total);
+
+        VBox wrapper = new VBox(5);
+        wrapper.getStyleClass().add("usage-row");
+
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label label = new Label(labelText);
+        label.getStyleClass().add("usage-label");
+
+        Label percent = new Label(String.format("%.0f%%", percentage));
+        percent.getStyleClass().add("usage-percent");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        header.getChildren().addAll(label, spacer, percent);
+
+        StackPane track = new StackPane();
+        track.getStyleClass().add("progress-track");
+        track.setPrefWidth(220);
+
+        Region fill = new Region();
+        fill.getStyleClass().addAll("progress-fill", colorClass);
+        track.getChildren().add(fill);
+        StackPane.setAlignment(fill, Pos.CENTER_LEFT);
+        fill.prefWidthProperty().bind(track.widthProperty().multiply(percentage / 100));
+
+        wrapper.getChildren().addAll(header, track);
+        systemUsageContainer.getChildren().add(wrapper);
+    }
+
+    private void populateRecentActivity() {
+        if (recentActivityContainer == null || activityLogDAO == null) return;
+
+        recentActivityContainer.getChildren().clear();
+        List<ActivityLog> logs = activityLogDAO.findRecent(3);
+
+        if (logs.isEmpty()) {
+            Label placeholder = new Label("No activity recorded yet.");
+            placeholder.getStyleClass().add("stat-footer");
+            recentActivityContainer.getChildren().add(placeholder);
+            return;
+        }
+
+        for (int i = 0; i < logs.size(); i++) {
+            ActivityLog log = logs.get(i);
+            HBox row = new HBox(15);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("activity-item");
+
+            Label badge = new Label(mapActivityBadgeText(log.getActivityType()));
+            badge.getStyleClass().addAll("badge-tag", mapActivityBadgeStyle(log.getActivityType()));
+
+            Label description = new Label(buildActivityDescription(log));
+            description.getStyleClass().add("activity-text");
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            row.getChildren().addAll(badge, description, spacer);
+            recentActivityContainer.getChildren().add(row);
+
+            if (i < logs.size() - 1) {
+                recentActivityContainer.getChildren().add(new Separator());
+            }
+        }
+    }
+
+    private String buildActivityDescription(ActivityLog log) {
+        StringBuilder builder = new StringBuilder();
+        if (log.getUser() != null) {
+            builder.append(log.getUser().getFullName()).append(" - ");
+        }
+        if (log.getDetails() != null && !log.getDetails().trim().isEmpty()) {
+            builder.append(log.getDetails().trim());
+        } else {
+            builder.append(log.getAction());
+        }
+        return builder.toString();
+    }
+
+    private String mapActivityBadgeText(ActivityType type) {
+        if (type == null) {
+            return "system";
+        }
+        switch (type) {
+            case PATIENT:
+            case QUEUE:
+            case APPOINTMENT:
+            case DISCHARGE:
+                return "medical";
+            case USER_MANAGEMENT:
+            case REPORT:
+                return "admin";
+            case LOGIN:
+            default:
+                return "system";
+        }
+    }
+
+    private String mapActivityBadgeStyle(ActivityType type) {
+        if (type == null) {
+            return "tag-system";
+        }
+        switch (type) {
+            case PATIENT:
+            case QUEUE:
+            case APPOINTMENT:
+            case DISCHARGE:
+                return "tag-medical";
+            case USER_MANAGEMENT:
+            case REPORT:
+                return "tag-registration";
+            case LOGIN:
+            default:
+                return "tag-system";
+        }
+    }
+
+    // --- USER MANAGEMENT VIEW ---
+    /**
+     * Initializes the user management view
+     */
     private void initializeUserManagement() {
         if (statusFilterComboBox != null) {
             statusFilterComboBox.getItems().addAll("All Status", "Active", "Inactive");
@@ -500,6 +735,146 @@ public class AdminDashboardController implements Initializable {
 
     private void showAddUserDialog() {
         // Implementation for adding a new user
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Add New User");
+        dialog.setHeaderText("Create New User Account");
+
+        // Create form
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userIdField = new TextField();
+        userIdField.setText(generateNextUserId());
+        userIdField.setEditable(false);
+        userIdField.setStyle("-fx-background-color: #f0f0f0;");
+        TextField usernameField = new TextField();
+        TextField fullNameField = new TextField();
+        TextField emailField = new TextField();
+        PasswordField passwordField = new PasswordField();
+        ComboBox<UserRole> roleComboBox = new ComboBox<>();
+        roleComboBox.getItems().addAll(UserRole.values());
+        roleComboBox.setValue(UserRole.STAFF);
+
+        TextField permissionsField = new TextField();
+        permissionsField.setEditable(false);
+        permissionsField.setStyle("-fx-background-color: #f0f0f0;");
+        ComboBox<String> statusComboBox = new ComboBox<>();
+        statusComboBox.getItems().addAll("Active", "Inactive");
+        statusComboBox.setValue("Active");
+
+        // Helper to set permissions text based on role
+        java.util.function.Consumer<UserRole> applyPermissionsForRole = role -> {
+            if (role == null) {
+                permissionsField.clear();
+                return;
+            }
+            switch (role) {
+                case DOCTOR:
+                    permissionsField.setText("Full Medical Access");
+                    break;
+                case STAFF:
+                    permissionsField.setText("Registration & Queue");
+                    break;
+                case ADMIN:
+                case SUPER_ADMIN:
+                    permissionsField.setText("System Configuration");
+                    break;
+            }
+        };
+
+        // Initialize and react to role changes
+        applyPermissionsForRole.accept(roleComboBox.getValue());
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> applyPermissionsForRole.accept(newVal));
+
+        grid.add(new Label("User ID:"), 0, 0);
+        grid.add(userIdField, 1, 0);
+        grid.add(new Label("Username:*"), 0, 1);
+        grid.add(usernameField, 1, 1);
+        grid.add(new Label("Full Name:*"), 0, 2);
+        grid.add(fullNameField, 1, 2);
+        grid.add(new Label("Email:*"), 0, 3);
+        grid.add(emailField, 1, 3);
+        grid.add(new Label("Password:*"), 0, 4);
+        grid.add(passwordField, 1, 4);
+        grid.add(new Label("Role:*"), 0, 5);
+        grid.add(roleComboBox, 1, 5);
+        grid.add(new Label("Permissions:"), 0, 6);
+        grid.add(permissionsField, 1, 6);
+        grid.add(new Label("Status:"), 0, 7);
+        grid.add(statusComboBox, 1, 7);
+
+        Label requiredLabel = new Label("* Required fields");
+        requiredLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 11px;");
+        grid.add(requiredLabel, 1, 8);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType saveButtonType = new ButtonType("Create User", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // Enable/disable save button based on required fields
+        Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+
+        // Validate required fields
+        Runnable validateFields = () -> {
+            boolean isValid = !usernameField.getText().trim().isEmpty() &&
+                    !fullNameField.getText().trim().isEmpty() &&
+                    !emailField.getText().trim().isEmpty() &&
+                    !passwordField.getText().trim().isEmpty() &&
+                    roleComboBox.getValue() != null;
+            saveButton.setDisable(!isValid);
+        };
+
+        usernameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        fullNameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                String userId = userIdField.getText().trim();
+                String username = usernameField.getText().trim();
+                String password = passwordField.getText().trim();
+                String fullName = fullNameField.getText().trim();
+                String email = emailField.getText().trim();
+                UserRole role = roleComboBox.getValue();
+                String permissions = permissionsField.getText().trim();
+                String status = statusComboBox.getValue();
+
+                User newUser = new User(userId, username, password, fullName, role);
+                newUser.setEmail(email);
+                newUser.setPermissions(permissions);
+                newUser.setStatus(status);
+
+                return newUser;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(newUser -> {
+            // Check if username already exists
+            if (userDAO.findByUsername(newUser.getUsername()) != null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Username already exists. Please choose a different username.");
+                return;
+            }
+
+            // Check if email already exists
+            if (userDAO.findByEmail(newUser.getEmail()) != null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Email already exists. Please use a different email.");
+                return;
+            }
+
+            if (userDAO.create(newUser, newUser.getEmail(), newUser.getPermissions())) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "User created successfully.");
+                loadUsers(); // Refresh table
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to create user. Please try again.");
+            }
+        });
     }
 
     private String generateNextUserId() {
@@ -518,7 +893,26 @@ public class AdminDashboardController implements Initializable {
 
     @FXML
     private void handleNavActivity(ActionEvent event) {
-        loadView(event, "/fxml/admin-activity-view.fxml");
+        System.out.println("Navigating to Activity Logs view...");
+        try {
+            loadView(event, "/fxml/admin-activity-view.fxml");
+            System.out.println("Activity Logs view loaded successfully");
+        } catch (Exception e) {
+            System.err.println("Error navigating to Activity Logs: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", 
+                    "Could not navigate to Activity Logs view: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handles the "View All" button click in Recent System Activity section
+     * Navigates to the Activity Logs view
+     */
+    @FXML
+    private void handleViewAllActivity(ActionEvent event) {
+        System.out.println("View All Activity button clicked - navigating to Activity Logs...");
+        handleNavActivity(event);
     }
 
     @FXML
@@ -558,6 +952,49 @@ public class AdminDashboardController implements Initializable {
     }
 
     private void updateUserInfo() {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
+            // Try to update user info if the controller supports it
+            Object controller = loader.getController();
+            if (controller instanceof AdminDashboardController) {
+                ((AdminDashboardController) controller).updateUserInfo();
+            } else if (controller instanceof AdminActivityController) {
+                ((AdminActivityController) controller).updateUserInfo();
+            }
+
+            // 1. Set initial opacity to 0 (Invisible)
+            root.setOpacity(0);
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            if (stage == null || stage.getScene() == null) {
+                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not access window.");
+                return;
+            }
+            
+            stage.getScene().setRoot(root);
+
+            // 2. Play Fade Transition (0.0 -> 1.0)
+            FadeTransition fadeTransition = new FadeTransition(Duration.millis(300), root);
+            fadeTransition.setFromValue(0.0);
+            fadeTransition.setToValue(1.0);
+            fadeTransition.play();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", 
+                    "Could not load " + fxmlPath + "\nCheck if file exists in /fxml/ folder.\nError: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", 
+                    "An error occurred while navigating: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Updates the user name and role labels from the current logged-in user
+     */
+    public void updateUserInfo() {
         User currentUser = AuthService.getInstance().getCurrentUser();
         if (currentUser != null) {
             if (userNameLabel != null) {
