@@ -173,7 +173,7 @@
                                 <HBox alignment="CENTER_LEFT">
                                     <Label blendMode="SRC_ATOP" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #000000;" text="Recent System Activity" />
                                     <Region HBox.hgrow="ALWAYS" />
-                                    <Button style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
+                                    <Button fx:id="viewAllActivityButton" onAction="#handleViewAllActivity" style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
                                 </HBox>
                                 <VBox fx:id="recentActivityContainer" spacing="0.0" />
                             </children>

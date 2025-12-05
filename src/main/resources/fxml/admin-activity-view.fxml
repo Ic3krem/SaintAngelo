@@ -128,11 +128,11 @@
                                         <Label styleClass="table-col-header" text="Type" GridPane.columnIndex="4" />
                                         <Label styleClass="table-col-header" text="Timestamp" GridPane.columnIndex="5" />
                                     </children>
-                                    <rowConstraints>
-                                        <RowConstraints />
-                                    </rowConstraints>
+                           <rowConstraints>
+                              <RowConstraints />
+                           </rowConstraints>
                                 </GridPane>
-                                
+
                                 <!-- Empty State Label -->
                                 <Label fx:id="emptyStateLabel" styleClass="stat-footer" text="No activity logs found." visible="false" managed="false" />
                                 

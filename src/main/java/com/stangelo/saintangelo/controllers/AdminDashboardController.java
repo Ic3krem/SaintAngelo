@@ -882,6 +882,16 @@ public class AdminDashboardController implements Initializable {
                     "Could not navigate to Activity Logs view: " + e.getMessage());
         }
     }
+    
+    /**
+     * Handles the "View All" button click in Recent System Activity section
+     * Navigates to the Activity Logs view
+     */
+    @FXML
+    private void handleViewAllActivity(ActionEvent event) {
+        System.out.println("View All Activity button clicked - navigating to Activity Logs...");
+        handleNavActivity(event);
+    }
 
     @FXML
     private void handleNavReports(ActionEvent event) {
