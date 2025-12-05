@@ -110,7 +110,7 @@ public class MainApp extends Application {
         splashScreen.setStyle("-fx-background-color: transparent; -fx-background-radius: 0;");
 
         try {
-            ImageView splashImage = new ImageView(new Image(getClass().getResourceAsStream("/images/logoclear2.png")));
+            ImageView splashImage = new ImageView(new Image(getClass().getResourceAsStream("/images/updatedlogo1.png")));
             splashImage.setFitWidth(700);
             splashImage.setFitHeight(500);
             splashImage.setPreserveRatio(true);
