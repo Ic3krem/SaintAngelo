@@ -15,8 +15,9 @@ import java.util.List;
 public class ActivityLogDAO extends BaseDAO {
 
     public boolean create(ActivityLog log) {
+        // Use database's NOW() to ensure correct timezone handling
         String sql = "INSERT INTO activity_logs (user_id, action, details, activity_type, ip_address, timestamp) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, COALESCE(?, NOW()))";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -26,7 +27,15 @@ public class ActivityLogDAO extends BaseDAO {
             stmt.setString(3, log.getDetails());
             stmt.setString(4, log.getActivityType().name());
             stmt.setString(5, log.getIpAddress());
-            stmt.setTimestamp(6, Timestamp.valueOf(log.getTimestamp()));
+            
+            // Use database time if timestamp is null or very old, otherwise use provided timestamp
+            if (log.getTimestamp() != null) {
+                // Convert LocalDateTime to Timestamp using system default timezone
+                Timestamp ts = Timestamp.valueOf(log.getTimestamp());
+                stmt.setTimestamp(6, ts);
+            } else {
+                stmt.setTimestamp(6, null); // Will use NOW() from COALESCE
+            }
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -77,6 +86,71 @@ public class ActivityLogDAO extends BaseDAO {
         return logs;
     }
 
+    /**
+     * Returns the most recent activity logs up to the provided limit.
+     *
+     * @param limit maximum number of records to return
+     * @return list of ActivityLog objects ordered by newest first
+     */
+    public List<ActivityLog> findRecent(int limit) {
+        List<ActivityLog> logs = new ArrayList<>();
+        if (limit <= 0) {
+            return logs;
+        }
+
+        String sql = "SELECT * FROM activity_logs ORDER BY timestamp DESC LIMIT ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, limit);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    logs.add(mapResultSetToActivityLog(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error retrieving recent activity logs", e);
+        }
+
+        return logs;
+    }
+
+        /**
+     * Retrieves all activity logs ordered by newest first.
+     *
+     * @return list of all activity logs
+     */
+    public List<ActivityLog> findAll() {
+        List<ActivityLog> logs = new ArrayList<>();
+        String sql = "SELECT * FROM activity_logs ORDER BY timestamp DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            // Debug: Check database time vs Java time
+            try (PreparedStatement timeStmt = conn.prepareStatement("SELECT NOW() as db_time");
+                 ResultSet timeRs = timeStmt.executeQuery()) {
+                if (timeRs.next()) {
+                    Timestamp dbTime = timeRs.getTimestamp("db_time");
+                    System.out.println("Database time: " + dbTime + ", Java time: " + LocalDateTime.now());
+                }
+            } catch (SQLException e) {
+                // Ignore time check errors
+            }
+
+            while (rs.next()) {
+                logs.add(mapResultSetToActivityLog(rs));
+            }
+        } catch (SQLException e) {
+            logError("Error retrieving all activity logs", e);
+        }
+
+        return logs;
+    }
+
     private ActivityLog mapResultSetToActivityLog(ResultSet rs) throws SQLException {
         int logId = rs.getInt("log_id");
         String userId = rs.getString("user_id");
@@ -84,7 +158,16 @@ public class ActivityLogDAO extends BaseDAO {
         String details = rs.getString("details");
         ActivityType activityType = ActivityType.valueOf(rs.getString("activity_type"));
         String ipAddress = rs.getString("ip_address");
-        LocalDateTime timestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+        
+        // Handle timestamp with proper timezone conversion
+        // Use getTimestamp with Calendar to ensure correct timezone handling
+        Timestamp timestampValue = rs.getTimestamp("timestamp", java.util.Calendar.getInstance());
+        LocalDateTime timestamp = timestampValue != null ? timestampValue.toLocalDateTime() : null;
+        
+        // Debug: Log timestamp for troubleshooting
+        if (timestamp != null) {
+            System.out.println("Retrieved timestamp from DB: " + timestamp + " (Current time: " + LocalDateTime.now() + ")");
+        }
 
         User user = userId != null ? new UserDAO().findById(userId) : null;
 

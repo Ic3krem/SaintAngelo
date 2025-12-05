@@ -109,12 +109,12 @@
                                     <children>
                                         <Label styleClass="stat-title" text="Total Users" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="129" />
+                                            <Label fx:id="totalUsersLabel" styleClass="stat-value" text="0" />
                                             <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
                                             <SVGPath content="M0 30 Q10 20 20 25 T40 10 T60 25 T80 5" fill="TRANSPARENT" stroke="#0b7d56" strokeWidth="2" />
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                        <Label styleClass="stat-footer" text="" />
                                     </children>
                                 </VBox>
                                 <!-- Stat 2 -->
@@ -122,12 +122,12 @@
                                     <children>
                                         <Label styleClass="stat-title" text="Total Patients" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="30" />
+                                            <Label fx:id="totalPatientsLabel" styleClass="stat-value" text="0" />
                                             <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
                                             <SVGPath content="M0 30 Q10 15 20 20 T40 10 T60 25 T80 20" fill="TRANSPARENT" stroke="#76ff03" strokeWidth="2" />
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                        <Label styleClass="stat-footer" text="" />
                                     </children>
                                 </VBox>
                                 <!-- Stat 3 -->
@@ -135,12 +135,12 @@
                                     <children>
                                         <Label styleClass="stat-title" text="Avg. Wait Time" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="129" />
+                                            <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="0 min" />
                                             <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
                                             <SVGPath content="M0 25 L20 20 L40 10 L60 25 L80 5" fill="TRANSPARENT" stroke="#64ffda" strokeWidth="2" />
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
+                                        <Label styleClass="stat-footer" text="" />
                                     </children>
                                 </VBox>
                             </children>
@@ -153,17 +153,7 @@
                                 <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0b7d56;" text="Patient Flow (Last 7 Days)" />
-                                        <HBox alignment="BOTTOM_CENTER" prefHeight="150.0" spacing="15.0" styleClass="chart-container">
-                                            <children>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="80.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Mon" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="95.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Tue" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="105.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Wed" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="85.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Thu" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="110.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Fri" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="108.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Sat" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="120.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Sun" /></VBox>
-                                            </children>
-                                        </HBox>
+                                        <HBox fx:id="patientFlowChart" alignment="BOTTOM_CENTER" prefHeight="150.0" spacing="15.0" styleClass="chart-container" />
                                     </children>
                                 </VBox>
 
@@ -171,20 +161,7 @@
                                 <VBox spacing="20.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0b7d56;" text="System Usage by Roles" />
-                                        <VBox alignment="CENTER_LEFT" spacing="15.0">
-                                            <VBox spacing="5.0">
-                                                <HBox><Label styleClass="usage-label" text="Doctors" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="45%" /></HBox>
-                                                <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="150" styleClass="progress-fill, fill-blue" /></StackPane>
-                                            </VBox>
-                                            <VBox spacing="5.0">
-                                                <HBox><Label styleClass="usage-label" text="Receptionists" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="35%" /></HBox>
-                                                <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="110" styleClass="progress-fill, fill-green" /></StackPane>
-                                            </VBox>
-                                            <VBox spacing="5.0">
-                                                <HBox><Label styleClass="usage-label" text="Admins" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="20%" /></HBox>
-                                                <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="60" styleClass="progress-fill, fill-purple" /></StackPane>
-                                            </VBox>
-                                        </VBox>
+                                        <VBox fx:id="systemUsageContainer" alignment="CENTER_LEFT" spacing="15.0" />
                                     </children>
                                 </VBox>
                             </children>
@@ -196,30 +173,9 @@
                                 <HBox alignment="CENTER_LEFT">
                                     <Label blendMode="SRC_ATOP" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #000000;" text="Recent System Activity" />
                                     <Region HBox.hgrow="ALWAYS" />
-                                    <Button style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
+                                    <Button fx:id="viewAllActivityButton" onAction="#handleViewAllActivity" style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
                                 </HBox>
-                                <VBox spacing="0.0">
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label styleClass="badge-tag, tag-medical" text="medical" />
-                                        <Text styleClass="activity-text" text="Dr. John Diaz Completed patient consultation" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="activity-time" text="2 min ago" />
-                                    </HBox>
-                                    <Separator />
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label styleClass="badge-tag, tag-registration" text="registration" />
-                                        <Text styleClass="activity-text" text="Angelo Castro Registered new patient" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="activity-time" text="5 min ago" />
-                                    </HBox>
-                                    <Separator />
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label styleClass="badge-tag, tag-medical" text="medical" />
-                                        <Text styleClass="activity-text" text="Dr. Sarah Lee Updated patient records" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="activity-time" text="8 min ago" />
-                                    </HBox>
-                                </VBox>
+                                <VBox fx:id="recentActivityContainer" spacing="0.0" />
                             </children>
                         </VBox>
 

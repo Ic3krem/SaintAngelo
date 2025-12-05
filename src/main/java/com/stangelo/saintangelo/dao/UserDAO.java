@@ -55,7 +55,11 @@ public class UserDAO extends BaseDAO {
                     User user = new User(userId, dbUsername, dbPassword, fullName, email, role, permissions, status, lastActive);
                     
                     // Now update last active (after we've extracted all data)
+                    // This will trigger the database trigger to create activity log
                     updateLastActive(userId);
+                    
+                    // Also manually create activity log as backup (in case trigger doesn't fire)
+                    createLoginActivityLog(user);
                     
                     logger.info("User authenticated successfully: " + username);
                     return user;
@@ -298,6 +302,55 @@ public class UserDAO extends BaseDAO {
             logError("Error updating last active for user: " + userId, e);
         }
     }
+    
+    /**
+     * Creates an activity log entry for user login
+     * This is a backup method in case the database trigger doesn't fire
+     *
+     * @param user User who logged in
+     */
+    private void createLoginActivityLog(User user) {
+        if (user == null || user.getId() == null) {
+            return;
+        }
+        
+        // Check if recent login log exists, if not create one
+        String checkSql = "SELECT COUNT(*) as count FROM activity_logs " +
+                          "WHERE user_id = ? AND activity_type = 'LOGIN' " +
+                          "AND timestamp > DATE_SUB(NOW(), INTERVAL 1 MINUTE)";
+        
+        try (Connection conn = getConnection()) {
+            // Check if a login log was created in the last minute (by trigger or previous call)
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setString(1, user.getId());
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt("count") > 0) {
+                        // Login log already exists (probably created by trigger)
+                        logger.info("Login activity log already exists for user: " + user.getId());
+                        return;
+                    }
+                }
+            }
+            
+            // Create login log if it doesn't exist
+            String insertSql = "INSERT INTO activity_logs (user_id, action, details, activity_type, timestamp) " +
+                              "VALUES (?, 'Login', CONCAT('User ', ?, ' logged in'), 'LOGIN', NOW())";
+            
+            try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+                stmt.setString(1, user.getId());
+                stmt.setString(2, user.getFullName());
+                int rowsAffected = stmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    logger.info("Created login activity log for user: " + user.getId() + " (" + user.getFullName() + ")");
+                }
+            }
+            
+        } catch (SQLException e) {
+            // Log error but don't fail authentication
+            logError("Error creating login activity log for user: " + user.getId(), e);
+        }
+    }
 
     /**
      * Maps a ResultSet row to a User object
@@ -418,6 +471,57 @@ public class UserDAO extends BaseDAO {
             logError("Error searching users with filters", e);
         }
         return users;
+    }
+
+    /**
+     * Gets total number of users in the system.
+     *
+     * @return total user count
+     */
+    public int countAllUsers() {
+        String sql = "SELECT COUNT(*) FROM users";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            logError("Error counting all users", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Counts users by role.
+     *
+     * @param role UserRole to count
+     * @return number of users with the given role
+     */
+    public int countByRole(UserRole role) {
+        if (role == null) {
+            return 0;
+        }
+
+        String sql = "SELECT COUNT(*) FROM users WHERE role = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, role.name());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error counting users by role: " + role, e);
+        }
+
+        return 0;
     }
 }
 
