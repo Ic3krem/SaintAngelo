@@ -871,7 +871,16 @@ public class AdminDashboardController implements Initializable {
 
     @FXML
     private void handleNavActivity(ActionEvent event) {
-        loadView(event, "/fxml/admin-activity-view.fxml");
+        System.out.println("Navigating to Activity Logs view...");
+        try {
+            loadView(event, "/fxml/admin-activity-view.fxml");
+            System.out.println("Activity Logs view loaded successfully");
+        } catch (Exception e) {
+            System.err.println("Error navigating to Activity Logs: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", 
+                    "Could not navigate to Activity Logs view: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -969,16 +978,23 @@ public class AdminDashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Get the controller instance to update user info
-            AdminDashboardController controller = loader.getController();
-            if (controller != null) {
-                controller.updateUserInfo();
+            // Try to update user info if the controller supports it
+            Object controller = loader.getController();
+            if (controller instanceof AdminDashboardController) {
+                ((AdminDashboardController) controller).updateUserInfo();
+            } else if (controller instanceof AdminActivityController) {
+                ((AdminActivityController) controller).updateUserInfo();
             }
 
             // 1. Set initial opacity to 0 (Invisible)
             root.setOpacity(0);
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            if (stage == null || stage.getScene() == null) {
+                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not access window.");
+                return;
+            }
+            
             stage.getScene().setRoot(root);
 
             // 2. Play Fade Transition (0.0 -> 1.0)
@@ -989,14 +1005,19 @@ public class AdminDashboardController implements Initializable {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load " + fxmlPath + "\nCheck if file exists in /fxml/ folder.");
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", 
+                    "Could not load " + fxmlPath + "\nCheck if file exists in /fxml/ folder.\nError: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", 
+                    "An error occurred while navigating: " + e.getMessage());
         }
     }
 
     /**
      * Updates the user name and role labels from the current logged-in user
      */
-    private void updateUserInfo() {
+    public void updateUserInfo() {
         User currentUser = AuthService.getInstance().getCurrentUser();
         if (currentUser != null) {
             if (userNameLabel != null) {

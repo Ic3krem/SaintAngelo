@@ -15,8 +15,9 @@ import java.util.List;
 public class ActivityLogDAO extends BaseDAO {
 
     public boolean create(ActivityLog log) {
+        // Use database's NOW() to ensure correct timezone handling
         String sql = "INSERT INTO activity_logs (user_id, action, details, activity_type, ip_address, timestamp) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, COALESCE(?, NOW()))";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -26,7 +27,15 @@ public class ActivityLogDAO extends BaseDAO {
             stmt.setString(3, log.getDetails());
             stmt.setString(4, log.getActivityType().name());
             stmt.setString(5, log.getIpAddress());
-            stmt.setTimestamp(6, Timestamp.valueOf(log.getTimestamp()));
+            
+            // Use database time if timestamp is null or very old, otherwise use provided timestamp
+            if (log.getTimestamp() != null) {
+                // Convert LocalDateTime to Timestamp using system default timezone
+                Timestamp ts = Timestamp.valueOf(log.getTimestamp());
+                stmt.setTimestamp(6, ts);
+            } else {
+                stmt.setTimestamp(6, null); // Will use NOW() from COALESCE
+            }
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -108,7 +117,7 @@ public class ActivityLogDAO extends BaseDAO {
         return logs;
     }
 
-    /**
+        /**
      * Retrieves all activity logs ordered by newest first.
      *
      * @return list of all activity logs
@@ -120,6 +129,17 @@ public class ActivityLogDAO extends BaseDAO {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
+            
+            // Debug: Check database time vs Java time
+            try (PreparedStatement timeStmt = conn.prepareStatement("SELECT NOW() as db_time");
+                 ResultSet timeRs = timeStmt.executeQuery()) {
+                if (timeRs.next()) {
+                    Timestamp dbTime = timeRs.getTimestamp("db_time");
+                    System.out.println("Database time: " + dbTime + ", Java time: " + LocalDateTime.now());
+                }
+            } catch (SQLException e) {
+                // Ignore time check errors
+            }
 
             while (rs.next()) {
                 logs.add(mapResultSetToActivityLog(rs));
@@ -138,7 +158,16 @@ public class ActivityLogDAO extends BaseDAO {
         String details = rs.getString("details");
         ActivityType activityType = ActivityType.valueOf(rs.getString("activity_type"));
         String ipAddress = rs.getString("ip_address");
-        LocalDateTime timestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+        
+        // Handle timestamp with proper timezone conversion
+        // Use getTimestamp with Calendar to ensure correct timezone handling
+        Timestamp timestampValue = rs.getTimestamp("timestamp", java.util.Calendar.getInstance());
+        LocalDateTime timestamp = timestampValue != null ? timestampValue.toLocalDateTime() : null;
+        
+        // Debug: Log timestamp for troubleshooting
+        if (timestamp != null) {
+            System.out.println("Retrieved timestamp from DB: " + timestamp + " (Current time: " + LocalDateTime.now() + ")");
+        }
 
         User user = userId != null ? new UserDAO().findById(userId) : null;
 
