@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -43,7 +45,7 @@
                 <!-- ADDED onAction handlers -->
                 <Button maxWidth="Infinity" onAction="#handleNavDashboard" styleClass="nav-button, active" text="Dashboard">
                     <graphic>
-                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#1a1a1a" scaleX="0.7" scaleY="0.7" />
+                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-6h-8v6zm0-18v6h8V3h-8z" fill="#1a1a1a" scaleX="0.7" scaleY="0.7" />
                     </graphic>
                 </Button>
                 <Button maxWidth="Infinity" onAction="#handleNavUsers" styleClass="nav-button" text="User Management">
@@ -104,43 +106,64 @@
                                 <RowConstraints vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <!-- Stat 1 -->
+                                <!-- Stat 1: Total Users -->
                                 <VBox styleClass="stat-card">
                                     <children>
                                         <Label styleClass="stat-title" text="Total Users" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="129" />
-                                            <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                            <Label fx:id="totalUsersLabel" styleClass="stat-value" text="0" />
+                                            <SVGPath fx:id="totalUsersArrow" content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <SVGPath content="M0 30 Q10 20 20 25 T40 10 T60 25 T80 5" fill="TRANSPARENT" stroke="#0b7d56" strokeWidth="2" />
+                                            <LineChart fx:id="totalUsersChart" prefHeight="50.0" prefWidth="80.0" styleClass="transparent-chart">
+                                                <xAxis>
+                                                    <NumberAxis side="BOTTOM" tickLabelsVisible="false" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" tickLabelsVisible="false" />
+                                                </yAxis>
+                                            </LineChart>
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                        <Label fx:id="totalUsersChangeLabel" styleClass="stat-footer" text="+ 0 Increased vs Last Month" />
                                     </children>
                                 </VBox>
-                                <!-- Stat 2 -->
+                                <!-- Stat 2: Total Patients -->
                                 <VBox styleClass="stat-card" GridPane.columnIndex="1">
                                     <children>
                                         <Label styleClass="stat-title" text="Total Patients" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="30" />
-                                            <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                            <Label fx:id="totalPatientsLabel" styleClass="stat-value" text="0" />
+                                            <SVGPath fx:id="totalPatientsArrow" content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <SVGPath content="M0 30 Q10 15 20 20 T40 10 T60 25 T80 20" fill="TRANSPARENT" stroke="#76ff03" strokeWidth="2" />
+                                            <LineChart fx:id="totalPatientsChart" prefHeight="50.0" prefWidth="80.0" styleClass="transparent-chart">
+                                                <xAxis>
+                                                    <NumberAxis side="BOTTOM" tickLabelsVisible="false" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" tickLabelsVisible="false" />
+                                                </yAxis>
+                                            </LineChart>
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                        <Label fx:id="totalPatientsChangeLabel" styleClass="stat-footer" text="+ 0 Increased vs Last Month" />
                                     </children>
                                 </VBox>
-                                <!-- Stat 3 -->
+                                <!-- Stat 3: Avg. Wait Time -->
                                 <VBox styleClass="stat-card" GridPane.columnIndex="2">
                                     <children>
                                         <Label styleClass="stat-title" text="Avg. Wait Time" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="129" />
-                                            <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
+                                            <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="0" />
+                                            <SVGPath fx:id="avgWaitTimeArrow" content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <SVGPath content="M0 25 L20 20 L40 10 L60 25 L80 5" fill="TRANSPARENT" stroke="#64ffda" strokeWidth="2" />
+                                            <LineChart fx:id="avgWaitTimeChart" prefHeight="50.0" prefWidth="80.0" styleClass="transparent-chart">
+                                                <xAxis>
+                                                    <NumberAxis side="BOTTOM" tickLabelsVisible="false" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" tickLabelsVisible="false" />
+                                                </yAxis>
+                                            </LineChart>
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
+                                        <Label fx:id="avgWaitTimeChangeLabel" styleClass="stat-footer" text="-0 Decreased vs Last Month" />
                                     </children>
                                 </VBox>
                             </children>

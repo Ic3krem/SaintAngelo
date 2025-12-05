@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import com.stangelo.saintangelo.models.Patient;
 
@@ -319,5 +321,66 @@ public class PatientDAO extends BaseDAO {
         }
         return null;
     }
-}
 
+    /**
+     * Gets daily patient registration counts for the last N days.
+     *
+     * @param days The number of days to look back.
+     * @return A map where the key is the date and the value is the count of new patients.
+     */
+    public Map<LocalDate, Integer> getDailyPatientCounts(int days) {
+        Map<LocalDate, Integer> patientCounts = new LinkedHashMap<>();
+        String sql = "SELECT DATE(registration_date) as date, COUNT(*) as count " +
+                     "FROM patients " +
+                     "WHERE registration_date >= CURDATE() - INTERVAL ? DAY " +
+                     "GROUP BY DATE(registration_date) " +
+                     "ORDER BY DATE(registration_date)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, days - 1);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    LocalDate date = rs.getDate("date").toLocalDate();
+                    int count = rs.getInt("count");
+                    patientCounts.put(date, count);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting daily patient counts", e);
+        }
+
+        // Fill in missing days with 0
+        for (int i = 0; i < days; i++) {
+            LocalDate date = LocalDate.now().minusDays(i);
+            patientCounts.putIfAbsent(date, 0);
+        }
+
+        return patientCounts;
+    }
+
+    /**
+     * Gets the total number of patients created in a given period.
+     *
+     * @param start The start date of the period.
+     * @param end The end date of the period.
+     * @return The total number of patients created.
+     */
+    public int getPatientCountInPeriod(LocalDate start, LocalDate end) {
+        String sql = "SELECT COUNT(*) FROM patients WHERE registration_date BETWEEN ? AND ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, start);
+            stmt.setObject(2, end);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting patient count in period", e);
+        }
+        return 0;
+    }
+}
