@@ -21,7 +21,7 @@ public class DatabaseConfig {
     private static Properties properties = new Properties();
 
     // Default configuration values (for shared LAN database)
-    private static final String DEFAULT_DB_URL = "jdbc:mysql://10.192.165.212:3306/saintangelo_hospital";
+    private static final String DEFAULT_DB_URL = "jdbc:mysql://192.168.100.162:3306/saintangelo_hospital";
     private static final String DEFAULT_DB_USERNAME = "root";
     private static final String DEFAULT_DB_PASSWORD = "";
     private static final String DEFAULT_DB_DRIVER = "com.mysql.cj.jdbc.Driver";
