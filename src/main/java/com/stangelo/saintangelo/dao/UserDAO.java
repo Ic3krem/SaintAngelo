@@ -8,6 +8,9 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.time.LocalDate;
 
 import com.stangelo.saintangelo.models.User;
 import com.stangelo.saintangelo.models.UserRole;
@@ -39,6 +42,8 @@ public class UserDAO extends BaseDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    User user = mapResultSetToUser(rs);
+                    updateLastActive(user.getId());
                     // Extract all data from ResultSet BEFORE doing anything else
                     String userId = rs.getString("user_id");
                     String dbUsername = rs.getString("username");
@@ -370,8 +375,10 @@ public class UserDAO extends BaseDAO {
         String status = rs.getString("status");
         Timestamp lastActiveTs = rs.getTimestamp("last_active");
         LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
+        Timestamp createdAtTs = rs.getTimestamp("created_at");
+        LocalDateTime createdAt = createdAtTs != null ? createdAtTs.toLocalDateTime() : null;
 
-        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive);
+        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive, createdAt);
     }
 
     /**
@@ -525,3 +532,65 @@ public class UserDAO extends BaseDAO {
     }
 }
 
+    /**
+     * Gets daily user registration counts for the last N days.
+     *
+     * @param days The number of days to look back.
+     * @return A map where the key is the date and the value is the count of new users.
+     */
+    public Map<LocalDate, Integer> getDailyUserCounts(int days) {
+        Map<LocalDate, Integer> userCounts = new LinkedHashMap<>();
+        String sql = "SELECT DATE(created_at) as date, COUNT(*) as count " +
+                     "FROM users " +
+                     "WHERE created_at >= CURDATE() - INTERVAL ? DAY " +
+                     "GROUP BY DATE(created_at) " +
+                     "ORDER BY DATE(created_at)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, days - 1);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    LocalDate date = rs.getDate("date").toLocalDate();
+                    int count = rs.getInt("count");
+                    userCounts.put(date, count);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting daily user counts", e);
+        }
+
+        // Fill in missing days with 0
+        for (int i = 0; i < days; i++) {
+            LocalDate date = LocalDate.now().minusDays(i);
+            userCounts.putIfAbsent(date, 0);
+        }
+
+        return userCounts;
+    }
+
+    /**
+     * Gets the total number of users created in a given period.
+     *
+     * @param start The start date of the period.
+     * @param end The end date of the period.
+     * @return The total number of users created.
+     */
+    public int getUserCountInPeriod(LocalDate start, LocalDate end) {
+        String sql = "SELECT COUNT(*) FROM users WHERE created_at BETWEEN ? AND ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, start);
+            stmt.setObject(2, end);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting user count in period", e);
+        }
+        return 0;
+    }
+}

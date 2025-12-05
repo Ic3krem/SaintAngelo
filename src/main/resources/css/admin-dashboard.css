@@ -524,3 +524,35 @@
 .btn-generate-large:hover {
     -fx-background-color: #218838;
 }
+
+/* LineChart Styling for Dashboard Stats */
+.transparent-chart {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.transparent-chart .chart-content {
+    -fx-padding: 0;
+}
+
+.transparent-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.transparent-chart .axis {
+    -fx-opacity: 0; /* Hide axes */
+}
+
+.transparent-chart .chart-vertical-grid-lines,
+.transparent-chart .chart-horizontal-grid-lines {
+    -fx-opacity: 0; /* Hide grid lines */
+}
+
+.transparent-chart .chart-series-line {
+    -fx-stroke-width: 2px;
+    -fx-effect: null; /* Remove default shadow/effect */
+}
+
+.transparent-chart .chart-line-symbol {
+    -fx-background-color: transparent; /* Hide symbols on the line */
+}
