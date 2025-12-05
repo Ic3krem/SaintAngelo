@@ -93,7 +93,7 @@ public class MainApp extends Application {
         // --- MAIN LAYOUT ---
         BorderPane loginRoot = new BorderPane();
         // Important: Set rounded corners on the bottom for the root as well to match
-        loginRoot.setStyle("-fx-background-color: white; -fx-background-radius: 0;");
+        loginRoot.setStyle("-fx-background-color: transparent; -fx-background-radius: 0;");
         loginRoot.setTop(titleBar);
         loginRoot.setCenter(fxmlRoot);
 
@@ -107,10 +107,10 @@ public class MainApp extends Application {
 
         // --- SPLASH SCREEN (Kept your logic) ---
         StackPane splashScreen = new StackPane();
-        splashScreen.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 0;");
+        splashScreen.setStyle("-fx-background-color: transparent; -fx-background-radius: 0;");
 
         try {
-            ImageView splashImage = new ImageView(new Image(getClass().getResourceAsStream("/images/cover2.png")));
+            ImageView splashImage = new ImageView(new Image(getClass().getResourceAsStream("/images/logoclear2.png")));
             splashImage.setFitWidth(700);
             splashImage.setFitHeight(500);
             splashImage.setPreserveRatio(true);

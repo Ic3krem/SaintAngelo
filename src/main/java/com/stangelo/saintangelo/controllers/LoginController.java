@@ -35,6 +35,9 @@ public class LoginController {
     private Button loginButton;
 
     @FXML
+    private Hyperlink forgot_password;
+
+    @FXML
     private Hyperlink publicViewLink;
 
     private UserDAO userDAO;
@@ -59,6 +62,11 @@ public class LoginController {
                             "5. Firewall allows connection to port 3306\n" +
                             "6. Check the console/logs for detailed error messages");
         }
+    }
+
+    @FXML
+    public void handleForgotPasswordAction() {
+        showInfoAlert("Password Reset Request", "Contact your admin to reset your password.");
     }
 
     @FXML

@@ -22,7 +22,7 @@ public class DischargeDAO extends BaseDAO {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, dischargeId);
+            stmt.setString( 1, dischargeId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
