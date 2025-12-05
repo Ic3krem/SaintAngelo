@@ -252,9 +252,13 @@ public class PatientDAO extends BaseDAO {
         Date lastVisitDate = rs.getDate("last_visit_date");
         String lastVisitDateStr = lastVisitDate != null ? lastVisitDate.toString() : null;
 
+        Date registrationDate = rs.getDate("registration_date");
+        LocalDate regDate = registrationDate != null ? registrationDate.toLocalDate() : null;
+
         Patient patient = new Patient(id, name, age, phoneNumber, homeAddress, gender,
                 emergencyContactPerson, emergencyContactNumber, isSeniorCitizen,
                 null, null, null, null, null, null, null, null, null, null, null, lastVisitDateStr, bloodType);
+        patient.setRegistrationDate(regDate);
 
         // Note: Patient model needs setChiefComplaint method
         // For now, we'll store it in notes or another field

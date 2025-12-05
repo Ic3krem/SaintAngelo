@@ -42,24 +42,8 @@ public class UserDAO extends BaseDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    // Extract all data from ResultSet BEFORE doing anything else
-                    String userId = rs.getString("user_id");
-                    String dbUsername = rs.getString("username");
-                    String dbPassword = rs.getString("password");
-                    String fullName = rs.getString("full_name");
-                    String email = rs.getString("email");
-                    UserRole role = UserRole.valueOf(rs.getString("role"));
-                    String permissions = rs.getString("permissions");
-                    String status = rs.getString("status");
-                    Timestamp lastActiveTs = rs.getTimestamp("last_active");
-                    LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
-                    
-                    // Create user object with extracted data
-                    User user = new User(userId, dbUsername, dbPassword, fullName, email, role, permissions, status, lastActive);
-                    
-                    // Now update last active (after we've extracted all data)
-                    updateLastActive(userId);
-                    
+                    User user = mapResultSetToUser(rs);
+                    updateLastActive(user.getId());
                     logger.info("User authenticated successfully: " + username);
                     return user;
                 } else {
@@ -320,8 +304,10 @@ public class UserDAO extends BaseDAO {
         String status = rs.getString("status");
         Timestamp lastActiveTs = rs.getTimestamp("last_active");
         LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
+        Timestamp createdAtTs = rs.getTimestamp("created_at");
+        LocalDateTime createdAt = createdAtTs != null ? createdAtTs.toLocalDateTime() : null;
 
-        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive);
+        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive, createdAt);
     }
 
     /**

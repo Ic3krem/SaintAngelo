@@ -27,10 +27,13 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -87,6 +90,19 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private LineChart<Number, Number> avgWaitTimeChart;
 
+    // Report Generation FXML Fields
+    @FXML
+    private ComboBox<String> reportTypeComboBox;
+    @FXML
+    private DatePicker startDatePicker;
+    @FXML
+    private DatePicker endDatePicker;
+    @FXML
+    private ComboBox<String> exportFormatComboBox;
+    @FXML
+    private Button generateReportButton;
+
+
     private UserDAO userDAO;
     private PatientDAO patientDAO;
     private TicketDAO ticketDAO;
@@ -105,6 +121,10 @@ public class AdminDashboardController implements Initializable {
 
         if (totalUsersChart != null) {
             initializeDashboardCharts();
+        }
+
+        if (reportTypeComboBox != null) {
+            initializeReportGenerator();
         }
     }
 
@@ -147,6 +167,80 @@ public class AdminDashboardController implements Initializable {
         updateStatCard(avgWaitTimeLabel, avgWaitTimeChangeLabel, avgWaitTimeArrow, currentAvgWaitTime, (int) previousAvgWaitTime, "Decreased", "Increased", "#ff6b6b", "#0b7d56");
         populateChart(avgWaitTimeChart, avgWaitTimes, "#64ffda");
     }
+
+    private void initializeReportGenerator() {
+        reportTypeComboBox.getItems().addAll("Patient Report");
+        reportTypeComboBox.setValue("Patient Report");
+        exportFormatComboBox.getItems().addAll("CSV");
+        exportFormatComboBox.setValue("CSV");
+    }
+
+    @FXML
+    private void handleGenerateReport(ActionEvent event) {
+        String reportType = reportTypeComboBox.getValue();
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        String exportFormat = exportFormatComboBox.getValue();
+
+        if (reportType == null || startDate == null || endDate == null || exportFormat == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please fill in all fields.");
+            return;
+        }
+
+        if (startDate.isAfter(endDate)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Start date cannot be after end date.");
+            return;
+        }
+
+        String csvData = "";
+        if ("Patient Report".equals(reportType)) {
+            csvData = generatePatientReport(startDate, endDate);
+        }
+
+        if (csvData.isEmpty()) {
+            showAlert(Alert.AlertType.INFORMATION, "No Data", "No data found for the selected criteria.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Report");
+        fileChooser.setInitialFileName(reportType.replace(" ", "_") + "_" + startDate + "_to_" + endDate + ".csv");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(csvData);
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Report generated successfully.");
+            } catch (IOException e) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to save report: " + e.getMessage());
+            }
+        }
+    }
+
+    private String generatePatientReport(LocalDate startDate, LocalDate endDate) {
+        List<com.stangelo.saintangelo.models.Patient> patients = patientDAO.findAll().stream()
+                .filter(p -> p.getRegistrationDate() != null && !p.getRegistrationDate().isBefore(startDate) && !p.getRegistrationDate().isAfter(endDate))
+                .collect(Collectors.toList());
+
+        if (patients.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder csv = new StringBuilder("Patient ID,Name,Age,Gender,Phone Number,Registration Date\n");
+        for (com.stangelo.saintangelo.models.Patient patient : patients) {
+            csv.append(String.join(",",
+                    patient.getId(),
+                    "\"" + patient.getName() + "\"",
+                    String.valueOf(patient.getAge()),
+                    patient.getGender(),
+                    patient.getContactNumber(),
+                    patient.getRegistrationDate().toString()
+            )).append("\n");
+        }
+        return csv.toString();
+    }
+
 
     private void populateChart(LineChart<Number, Number> chart, Map<LocalDate, Integer> data, String color) {
         if (chart == null || data == null || data.isEmpty()) {

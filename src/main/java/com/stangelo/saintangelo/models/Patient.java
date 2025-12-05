@@ -1,5 +1,6 @@
 package com.stangelo.saintangelo.models;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class Patient {
@@ -26,6 +27,7 @@ public class Patient {
     private String lastVisitDate;
     private String bloodType;
     private List<String> medicalHistory;
+    private LocalDate registrationDate;
 
     public Patient(String id, String name, int age, String contactNumber, String homeAddress, String gender, String emergencycontactPerson, String emergencycontactNumber, boolean isSeniorCitizen, String currentMedications, String allergies, String diagnosis, String treatmentPlan, String notes, String roomNumber, String admissionDate, String dischargeDate, String attendingPhysician, String status, String nextAppointmentDate, String lastVisitDate, String bloodType) {
         this.id = id;
@@ -47,11 +49,10 @@ public class Patient {
         this.dischargeDate = dischargeDate;
         this.attendingPhysician = attendingPhysician;
         this.status = status;
-
         this.nextAppointmentDate = nextAppointmentDate;
         this.lastVisitDate = lastVisitDate;
         this.bloodType = bloodType;
-}
+    }
 
     public String getId() {
         return id;
@@ -245,5 +246,13 @@ public class Patient {
 
     public void setMedicalHistory(List<String> medicalHistory) {
         this.medicalHistory = medicalHistory;
+    }
+
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
     }
 };
