@@ -37,10 +37,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -105,6 +108,23 @@ public class MedicalDashboardController implements Initializable {
     
     // Current ticket being served by this doctor
     private Ticket currentTicket;
+    
+    // Patient Records View Fields
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> statusFilterCombo;
+    @FXML private Button exportButton;
+    @FXML private VBox recordsTableContainer;
+    @FXML private Label paginationLabel;
+    @FXML private HBox paginationButtons;
+    @FXML private Button prevPageButton;
+    @FXML private Button nextPageButton;
+    
+    // Patient Records Pagination
+    private int currentPage = 1;
+    private static final int RECORDS_PER_PAGE = 8;
+    private int totalRecords = 0;
+    private String currentSearchTerm = "";
+    private String currentStatusFilter = "All";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -180,6 +200,56 @@ public class MedicalDashboardController implements Initializable {
         if (waitingQueueContainer != null || inProgressContainer != null || completedContainer != null) {
             loadQueueManagementData();
         }
+        
+        // Initialize patient records view if available
+        if (recordsTableContainer != null) {
+            initializePatientRecordsView();
+        }
+    }
+    
+    /**
+     * Initializes the patient records view
+     */
+    public void initializePatientRecordsView() {
+        System.out.println("Initializing patient records view...");
+        System.out.println("recordsTableContainer is null: " + (recordsTableContainer == null));
+        System.out.println("patientDAO is null: " + (patientDAO == null));
+        
+        // Initialize status filter combo box
+        if (statusFilterCombo != null) {
+            statusFilterCombo.getItems().clear();
+            statusFilterCombo.getItems().addAll("All", "Active", "Under Treatment", "Discharged");
+            statusFilterCombo.setValue("All");
+        } else {
+            System.out.println("WARNING: statusFilterCombo is null!");
+        }
+        
+        // Add search listener
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                // Debounce search - reload after user stops typing
+                javafx.application.Platform.runLater(() -> {
+                    javafx.util.Duration delay = javafx.util.Duration.millis(500);
+                    javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(delay);
+                    pause.setOnFinished(e -> {
+                        currentSearchTerm = newValue;
+                        currentPage = 1;
+                        loadPatientRecords();
+                    });
+                    pause.playFromStart();
+                });
+            });
+        } else {
+            System.out.println("WARNING: searchField is null!");
+        }
+        
+        // Reset pagination
+        currentPage = 1;
+        currentSearchTerm = "";
+        currentStatusFilter = "All";
+        
+        // Load initial records
+        loadPatientRecords();
     }
 
     private void loadDashboardData() {
@@ -869,6 +939,488 @@ public class MedicalDashboardController implements Initializable {
     @FXML
     private void handleNavRecords(ActionEvent event) {
         loadView(event, "/fxml/doctor-patient-records.fxml");
+        // The initialize() method will be called automatically by JavaFX
+        // But we also call it explicitly after a short delay to ensure FXML injection is complete
+        javafx.application.Platform.runLater(() -> {
+            // Small delay to ensure FXML injection is complete
+            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(Duration.millis(100));
+            pause.setOnFinished(e -> {
+                if (recordsTableContainer != null) {
+                    System.out.println("Initializing patient records view after navigation...");
+                    initializePatientRecordsView();
+                } else {
+                    System.out.println("ERROR: recordsTableContainer is still null after navigation!");
+                }
+            });
+            pause.play();
+        });
+    }
+    
+    // --- PATIENT RECORDS HANDLERS ---
+    
+    /**
+     * Loads patient records from database and displays them in the table
+     */
+    private void loadPatientRecords() {
+        if (recordsTableContainer == null || patientDAO == null) return;
+        
+        // Get current filters
+        String searchTerm = currentSearchTerm != null && !currentSearchTerm.trim().isEmpty() ? currentSearchTerm.trim() : null;
+        String statusFilter = (statusFilterCombo != null && statusFilterCombo.getValue() != null) ? statusFilterCombo.getValue() : "All";
+        if (statusFilter.equals("All")) {
+            statusFilter = null;
+        }
+        
+        // Calculate offset
+        int offset = (currentPage - 1) * RECORDS_PER_PAGE;
+        
+        // Get records from database
+        List<PatientDAO.PatientRecord> records = patientDAO.getPatientRecords(searchTerm, statusFilter, offset, RECORDS_PER_PAGE);
+        totalRecords = patientDAO.getPatientRecordsCount(searchTerm, statusFilter);
+        
+        // Debug output
+        System.out.println("Loaded " + records.size() + " records. Total: " + totalRecords);
+        System.out.println("Search term: " + searchTerm + ", Status filter: " + statusFilter);
+        
+        // Clear existing rows (keep header)
+        recordsTableContainer.getChildren().clear();
+        
+        // Re-add header
+        GridPane header = createRecordsTableHeader();
+        recordsTableContainer.getChildren().add(header);
+        
+        // Add data rows
+        if (records.isEmpty()) {
+            Label emptyLabel = new Label("No patient records found");
+            emptyLabel.getStyleClass().add("text-cell");
+            emptyLabel.setAlignment(javafx.geometry.Pos.CENTER);
+            VBox emptyBox = new VBox(emptyLabel);
+            emptyBox.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyBox.setPrefHeight(100);
+            recordsTableContainer.getChildren().add(emptyBox);
+        } else {
+            for (PatientDAO.PatientRecord record : records) {
+                GridPane row = createPatientRecordRow(record);
+                recordsTableContainer.getChildren().add(row);
+            }
+        }
+        
+        // Update pagination
+        updatePagination();
+    }
+    
+    /**
+     * Creates the table header
+     */
+    private GridPane createRecordsTableHeader() {
+        GridPane header = new GridPane();
+        header.getStyleClass().add("records-table-header");
+        header.setPrefHeight(53.0);
+        header.setPrefWidth(858.0);
+        
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.ALWAYS);
+        col1.setPercentWidth(10.0);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.ALWAYS);
+        col2.setPercentWidth(16.0);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setHgrow(Priority.ALWAYS);
+        col3.setPercentWidth(8.0);
+        ColumnConstraints col4 = new ColumnConstraints();
+        col4.setHgrow(Priority.ALWAYS);
+        col4.setPercentWidth(12.0);
+        ColumnConstraints col5 = new ColumnConstraints();
+        col5.setHgrow(Priority.ALWAYS);
+        col5.setPercentWidth(15.0);
+        ColumnConstraints col6 = new ColumnConstraints();
+        col6.setHgrow(Priority.ALWAYS);
+        col6.setPercentWidth(15.0);
+        ColumnConstraints col7 = new ColumnConstraints();
+        col7.setHgrow(Priority.ALWAYS);
+        col7.setPercentWidth(10.0);
+        ColumnConstraints col8 = new ColumnConstraints();
+        col8.setHgrow(Priority.ALWAYS);
+        col8.setPercentWidth(8.0);
+        ColumnConstraints col9 = new ColumnConstraints();
+        col9.setHgrow(Priority.ALWAYS);
+        col9.setPercentWidth(5.0);
+        
+        header.getColumnConstraints().addAll(col1, col2, col3, col4, col5, col6, col7, col8, col9);
+        
+        Label idLabel = new Label("Patient ID");
+        idLabel.getStyleClass().add("records-col-header");
+        Label nameLabel = new Label("Name");
+        nameLabel.getStyleClass().add("records-col-header");
+        Label ageLabel = new Label("Age");
+        ageLabel.getStyleClass().add("records-col-header");
+        Label phoneLabel = new Label("Phone");
+        phoneLabel.getStyleClass().add("records-col-header");
+        Label complaintLabel = new Label("Chief Complaint");
+        complaintLabel.getStyleClass().add("records-col-header");
+        Label statusLabel = new Label("Status");
+        statusLabel.getStyleClass().add("records-col-header");
+        Label lastVisitLabel = new Label("Last Visit");
+        lastVisitLabel.getStyleClass().add("records-col-header");
+        Label consLabel = new Label("Cons.");
+        consLabel.getStyleClass().add("records-col-header");
+        Label viewLabel = new Label("View");
+        viewLabel.getStyleClass().add("records-col-header");
+        
+        header.add(idLabel, 0, 0);
+        header.add(nameLabel, 1, 0);
+        header.add(ageLabel, 2, 0);
+        header.add(phoneLabel, 3, 0);
+        header.add(complaintLabel, 4, 0);
+        header.add(statusLabel, 5, 0);
+        header.add(lastVisitLabel, 6, 0);
+        header.add(consLabel, 7, 0);
+        header.add(viewLabel, 8, 0);
+        
+        return header;
+    }
+    
+    /**
+     * Creates a row for a patient record
+     */
+    private GridPane createPatientRecordRow(PatientDAO.PatientRecord record) {
+        GridPane row = new GridPane();
+        row.getStyleClass().add("records-table-row");
+        
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.ALWAYS);
+        col1.setPercentWidth(10.0);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.ALWAYS);
+        col2.setPercentWidth(16.0);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setHgrow(Priority.ALWAYS);
+        col3.setPercentWidth(5.0);
+        ColumnConstraints col4 = new ColumnConstraints();
+        col4.setHgrow(Priority.ALWAYS);
+        col4.setPercentWidth(17.0);
+        ColumnConstraints col5 = new ColumnConstraints();
+        col5.setHgrow(Priority.ALWAYS);
+        col5.setPercentWidth(12.0);
+        ColumnConstraints col6 = new ColumnConstraints();
+        col6.setHgrow(Priority.ALWAYS);
+        col6.setPercentWidth(16.0);
+        ColumnConstraints col7 = new ColumnConstraints();
+        col7.setHgrow(Priority.ALWAYS);
+        col7.setPercentWidth(12.0);
+        ColumnConstraints col8 = new ColumnConstraints();
+        col8.setHgrow(Priority.ALWAYS);
+        col8.setPercentWidth(5.0);
+        ColumnConstraints col9 = new ColumnConstraints();
+        col9.setHgrow(Priority.ALWAYS);
+        col9.setPercentWidth(5.0);
+        
+        row.getColumnConstraints().addAll(col1, col2, col3, col4, col5, col6, col7, col8, col9);
+        
+        Patient patient = record.getPatient();
+        
+        // Patient ID
+        Label idLabel = new Label(patient.getId());
+        idLabel.getStyleClass().add("text-id-bold");
+        
+        // Name
+        Label nameLabel = new Label(patient.getName());
+        nameLabel.getStyleClass().add("text-cell");
+        
+        // Age
+        Label ageLabel = new Label(String.valueOf(patient.getAge()));
+        ageLabel.getStyleClass().add("text-cell");
+        
+        // Phone
+        Label phoneLabel = new Label(patient.getContactNumber() != null ? patient.getContactNumber() : "N/A");
+        phoneLabel.getStyleClass().add("text-cell");
+        
+        // Chief Complaint
+        String chiefComplaint = patient.getNotes() != null ? patient.getNotes() : "N/A";
+        Label complaintLabel = new Label(chiefComplaint);
+        complaintLabel.getStyleClass().add("text-cell");
+        complaintLabel.setPrefHeight(18.0);
+        complaintLabel.setPrefWidth(74.0);
+        
+        // Status
+        String status = record.getStatus();
+        Label statusLabel = new Label(status);
+        if (status.equals("Discharged")) {
+            statusLabel.getStyleClass().addAll("badge-discharged");
+        } else if (status.equals("Under Treatment")) {
+            statusLabel.getStyleClass().addAll("badge-treatment");
+        } else {
+            statusLabel.getStyleClass().addAll("badge-active-blue");
+        }
+        
+        // Last Visit
+        String lastVisit = record.getLastVisitDate() != null ? 
+            record.getLastVisitDate().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A";
+        Label lastVisitLabel = new Label(lastVisit);
+        lastVisitLabel.getStyleClass().add("text-cell");
+        
+        // Consultation Count
+        Label consLabel = new Label(String.valueOf(record.getConsultationCount()));
+        consLabel.getStyleClass().add("text-cell");
+        
+        // View Button
+        Button viewButton = new Button();
+        viewButton.getStyleClass().add("btn-icon-view");
+        javafx.scene.shape.SVGPath viewIcon = new javafx.scene.shape.SVGPath();
+        viewIcon.setContent("M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z");
+        viewIcon.setFill(javafx.scene.paint.Color.valueOf("#0b7d56"));
+        viewIcon.setScaleX(0.8);
+        viewIcon.setScaleY(0.8);
+        viewButton.setGraphic(viewIcon);
+        viewButton.setOnAction(e -> handleViewPatientRecord(patient));
+        
+        HBox viewBox = new HBox(5);
+        viewBox.getChildren().add(viewButton);
+        
+        row.add(idLabel, 0, 0);
+        row.add(nameLabel, 1, 0);
+        row.add(ageLabel, 2, 0);
+        row.add(phoneLabel, 3, 0);
+        row.add(complaintLabel, 4, 0);
+        row.add(statusLabel, 5, 0);
+        row.add(lastVisitLabel, 6, 0);
+        row.add(consLabel, 7, 0);
+        row.add(viewBox, 8, 0);
+        
+        return row;
+    }
+    
+    /**
+     * Updates pagination controls
+     */
+    private void updatePagination() {
+        if (paginationLabel == null) return;
+        
+        int start = totalRecords > 0 ? (currentPage - 1) * RECORDS_PER_PAGE + 1 : 0;
+        int end = Math.min(currentPage * RECORDS_PER_PAGE, totalRecords);
+        paginationLabel.setText(String.format("Showing %d-%d of %d patients", start, end, totalRecords));
+        
+        if (prevPageButton != null) {
+            prevPageButton.setDisable(currentPage <= 1);
+        }
+        if (nextPageButton != null) {
+            int totalPages = (int) Math.ceil((double) totalRecords / RECORDS_PER_PAGE);
+            nextPageButton.setDisable(currentPage >= totalPages);
+        }
+    }
+    
+    /**
+     * Handles search action
+     */
+    @FXML
+    private void handleSearch(ActionEvent event) {
+        if (searchField != null) {
+            currentSearchTerm = searchField.getText();
+            currentPage = 1;
+            loadPatientRecords();
+        }
+    }
+    
+    /**
+     * Handles status filter change
+     */
+    @FXML
+    private void handleStatusFilter(ActionEvent event) {
+        if (statusFilterCombo != null) {
+            currentStatusFilter = statusFilterCombo.getValue();
+            currentPage = 1;
+            loadPatientRecords();
+        }
+    }
+    
+    /**
+     * Handles previous page button
+     */
+    @FXML
+    private void handlePrevPage(ActionEvent event) {
+        if (currentPage > 1) {
+            currentPage--;
+            loadPatientRecords();
+        }
+    }
+    
+    /**
+     * Handles next page button
+     */
+    @FXML
+    private void handleNextPage(ActionEvent event) {
+        int totalPages = (int) Math.ceil((double) totalRecords / RECORDS_PER_PAGE);
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadPatientRecords();
+        }
+    }
+    
+    /**
+     * Handles export button
+     */
+    @FXML
+    private void handleExport(ActionEvent event) {
+        try {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Export Patient Records");
+            fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("CSV Files", "*.csv")
+            );
+            fileChooser.setInitialFileName("patient_records_" + 
+                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".csv");
+            
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            java.io.File file = fileChooser.showSaveDialog(stage);
+            
+            if (file != null) {
+                exportToCSV(file);
+                showAlert(Alert.AlertType.INFORMATION, "Export Successful", 
+                    "Patient records exported to: " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Export Failed", 
+                "Failed to export patient records: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Exports patient records to CSV file
+     */
+    private void exportToCSV(java.io.File file) throws java.io.IOException {
+        // Get all records (no pagination for export)
+        String searchTerm = currentSearchTerm != null && !currentSearchTerm.trim().isEmpty() ? currentSearchTerm.trim() : null;
+        String statusFilter = (statusFilterCombo != null && statusFilterCombo.getValue() != null) ? statusFilterCombo.getValue() : "All";
+        if (statusFilter.equals("All")) {
+            statusFilter = null;
+        }
+        
+        // Get all records (use a large limit)
+        List<PatientDAO.PatientRecord> records = patientDAO.getPatientRecords(searchTerm, statusFilter, 0, 10000);
+        
+        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+            // Write header
+            writer.append("Patient ID,Name,Age,Phone,Chief Complaint,Status,Last Visit,Consultations\n");
+            
+            // Write data
+            for (PatientDAO.PatientRecord record : records) {
+                Patient patient = record.getPatient();
+                writer.append(String.format("\"%s\",\"%s\",%d,\"%s\",\"%s\",\"%s\",\"%s\",%d\n",
+                    patient.getId(),
+                    patient.getName(),
+                    patient.getAge(),
+                    patient.getContactNumber() != null ? patient.getContactNumber() : "",
+                    patient.getNotes() != null ? patient.getNotes() : "",
+                    record.getStatus(),
+                    record.getLastVisitDate() != null ? record.getLastVisitDate().toString() : "",
+                    record.getConsultationCount()
+                ));
+            }
+        }
+    }
+    
+    /**
+     * Handles view patient record button
+     */
+    private void handleViewPatientRecord(Patient patient) {
+        // Load full patient data
+        Patient fullPatient = patientDAO.findById(patient.getId());
+        if (fullPatient == null) {
+            fullPatient = patient;
+        }
+        
+        // Get patient's prescriptions
+        List<Prescription> prescriptions = prescriptionDAO.findByPatient(patient.getId());
+        
+        // Create and show patient details dialog
+        showPatientRecordDetailsDialog(fullPatient, prescriptions);
+    }
+    
+    /**
+     * Shows a dialog with patient record details
+     */
+    private void showPatientRecordDetailsDialog(Patient patient, List<Prescription> prescriptions) {
+        javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Patient Record Details");
+        dialog.setHeaderText("Patient Information");
+        
+        javafx.scene.control.DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setContent(createPatientRecordDetailsContent(patient, prescriptions));
+        dialogPane.getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+        dialogPane.setPrefWidth(700);
+        
+        dialog.showAndWait();
+    }
+    
+    /**
+     * Creates the content for patient record details dialog
+     */
+    private javafx.scene.Node createPatientRecordDetailsContent(Patient patient, List<Prescription> prescriptions) {
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        
+        // Patient Information Section
+        Label patientHeader = new Label("Patient Information");
+        patientHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        VBox patientInfo = new VBox(8);
+        patientInfo.getChildren().addAll(
+            createDetailRow("Patient ID:", patient.getId()),
+            createDetailRow("Name:", patient.getName()),
+            createDetailRow("Age:", String.valueOf(patient.getAge())),
+            createDetailRow("Phone:", patient.getContactNumber() != null ? patient.getContactNumber() : "N/A"),
+            createDetailRow("Gender:", patient.getGender() != null ? patient.getGender() : "N/A"),
+            createDetailRow("Address:", patient.getHomeAddress() != null ? patient.getHomeAddress() : "N/A"),
+            createDetailRow("Blood Type:", patient.getBloodType() != null ? patient.getBloodType() : "N/A"),
+            createDetailRow("Chief Complaint:", patient.getNotes() != null ? patient.getNotes() : "N/A"),
+            createDetailRow("Last Visit:", patient.getLastVisitDate() != null ? patient.getLastVisitDate() : "N/A")
+        );
+        
+        // Prescriptions/Consultations Section
+        Label prescriptionsHeader = new Label("Consultations (" + prescriptions.size() + ")");
+        prescriptionsHeader.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        VBox prescriptionsBox = new VBox(10);
+        if (prescriptions.isEmpty()) {
+            Label noPrescriptions = new Label("No consultations found");
+            noPrescriptions.setStyle("-fx-text-fill: #666;");
+            prescriptionsBox.getChildren().add(noPrescriptions);
+        } else {
+            for (Prescription prescription : prescriptions) {
+                VBox prescriptionBox = new VBox(5);
+                prescriptionBox.setStyle("-fx-background-color: #f5f5f5; -fx-padding: 10; -fx-background-radius: 5;");
+                
+                Label dateLabel = new Label("Date: " + prescription.getConsultationDate().format(
+                    java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                dateLabel.setStyle("-fx-font-weight: bold;");
+                
+                Label doctorLabel = new Label("Doctor: " + (prescription.getDoctor() != null ? prescription.getDoctor().getName() : "N/A"));
+                Label medicationLabel = new Label("Medication: " + prescription.getMedication());
+                Label dosageLabel = new Label("Dosage: " + (prescription.getDosage() != null ? prescription.getDosage() : "N/A"));
+                Label frequencyLabel = new Label("Frequency: " + (prescription.getFrequency() != null ? prescription.getFrequency() : "N/A"));
+                
+                if (prescription.getConsultationNotes() != null && !prescription.getConsultationNotes().isEmpty()) {
+                    Label notesLabel = new Label("Notes: " + prescription.getConsultationNotes());
+                    notesLabel.setWrapText(true);
+                    prescriptionBox.getChildren().add(notesLabel);
+                }
+                
+                prescriptionBox.getChildren().addAll(dateLabel, doctorLabel, medicationLabel, dosageLabel, frequencyLabel);
+                prescriptionsBox.getChildren().add(prescriptionBox);
+            }
+        }
+        
+        ScrollPane prescriptionsScroll = new ScrollPane(prescriptionsBox);
+        prescriptionsScroll.setFitToWidth(true);
+        prescriptionsScroll.setPrefHeight(300);
+        
+        content.getChildren().addAll(
+            patientHeader, patientInfo,
+            prescriptionsHeader, prescriptionsScroll
+        );
+        
+        return content;
     }
 
     /**

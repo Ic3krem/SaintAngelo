@@ -7,9 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 
 import com.stangelo.saintangelo.models.Patient;
 
@@ -407,6 +407,226 @@ public class PatientDAO extends BaseDAO {
         } catch (SQLException e) {
             logError("Error getting patient count in period", e);
         }
+        return 0;
+    }
+
+    /**
+     * Represents a patient record with consultation count and status for the records view
+     */
+    public static class PatientRecord {
+        private Patient patient;
+        private int consultationCount;
+        private String status;
+        private LocalDate lastVisitDate;
+
+        public PatientRecord(Patient patient, int consultationCount, String status, LocalDate lastVisitDate) {
+            this.patient = patient;
+            this.consultationCount = consultationCount;
+            this.status = status;
+            this.lastVisitDate = lastVisitDate;
+        }
+
+        public Patient getPatient() { return patient; }
+        public int getConsultationCount() { return consultationCount; }
+        public String getStatus() { return status; }
+        public LocalDate getLastVisitDate() { return lastVisitDate; }
+    }
+
+    /**
+     * Gets patient records with consultation count and status for the records view
+     * 
+     * @param searchTerm Search term for patient ID, name, or complaint (null for all)
+     * @param statusFilter Status filter: "All", "Active", "Under Treatment", "Discharged" (null for all)
+     * @param offset Offset for pagination
+     * @param limit Limit for pagination
+     * @return List of patient records
+     */
+    public List<PatientRecord> getPatientRecords(String searchTerm, String statusFilter, int offset, int limit) {
+        List<PatientRecord> records = new ArrayList<>();
+        
+        // Build the query with subquery for status calculation
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT p.patient_id, p.first_name, p.last_name, p.age, p.phone_number, ");
+        sql.append("p.chief_complaint, p.last_visit_date, ");
+        sql.append("COALESCE(COUNT(DISTINCT pr.prescription_id), 0) as consultation_count, ");
+        sql.append("CASE ");
+        sql.append("WHEN EXISTS (SELECT 1 FROM discharges d WHERE d.patient_id = p.patient_id AND d.status IN ('DISCHARGED', 'CLEARED')) THEN 'Discharged' ");
+        sql.append("WHEN EXISTS (SELECT 1 FROM tickets t WHERE t.patient_id = p.patient_id AND t.status = 'IN_SERVICE') THEN 'Under Treatment' ");
+        sql.append("ELSE 'Active' ");
+        sql.append("END as patient_status ");
+        sql.append("FROM patients p ");
+        sql.append("LEFT JOIN prescriptions pr ON p.patient_id = pr.patient_id ");
+        sql.append("WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
+        
+        // Add search filter
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append("AND (p.patient_id LIKE ? OR p.first_name LIKE ? OR p.last_name LIKE ? ");
+            sql.append("OR CONCAT(p.first_name, ' ', p.last_name) LIKE ? OR p.chief_complaint LIKE ?) ");
+            String searchPattern = "%" + searchTerm.trim() + "%";
+            for (int i = 0; i < 5; i++) {
+                params.add(searchPattern);
+            }
+        }
+        
+        sql.append("GROUP BY p.patient_id, p.first_name, p.last_name, p.age, p.phone_number, ");
+        sql.append("p.chief_complaint, p.last_visit_date ");
+        
+        // Add status filter using HAVING
+        if (statusFilter != null && !statusFilter.equals("All") && !statusFilter.isEmpty()) {
+            sql.append("HAVING patient_status = ? ");
+            params.add(statusFilter);
+        }
+        
+        sql.append("ORDER BY COALESCE(p.last_visit_date, '1900-01-01') DESC, p.patient_id DESC ");
+        sql.append("LIMIT ? OFFSET ? ");
+        params.add(limit);
+        params.add(offset);
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            for (Object param : params) {
+                if (param instanceof String) {
+                    stmt.setString(paramIndex, (String) param);
+                } else if (param instanceof Integer) {
+                    stmt.setInt(paramIndex, (Integer) param);
+                }
+                paramIndex++;
+            }
+            
+            // Debug: Print the SQL query
+            System.out.println("Executing SQL: " + sql.toString());
+            System.out.println("Parameters: " + params);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                int rowCount = 0;
+                while (rs.next()) {
+                    rowCount++;
+                    String patientId = rs.getString("patient_id");
+                    System.out.println("Found patient: " + patientId);
+                    
+                    // Construct Patient object directly from ResultSet to avoid closing it
+                    String firstName = rs.getString("first_name");
+                    String lastName = rs.getString("last_name");
+                    String name = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+                    name = name.trim();
+                    int age = rs.getInt("age");
+                    String phoneNumber = rs.getString("phone_number");
+                    String chiefComplaint = rs.getString("chief_complaint");
+                    
+                    // Create Patient object with available data
+                    Patient patient = new Patient(
+                        patientId,
+                        name,
+                        age,
+                        phoneNumber,
+                        null, // homeAddress - not in query
+                        null, // gender - not in query
+                        null, // emergencycontactPerson - not in query
+                        null, // emergencycontactNumber - not in query
+                        false, // isSeniorCitizen - not in query
+                        null, // currentMedications
+                        null, // allergies
+                        null, // diagnosis
+                        null, // treatmentPlan
+                        chiefComplaint, // notes - using chief_complaint
+                        null, // roomNumber
+                        null, // admissionDate
+                        null, // dischargeDate
+                        null, // attendingPhysician
+                        null, // status
+                        null, // nextAppointmentDate
+                        null, // lastVisitDate - will be set separately
+                        null  // bloodType - not in query
+                    );
+                    
+                    // Set last visit date if available
+                    Date lastVisitDate = rs.getDate("last_visit_date");
+                    if (lastVisitDate != null) {
+                        patient.setLastVisitDate(lastVisitDate.toString());
+                    }
+                    
+                    int consultationCount = rs.getInt("consultation_count");
+                    String status = rs.getString("patient_status");
+                    LocalDate lastVisit = lastVisitDate != null ? lastVisitDate.toLocalDate() : null;
+                    
+                    records.add(new PatientRecord(patient, consultationCount, status, lastVisit));
+                }
+                System.out.println("Total rows returned from query: " + rowCount);
+                System.out.println("Records added to list: " + records.size());
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL Error getting patient records!");
+            System.err.println("SQL: " + sql.toString());
+            System.err.println("Parameters: " + params);
+            logError("Error getting patient records. SQL: " + sql.toString(), e);
+            e.printStackTrace(); // Print stack trace for debugging
+        }
+        
+        return records;
+    }
+
+    /**
+     * Gets total count of patient records matching the search and filter criteria
+     * 
+     * @param searchTerm Search term for patient ID, name, or complaint (null for all)
+     * @param statusFilter Status filter: "All", "Active", "Under Treatment", "Discharged" (null for all)
+     * @return Total count of matching records
+     */
+    public int getPatientRecordsCount(String searchTerm, String statusFilter) {
+        // Use a subquery approach for counting
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) FROM ( ");
+        sql.append("SELECT p.patient_id, ");
+        sql.append("CASE ");
+        sql.append("WHEN EXISTS (SELECT 1 FROM discharges d WHERE d.patient_id = p.patient_id AND d.status IN ('DISCHARGED', 'CLEARED')) THEN 'Discharged' ");
+        sql.append("WHEN EXISTS (SELECT 1 FROM tickets t WHERE t.patient_id = p.patient_id AND t.status = 'IN_SERVICE') THEN 'Under Treatment' ");
+        sql.append("ELSE 'Active' ");
+        sql.append("END as patient_status ");
+        sql.append("FROM patients p ");
+        sql.append("WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
+        
+        // Add search filter
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append("AND (p.patient_id LIKE ? OR p.first_name LIKE ? OR p.last_name LIKE ? ");
+            sql.append("OR CONCAT(p.first_name, ' ', p.last_name) LIKE ? OR p.chief_complaint LIKE ?) ");
+            String searchPattern = "%" + searchTerm.trim() + "%";
+            for (int i = 0; i < 5; i++) {
+                params.add(searchPattern);
+            }
+        }
+        
+        sql.append(") AS patient_statuses ");
+        
+        // Add status filter
+        if (statusFilter != null && !statusFilter.equals("All") && !statusFilter.isEmpty()) {
+            sql.append("WHERE patient_status = ? ");
+            params.add(statusFilter);
+        }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            for (Object param : params) {
+                stmt.setString(paramIndex, (String) param);
+                paramIndex++;
+            }
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error getting patient records count", e);
+        }
+        
         return 0;
     }
 }

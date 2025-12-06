@@ -95,13 +95,13 @@
                               <Insets left="20.0" />
                            </HBox.margin>
                         </SVGPath>
-                                  <TextField blendMode="SRC_ATOP" promptText="Search by name, ID, or complaint..." style="-fx-background-color: WHITE; -fx-pref-width: 300;">
+                                  <TextField fx:id="searchField" blendMode="SRC_ATOP" promptText="Search by name, ID, or complaint..." style="-fx-background-color: WHITE; -fx-pref-width: 300;" onAction="#handleSearch">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
                         </TextField>
 
-                                <ComboBox promptText="All Status" styleClass="combo-box-filter" />
+                                <ComboBox fx:id="statusFilterCombo" promptText="All Status" styleClass="combo-box-filter" onAction="#handleStatusFilter" />
 
                                 <Button styleClass="btn-filter-outline" text="More Filters">
                                     <graphic>
@@ -109,7 +109,7 @@
                                     </graphic>
                                 </Button>
 
-                                <Button styleClass="btn-export-green" text="Export">
+                                <Button fx:id="exportButton" styleClass="btn-export-green" text="Export" onAction="#handleExport">
                                     <graphic>
                                         <SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
                                     </graphic>
@@ -118,7 +118,7 @@
                         </HBox>
 
                         <!-- Records Table -->
-                        <VBox prefHeight="390.0" prefWidth="858.0" styleClass="table-container">
+                        <VBox fx:id="recordsTableContainer" prefHeight="390.0" prefWidth="858.0" styleClass="table-container">
                             <children>
                                 <!-- Table Header -->
                                 <GridPane prefHeight="53.0" prefWidth="858.0" styleClass="records-table-header">
@@ -155,8 +155,9 @@
                            </VBox.margin>
                                 </GridPane>
 
-                                <!-- Row 1 -->
-                                <GridPane styleClass="records-table-row">
+                                <!-- Dynamic rows will be inserted here -->
+                                <!-- Row 1 (Sample - will be replaced) -->
+                                <GridPane styleClass="records-table-row" visible="false">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
@@ -188,8 +189,8 @@
                            </rowConstraints>
                                 </GridPane>
 
-                                <!-- Row 2 -->
-                                <GridPane styleClass="records-table-row">
+                                <!-- Row 2 (Sample - will be replaced) -->
+                                <GridPane styleClass="records-table-row" visible="false">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
@@ -221,8 +222,8 @@
                            </rowConstraints>
                                 </GridPane>
 
-                                <!-- Row 3 -->
-                                <GridPane styleClass="records-table-row">
+                                <!-- Row 3 (Sample - will be replaced) -->
+                                <GridPane styleClass="records-table-row" visible="false">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
@@ -254,8 +255,8 @@
                            </rowConstraints>
                                 </GridPane>
 
-                                <!-- Row 4 -->
-                                <GridPane styleClass="records-table-row">
+                                <!-- Row 4 (Sample - will be replaced) -->
+                                <GridPane styleClass="records-table-row" visible="false">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
@@ -287,8 +288,8 @@
                            </rowConstraints>
                                 </GridPane>
 
-                                <!-- Row 5 -->
-                                <GridPane styleClass="records-table-row">
+                                <!-- Row 5 (Sample - will be replaced) -->
+                                <GridPane styleClass="records-table-row" visible="false">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="10.0" />
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="16.0" />
@@ -323,18 +324,13 @@
                         </VBox>
 
                         <!-- Footer / Pagination -->
-                        <HBox alignment="CENTER_RIGHT" spacing="20.0">
+                        <HBox fx:id="paginationContainer" alignment="CENTER_RIGHT" spacing="20.0">
                             <children>
-                                <Label styleClass="pagination-label" text="Showing 1-8 of 847 patients" />
+                                <Label fx:id="paginationLabel" styleClass="pagination-label" text="Showing 0-0 of 0 patients" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <HBox alignment="CENTER" spacing="5.0">
-                                    <Button styleClass="pagination-btn" text="&lt;" />
-                                    <Button styleClass="pagination-btn, active" text="1" />
-                                    <Button styleClass="pagination-btn" text="2" />
-                                    <Button styleClass="pagination-btn" text="3" />
-                                    <Button styleClass="pagination-btn" text="..." />
-                                    <Button styleClass="pagination-btn" text="106" />
-                                    <Button styleClass="pagination-btn" text="&gt;" />
+                                <HBox fx:id="paginationButtons" alignment="CENTER" spacing="5.0">
+                                    <Button fx:id="prevPageButton" styleClass="pagination-btn" text="&lt;" onAction="#handlePrevPage" />
+                                    <Button fx:id="nextPageButton" styleClass="pagination-btn" text="&gt;" onAction="#handleNextPage" />
                                 </HBox>
                             </children>
                         </HBox>
