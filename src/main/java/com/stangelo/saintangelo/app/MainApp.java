@@ -111,8 +111,8 @@ public class MainApp extends Application {
 
         try {
             ImageView splashImage = new ImageView(new Image(getClass().getResourceAsStream("/images/updatedlogo1.png")));
-            splashImage.setFitWidth(700);
-            splashImage.setFitHeight(500);
+            splashImage.setFitWidth(200);
+            splashImage.setFitHeight(200);
             splashImage.setPreserveRatio(true);
             splashScreen.getChildren().add(splashImage);
         } catch (Exception e) {
