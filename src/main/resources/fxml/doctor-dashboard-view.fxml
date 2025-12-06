@@ -182,10 +182,7 @@
                                     <children>
                                         <Label styleClass="treatment-title" text="Currently Under Treatment" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <VBox spacing="5.0">
-                                            <Label style="-fx-font-size: 12px; -fx-text-fill: #ffffff;" text="Select Patient" textFill="WHITE" />
-                                            <ComboBox fx:id="currentPatientsComboBox" onAction="#handlePatientSelection" prefWidth="250.0" promptText="Select patient..." styleClass="reg-combo-box" />
-                                        </VBox>
+                                        <VBox spacing="5.0" />
                                     </children>
                                 </HBox>
 
