@@ -113,7 +113,7 @@ public class AnnouncementService {
             announcementPlayer.setOnEndOfMedia(() -> {
                 // Small delay to ensure smooth transition
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(300);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
