@@ -140,13 +140,13 @@ public class UserDAO extends BaseDAO {
     }
 
     /**
-     * Gets all users
+     * Gets all users (excluding archived users)
      *
-     * @return List of all users
+     * @return List of all active and inactive users
      */
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users ORDER BY created_at DESC";
+        String sql = "SELECT * FROM users WHERE status != 'Archived' ORDER BY created_at DESC";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -254,12 +254,47 @@ public class UserDAO extends BaseDAO {
     }
 
     /**
-     * Deletes a user by ID
+     * Archives a user by ID (moves to archive instead of deleting)
+     *
+     * @param userId User ID to archive
+     * @return true if successful, false otherwise
+     */
+    public boolean archive(String userId) {
+        String sql = "UPDATE users SET status = 'Archived', archived_at = NOW() WHERE user_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, userId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            logError("Error archiving user: " + userId, e);
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a user by ID (legacy method - now archives instead)
+     * This method is kept for backward compatibility but now archives users
      *
      * @param userId User ID to delete
      * @return true if successful, false otherwise
      */
     public boolean delete(String userId) {
+        // Archive instead of delete
+        return archive(userId);
+    }
+
+    /**
+     * Permanently deletes a user from the database
+     * This should only be used for archived users
+     *
+     * @param userId User ID to permanently delete
+     * @return true if successful, false otherwise
+     */
+    public boolean permanentlyDelete(String userId) {
         String sql = "DELETE FROM users WHERE user_id = ?";
 
         try (Connection conn = getConnection();
@@ -270,8 +305,75 @@ public class UserDAO extends BaseDAO {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            logError("Error deleting user: " + userId, e);
+            logError("Error permanently deleting user: " + userId, e);
             return false;
+        }
+    }
+
+    /**
+     * Finds all archived users
+     *
+     * @return List of archived users
+     */
+    public List<User> findArchivedUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE status = 'Archived' ORDER BY archived_at DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        } catch (SQLException e) {
+            logError("Error finding archived users", e);
+        }
+        return users;
+    }
+
+    /**
+     * Restores an archived user back to active status
+     *
+     * @param userId User ID to restore
+     * @return true if successful, false otherwise
+     */
+    public boolean restoreUser(String userId) {
+        String sql = "UPDATE users SET status = 'Active', archived_at = NULL WHERE user_id = ? AND status = 'Archived'";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, userId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            logError("Error restoring user: " + userId, e);
+            return false;
+        }
+    }
+
+    /**
+     * Automatically deletes users that have been archived for 30 or more days
+     *
+     * @return Number of users deleted
+     */
+    public int autoDeleteOldArchivedUsers() {
+        String sql = "DELETE FROM users WHERE status = 'Archived' AND archived_at < DATE_SUB(NOW(), INTERVAL 30 DAY)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                logger.info("Auto-deleted " + rowsAffected + " users archived for 30+ days");
+            }
+            return rowsAffected;
+
+        } catch (SQLException e) {
+            logError("Error auto-deleting old archived users", e);
+            return 0;
         }
     }
 
@@ -361,10 +463,12 @@ public class UserDAO extends BaseDAO {
         String status = rs.getString("status");
         Timestamp lastActiveTs = rs.getTimestamp("last_active");
         LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
+        Timestamp archivedAtTs = rs.getTimestamp("archived_at");
+        LocalDateTime archivedAt = archivedAtTs != null ? archivedAtTs.toLocalDateTime() : null;
         Timestamp createdAtTs = rs.getTimestamp("created_at");
         LocalDateTime createdAt = createdAtTs != null ? createdAtTs.toLocalDateTime() : null;
 
-        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive, createdAt);
+        return new User(userId, username, password, fullName, email, role, permissions, status, lastActive, archivedAt, createdAt);
     }
 
     /**
@@ -399,18 +503,31 @@ public class UserDAO extends BaseDAO {
     /**
      * Gets users filtered by status
      *
-     * @param status Status filter (Active, Inactive, or null for all)
+     * @param status Status filter (Active, Inactive, Archived, or null for all non-archived)
      * @return List of users with the specified status
      */
     public List<User> findByStatus(String status) {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users WHERE status = ? ORDER BY created_at DESC";
+        String sql;
         
+        if (status != null && status.equals("Archived")) {
+            // If looking for archived, include them
+            sql = "SELECT * FROM users WHERE status = ? ORDER BY created_at DESC";
+        } else if (status != null) {
+            // For other statuses, exclude archived
+            sql = "SELECT * FROM users WHERE status = ? AND status != 'Archived' ORDER BY created_at DESC";
+        } else {
+            // Default: exclude archived
+            sql = "SELECT * FROM users WHERE status != 'Archived' ORDER BY created_at DESC";
+        }
+
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, status);
-            
+
+            if (status != null) {
+                stmt.setString(1, status);
+            }
+
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     users.add(mapResultSetToUser(rs));
@@ -442,8 +559,16 @@ public class UserDAO extends BaseDAO {
         }
         
         if (status != null && !status.equals("All Status") && !status.isEmpty()) {
-            sql.append(" AND status = ?");
-            params.add(status);
+            if (status.equals("Archived")) {
+                sql.append(" AND status = 'Archived'");
+            } else {
+                // For non-archived statuses, exclude archived users
+                sql.append(" AND status = ? AND status != 'Archived'");
+                params.add(status);
+            }
+        } else {
+            // Default: exclude archived users unless specifically searching for them
+            sql.append(" AND status != 'Archived'");
         }
         
         sql.append(" ORDER BY created_at DESC");

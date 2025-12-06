@@ -17,7 +17,6 @@ module com.stangelo.saintangelo {
     requires java.logging;
     
     // PDF generation
-    requires org.apache.pdfbox;
 
     // Export the main app package
     exports com.stangelo.saintangelo.app;

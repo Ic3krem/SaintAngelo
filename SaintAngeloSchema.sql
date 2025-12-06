@@ -17,10 +17,11 @@ CREATE DATABASE IF NOT EXISTS saintangelo_hospital
 
 USE saintangelo_hospital;
 
--- =====================================================
+-- ===================  ==================================
 -- 1. USERS TABLE
 -- Stores all system users (Admin, Doctor, Receptionist)
 -- =====================================================
+
 CREATE TABLE IF NOT EXISTS users (
     user_id VARCHAR(20) PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -29,14 +30,16 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) NOT NULL UNIQUE,
     role ENUM('SUPER_ADMIN', 'ADMIN', 'DOCTOR', 'STAFF') NOT NULL DEFAULT 'STAFF',
     permissions VARCHAR(255) DEFAULT NULL COMMENT 'Permissions description',
-    status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+    status ENUM('Active', 'Inactive', 'Archived') NOT NULL DEFAULT 'Active',
     last_active DATETIME DEFAULT NULL,
+    archived_at DATETIME DEFAULT NULL COMMENT 'Timestamp when user was archived',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_username (username),
     INDEX idx_email (email),
     INDEX idx_role (role),
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    INDEX idx_archived_at (archived_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
@@ -454,6 +457,20 @@ DELIMITER ;
 -- UPDATE tickets SET created_time = NOW() - INTERVAL 15 MINUTE WHERE visit_id = 'Q011';
 -- UPDATE tickets SET created_time = NOW() - INTERVAL 10 MINUTE WHERE visit_id = 'Q012';
 -- UPDATE tickets SET created_time = NOW() - INTERVAL 5 MINUTE WHERE visit_id = 'Q013';
+
+-- =====================================================
+-- MIGRATION: Add archive support to users table
+-- Run these ALTER statements if the table already exists
+-- =====================================================
+
+-- Add 'Archived' to status ENUM
+ALTER TABLE users MODIFY COLUMN status ENUM('Active', 'Inactive', 'Archived') NOT NULL DEFAULT 'Active';
+
+-- Add archived_at column
+ALTER TABLE users ADD COLUMN archived_at DATETIME DEFAULT NULL COMMENT 'Timestamp when user was archived' AFTER last_active;
+
+-- Add index on archived_at for performance
+ALTER TABLE users ADD INDEX idx_archived_at (archived_at);
 
 -- =====================================================
 -- END OF SCHEMA

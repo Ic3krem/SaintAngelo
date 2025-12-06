@@ -12,6 +12,7 @@ public class User {
     private String permissions;
     private String status;
     private LocalDateTime lastActive;
+    private LocalDateTime archivedAt;
     private LocalDateTime createdAt;
 
     public User(String id, String username, String password, String fullName, UserRole role) {
@@ -25,6 +26,11 @@ public class User {
 
     public User(String id, String username, String password, String fullName, String email, 
                 UserRole role, String permissions, String status, LocalDateTime lastActive, LocalDateTime createdAt) {
+        this(id, username, password, fullName, email, role, permissions, status, lastActive, null, createdAt);
+    }
+
+    public User(String id, String username, String password, String fullName, String email, 
+                UserRole role, String permissions, String status, LocalDateTime lastActive, LocalDateTime archivedAt, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -34,6 +40,7 @@ public class User {
         this.permissions = permissions;
         this.status = status;
         this.lastActive = lastActive;
+        this.archivedAt = archivedAt;
         this.createdAt = createdAt;
     }
 
@@ -60,6 +67,9 @@ public class User {
 
     public LocalDateTime getLastActive() { return lastActive; }
     public void setLastActive(LocalDateTime lastActive) { this.lastActive = lastActive; }
+
+    public LocalDateTime getArchivedAt() { return archivedAt; }
+    public void setArchivedAt(LocalDateTime archivedAt) { this.archivedAt = archivedAt; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -15,6 +15,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.stangelo.saintangelo.dao.ActivityLogDAO;
 import com.stangelo.saintangelo.dao.PatientDAO;
@@ -49,6 +52,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -89,6 +93,20 @@ public class AdminDashboardController implements Initializable {
     private VBox userTableContainer;
     @FXML
     private Button addUserButton;
+    
+    // Archive Panel FXML Fields
+    @FXML
+    private TextField archiveSearchField;
+    @FXML
+    private VBox archiveTableContainer;
+    @FXML
+    private Button activeUsersButton;
+    @FXML
+    private Button archivedUsersButton;
+    @FXML
+    private VBox activeUsersView;
+    @FXML
+    private VBox archivedUsersView;
 
     // User Profile Fields (present in all admin views)
     @FXML
@@ -133,6 +151,9 @@ public class AdminDashboardController implements Initializable {
     private PatientDAO patientDAO;
     private TicketDAO ticketDAO;
     private ActivityLogDAO activityLogDAO;
+    
+    // Scheduled task for auto-deleting old archived users
+    private ScheduledExecutorService archiveCleanupScheduler;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -155,6 +176,35 @@ public class AdminDashboardController implements Initializable {
         if (userTableContainer != null) {
             // User management view
             initializeUserManagement();
+        }
+        
+        if (archiveTableContainer != null) {
+            // Archive view
+            initializeArchiveView();
+        }
+        
+        // Auto-delete old archived users on initialization
+        if (userDAO != null) {
+            userDAO.autoDeleteOldArchivedUsers();
+            
+            // Schedule automatic cleanup every 24 hours
+            archiveCleanupScheduler = Executors.newSingleThreadScheduledExecutor();
+            archiveCleanupScheduler.scheduleAtFixedRate(() -> {
+                try {
+                    int deletedCount = userDAO.autoDeleteOldArchivedUsers();
+                    if (deletedCount > 0) {
+                        System.out.println("Auto-deleted " + deletedCount + " users from archive (30+ days old)");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error in scheduled archive cleanup: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }, 24, 24, TimeUnit.HOURS); // Run every 24 hours
+        }
+        
+        // Initialize button navigation - show active users by default
+        if (activeUsersView != null && archivedUsersView != null) {
+            showActiveUsersView();
         }
 
         if (reportTypeComboBox != null) {
@@ -458,6 +508,262 @@ public class AdminDashboardController implements Initializable {
         }
 
         loadUsers();
+    }
+    
+    // --- ARCHIVE VIEW ---
+    /**
+     * Initializes the archive view
+     */
+    private void initializeArchiveView() {
+        if (archiveSearchField != null) {
+            archiveSearchField.textProperty().addListener((obs, oldVal, newVal) -> loadArchivedUsers());
+        }
+    }
+    
+    /**
+     * Handles showing active users view
+     */
+    @FXML
+    private void handleShowActiveUsers(ActionEvent event) {
+        showActiveUsersView();
+    }
+    
+    /**
+     * Handles showing archived users view
+     */
+    @FXML
+    private void handleShowArchivedUsers(ActionEvent event) {
+        showArchivedUsersView();
+    }
+    
+    /**
+     * Shows the active users view and hides archived view
+     */
+    private void showActiveUsersView() {
+        if (activeUsersView != null) {
+            activeUsersView.setVisible(true);
+            activeUsersView.setManaged(true);
+        }
+        if (archivedUsersView != null) {
+            archivedUsersView.setVisible(false);
+            archivedUsersView.setManaged(false);
+        }
+        
+        // Update button styles
+        if (activeUsersButton != null) {
+            activeUsersButton.getStyleClass().removeAll("nav-button", "active");
+            activeUsersButton.getStyleClass().addAll("nav-button", "active");
+            // Update icon color for active state
+            if (activeUsersButton.getGraphic() instanceof SVGPath) {
+                ((SVGPath) activeUsersButton.getGraphic()).setFill(Color.valueOf("#1a1a1a"));
+            }
+        }
+        if (archivedUsersButton != null) {
+            archivedUsersButton.getStyleClass().removeAll("nav-button", "active");
+            archivedUsersButton.getStyleClass().add("nav-button");
+            // Update icon color for inactive state
+            if (archivedUsersButton.getGraphic() instanceof SVGPath) {
+                ((SVGPath) archivedUsersButton.getGraphic()).setFill(Color.valueOf("#666"));
+            }
+        }
+    }
+    
+    /**
+     * Shows the archived users view and hides active view
+     */
+    private void showArchivedUsersView() {
+        if (activeUsersView != null) {
+            activeUsersView.setVisible(false);
+            activeUsersView.setManaged(false);
+        }
+        if (archivedUsersView != null) {
+            archivedUsersView.setVisible(true);
+            archivedUsersView.setManaged(true);
+        }
+        
+        // Update button styles
+        if (archivedUsersButton != null) {
+            archivedUsersButton.getStyleClass().removeAll("nav-button", "active");
+            archivedUsersButton.getStyleClass().addAll("nav-button", "active");
+            // Update icon color for active state
+            if (archivedUsersButton.getGraphic() instanceof SVGPath) {
+                ((SVGPath) archivedUsersButton.getGraphic()).setFill(Color.valueOf("#1a1a1a"));
+            }
+        }
+        if (activeUsersButton != null) {
+            activeUsersButton.getStyleClass().removeAll("nav-button", "active");
+            activeUsersButton.getStyleClass().add("nav-button");
+            // Update icon color for inactive state
+            if (activeUsersButton.getGraphic() instanceof SVGPath) {
+                ((SVGPath) activeUsersButton.getGraphic()).setFill(Color.valueOf("#666"));
+            }
+        }
+        
+        // Load archived users when view is shown
+        loadArchivedUsers();
+    }
+    
+    /**
+     * Loads and displays archived users
+     */
+    private void loadArchivedUsers() {
+        if (archiveTableContainer == null) return;
+        
+        archiveTableContainer.getChildren().clear();
+        addArchiveTableHeader();
+        
+        String searchTerm = archiveSearchField != null ? archiveSearchField.getText().trim() : "";
+        
+        List<User> archivedUsers = userDAO.findArchivedUsers();
+        
+        // Filter by search term if provided
+        if (!searchTerm.isEmpty()) {
+            archivedUsers = archivedUsers.stream()
+                .filter(user -> user.getId().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                              user.getFullName().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                              (user.getUsername() != null && user.getUsername().toLowerCase().contains(searchTerm.toLowerCase())))
+                .collect(Collectors.toList());
+        }
+        
+        for (User user : archivedUsers) {
+            addArchivedUserRow(user);
+        }
+    }
+    
+    /**
+     * Adds table header for archive view
+     */
+    private void addArchiveTableHeader() {
+        GridPane header = new GridPane();
+        header.getStyleClass().add("table-header-green");
+        
+        header.getColumnConstraints().addAll(
+                createColumnConstraint(10.0), createColumnConstraint(14.0),
+                createColumnConstraint(11.0), createColumnConstraint(20.0),
+                createColumnConstraint(16.0), createColumnConstraint(14.0),
+                createColumnConstraint(15.0)
+        );
+        
+        header.add(createHeaderLabel("User ID"), 0, 0);
+        header.add(createHeaderLabel("Name"), 1, 0);
+        header.add(createHeaderLabel("Role"), 2, 0);
+        header.add(createHeaderLabel("Email"), 3, 0);
+        header.add(createHeaderLabel("Permissions"), 4, 0);
+        header.add(createHeaderLabel("Archived Date"), 5, 0);
+        header.add(createHeaderLabel("Actions"), 6, 0);
+        
+        archiveTableContainer.getChildren().add(header);
+    }
+    
+    /**
+     * Adds a row for an archived user
+     */
+    private void addArchivedUserRow(User user) {
+        GridPane row = new GridPane();
+        row.getStyleClass().add("table-row-item");
+        
+        row.getColumnConstraints().addAll(
+                createColumnConstraint(10.0), createColumnConstraint(13.0),
+                createColumnConstraint(12.0), createColumnConstraint(20.0),
+                createColumnConstraint(15.0), createColumnConstraint(15.0),
+                createColumnConstraint(15.0)
+        );
+        
+        Label userIdLabel = new Label(user.getId());
+        userIdLabel.getStyleClass().add("text-cell-bold");
+        row.add(userIdLabel, 0, 0);
+        
+        Label nameLabel = new Label(user.getFullName());
+        nameLabel.getStyleClass().add("text-cell");
+        row.add(nameLabel, 1, 0);
+        
+        Label roleLabel = new Label(getRoleDisplayName(user.getRole()));
+        roleLabel.getStyleClass().addAll("badge-role", getRoleStyleClass(user.getRole()));
+        row.add(roleLabel, 2, 0);
+        
+        Label emailLabel = new Label(user.getEmail() != null ? user.getEmail() : "");
+        emailLabel.getStyleClass().add("text-cell");
+        row.add(emailLabel, 3, 0);
+        
+        Label permissionsLabel = new Label(user.getPermissions() != null ? user.getPermissions() : "");
+        permissionsLabel.getStyleClass().add("text-cell");
+        row.add(permissionsLabel, 4, 0);
+        
+        // Format archived date
+        String archivedDateStr = "N/A";
+        if (user.getArchivedAt() != null) {
+            long daysArchived = ChronoUnit.DAYS.between(user.getArchivedAt(), LocalDateTime.now());
+            archivedDateStr = user.getArchivedAt().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            if (daysArchived >= 30) {
+                archivedDateStr += " (" + daysArchived + " days - Ready for deletion)";
+            } else {
+                archivedDateStr += " (" + daysArchived + " days)";
+            }
+        }
+        Label archivedDateLabel = new Label(archivedDateStr);
+        archivedDateLabel.getStyleClass().add("text-cell");
+        if (user.getArchivedAt() != null && ChronoUnit.DAYS.between(user.getArchivedAt(), LocalDateTime.now()) >= 30) {
+            archivedDateLabel.setStyle("-fx-text-fill: #d9534f; -fx-font-weight: bold;");
+        }
+        row.add(archivedDateLabel, 5, 0);
+        
+        HBox actionsBox = new HBox(10);
+        actionsBox.setAlignment(Pos.CENTER);
+        
+        Button restoreButton = createActionButton("M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z", "#0b7d56", e -> handleRestoreUser(user));
+        restoreButton.setTooltip(new Tooltip("Restore user to active"));
+        
+        Button removeButton = createActionButton("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z", "#d9534f", e -> handlePermanentlyDeleteFromArchive(user));
+        removeButton.setTooltip(new Tooltip("Permanently delete user"));
+        
+        actionsBox.getChildren().addAll(restoreButton, removeButton);
+        row.add(actionsBox, 6, 0);
+        
+        archiveTableContainer.getChildren().add(row);
+    }
+    
+    /**
+     * Handles restoring a user from archive back to active
+     */
+    private void handleRestoreUser(User user) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION, 
+            "Are you sure you want to restore user " + user.getFullName() + " back to active status?\n\n" +
+            "The user will be able to log in and access the system again.", 
+            ButtonType.YES, ButtonType.NO);
+        confirmAlert.setTitle("Restore User");
+        confirmAlert.setHeaderText("Restore User to Active");
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                if (userDAO.restoreUser(user.getId())) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "User restored to active status successfully.");
+                    loadArchivedUsers();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to restore user. The user may not be archived.");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Handles permanently deleting a user from archive
+     */
+    private void handlePermanentlyDeleteFromArchive(User user) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION, 
+            "Are you sure you want to PERMANENTLY DELETE user " + user.getFullName() + "?\n\n" +
+            "This action cannot be undone. All user data will be permanently removed from the system.", 
+            ButtonType.YES, ButtonType.NO);
+        confirmAlert.setTitle("Permanently Delete User");
+        confirmAlert.setHeaderText("Warning: Permanent Deletion");
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                if (userDAO.permanentlyDelete(user.getId())) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "User permanently deleted from archive.");
+                    loadArchivedUsers();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to permanently delete user.");
+                }
+            }
+        });
     }
 
     private void initializeDashboardCharts() {
@@ -825,16 +1131,19 @@ public class AdminDashboardController implements Initializable {
     }
 
     private void handleDeleteUser(User user) {
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete user " + user.getFullName() + "?", ButtonType.YES, ButtonType.NO);
-        confirmAlert.setTitle("Delete User");
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION, 
+            "Are you sure you want to archive user " + user.getFullName() + "?\n\n" +
+            "The user will be moved to archive and can be permanently deleted after 30 days.", 
+            ButtonType.YES, ButtonType.NO);
+        confirmAlert.setTitle("Archive User");
         confirmAlert.setHeaderText(null);
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
-                if (userDAO.delete(user.getId())) {
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "User deleted successfully.");
+                if (userDAO.archive(user.getId())) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "User archived successfully.");
                     loadUsers();
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete user.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to archive user.");
                 }
             }
         });
@@ -1253,6 +1562,12 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private void handleNavUsers(ActionEvent event) {
         loadView(event, "/fxml/admin-usermanage-view.fxml");
+        // Ensure active users view is shown by default
+        javafx.application.Platform.runLater(() -> {
+            if (activeUsersView != null && archivedUsersView != null) {
+                showActiveUsersView();
+            }
+        });
     }
 
     @FXML
