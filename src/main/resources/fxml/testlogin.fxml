@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Root HBox: Added fx:controller to link to your Java class -->
+
+<HBox style="-fx-background-color: transparent; -fx-background-radius: 0;" styleClass="main-container" stylesheets="@../css/login-view.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.LoginController">
+    <children>
+        <!-- Left Pane: Round only Bottom-Left (0 0 0 30) -->
+        <VBox alignment="CENTER" minWidth="300.0" prefHeight="509.0" prefWidth="456.0" style="-fx-background-radius: 0;" styleClass="left-pane" HBox.hgrow="ALWAYS">
+            <children>
+                <ImageView fitHeight="142.0" fitWidth="179.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/logo.png" />
+                    </image>
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                </ImageView>
+            <VBox prefHeight="290.0" prefWidth="356.0">
+               <children>
+      
+                      <Label prefHeight="34.0" prefWidth="122.0" styleClass="header-label" text="Log in">
+                          <VBox.margin>
+                              <Insets bottom="30.0" />
+                          </VBox.margin>
+                      </Label>
+      
+                      <Label styleClass="field-label" text="Username" />
+                      <!-- Added fx:id="usernameField" to match controller -->
+                      <TextField fx:id="usernameField" promptText="Enter username" styleClass="text-field">
+                          <VBox.margin>
+                              <Insets bottom="15.0" top="5.0" />
+                          </VBox.margin>
+                      </TextField>
+      
+                      <Label styleClass="field-label" text="Password" />
+                      <!-- Added fx:id="passwordField" to match controller -->
+                      <PasswordField fx:id="passwordField" promptText="............" styleClass="text-field">
+                          <VBox.margin>
+                              <Insets bottom="5.0" top="5.0" />
+                          </VBox.margin>
+                      </PasswordField>
+      
+                      <AnchorPane>
+                          <children>
+                              <Hyperlink layoutX="200.0" styleClass="forgot-link" text="Forgot password" AnchorPane.rightAnchor="0.0" />
+                          </children>
+                          <VBox.margin>
+                              <Insets bottom="20.0" />
+                          </VBox.margin>
+                      </AnchorPane>
+      
+                      <!-- Added fx:id="loginButton" and onAction="#handleLoginButtonAction" -->
+                      <Button fx:id="loginButton" maxWidth="1.0E8" mnemonicParsing="false" onAction="#handleLoginButtonAction" styleClass="login-btn" text="Log in" textFill="WHITE" />
+                  <VBox prefHeight="200.0" prefWidth="100.0" />
+      
+                            <Hyperlink fx:id="publicViewLink" onAction="#handlePublicViewLinkAction" styleClass="forgot-link" text="Public View">
+                          <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                          </VBox.margin>
+                      </Hyperlink>
+               </children>
+            </VBox>
+            </children>
+            <padding>
+                <Insets left="50.0" right="50.0" />
+            </padding>
+        </VBox>
+
+        <!-- Right Pane: Round only Bottom-Right (0 0 30 0) -->
+        <StackPane minWidth="200.0" prefHeight="480.0" prefWidth="388.0" style="-fx-background-radius: 0;" styleClass="right-pane" HBox.hgrow="ALWAYS">
+            <children>
+                <ImageView fitHeight="419.0" fitWidth="364.0" pickOnBounds="true" preserveRatio="false" StackPane.alignment="CENTER">
+                    <image>
+                        <Image url="@../images/login.png" />
+                    </image>
+                    <StackPane.margin>
+                        <Insets right="10.0" />
+                    </StackPane.margin>
+                </ImageView>
+            </children>
+        </StackPane>
+    </children>
+</HBox>

@@ -18,7 +18,7 @@
                         <Pane prefHeight="56.0" prefWidth="60.0">
                             <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
                                 <image>
-                                    <Image url="@../images/logo.png" />
+                                    <Image url="@../images/updatedlogo1.png" />
                                 </image>
                             </ImageView>
                         </Pane>

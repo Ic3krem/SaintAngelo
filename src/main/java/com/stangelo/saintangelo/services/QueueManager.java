@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.stangelo.saintangelo.dao.TicketDAO;
@@ -99,18 +100,26 @@ public class QueueManager {
             
             // Load waiting tickets from database (only today's tickets to match countWaitingTickets())
             List<Ticket> waitingTickets = ticketDAO.findWaitingTickets(Integer.MAX_VALUE);
+            logger.info("Found " + waitingTickets.size() + " waiting tickets in database");
+            
             for (Ticket ticket : waitingTickets) {
-                waitingQueue.offer(ticket);
+                if (ticket != null && ticket.getVisitId() != null) {
+                    waitingQueue.offer(ticket);
+                    logger.fine("Added ticket to queue: " + ticket.getTicketNumber() + " (Priority: " + ticket.getPriority() + ")");
+                } else {
+                    logger.warning("Skipping null or invalid ticket during sync");
+                }
             }
             
             // Load currently serving ticket
             currentlyServing = ticketDAO.findCurrentlyServing();
             
-            logger.info("Queue synced. Waiting: " + waitingQueue.size() + 
+            logger.info("Queue synced successfully. Waiting: " + waitingQueue.size() + 
                        ", Currently serving: " + (currentlyServing != null ? currentlyServing.getTicketNumber() : "none"));
         } catch (Exception e) {
             // Handle connection failures and other database errors
             logger.warning("Error syncing from database: " + e.getMessage());
+            logger.log(Level.WARNING, "Exception details: ", e);
             
             // Try to reset connection and retry once
             try {
@@ -120,8 +129,12 @@ public class QueueManager {
                 // Retry the sync
                 waitingQueue.clear();
                 List<Ticket> waitingTickets = ticketDAO.findWaitingTickets(Integer.MAX_VALUE);
+                logger.info("Retry: Found " + waitingTickets.size() + " waiting tickets in database");
+                
                 for (Ticket ticket : waitingTickets) {
-                    waitingQueue.offer(ticket);
+                    if (ticket != null && ticket.getVisitId() != null) {
+                        waitingQueue.offer(ticket);
+                    }
                 }
                 currentlyServing = ticketDAO.findCurrentlyServing();
                 
@@ -129,6 +142,7 @@ public class QueueManager {
                            ", Currently serving: " + (currentlyServing != null ? currentlyServing.getTicketNumber() : "none"));
             } catch (Exception retryException) {
                 logger.severe("Failed to sync after reconnection attempt: " + retryException.getMessage());
+                logger.log(Level.SEVERE, "Retry exception details: ", retryException);
                 // Keep existing queue data on failure - don't clear it
                 // This ensures the UI still shows something even if sync fails
             }

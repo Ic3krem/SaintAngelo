@@ -2,24 +2,23 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <BorderPane styleClass="root" stylesheets="@../css/reception-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.ReceptionDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox minWidth="200.0" maxWidth="300.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox maxWidth="300.0" minWidth="200.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
                         <Pane prefHeight="56.0" prefWidth="60.0">
                             <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
                                 <image>
-                                    <Image url="@../images/logo.png" />
+                                    <Image url="@../images/updatedlogo1.png" />
                                 </image>
                             </ImageView>
                         </Pane>
@@ -90,33 +89,76 @@
                                 <children>
                                     <Label styleClass="form-section-header" text="New Appointment" />
 
-                                    <VBox spacing="5.0">
-                                        <Label styleClass="reg-form-label" text="Patient Name" />
-                                        <TextField promptText="Search existing patient..." styleClass="reg-text-field" />
+                                    <!-- Patient Search Section -->
+                                    <VBox spacing="10.0">
+                                        <VBox spacing="5.0">
+                                            <Label styleClass="reg-form-label" text="Select Patient" />
+                                            <ComboBox fx:id="apptPatientComboBox" maxWidth="Infinity" promptText="Search or select existing patient..." styleClass="reg-combo-box" />
+                                        </VBox>
+                                        <VBox fx:id="apptExistingPatientInfo" spacing="5.0" visible="false" managed="false">
+                                            <Label fx:id="apptSelectedPatientLabel" styleClass="reg-form-label" text="" />
+                                        </VBox>
+                                        <Separator />
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="OR" />
+                                        <Separator />
+                                        <Button fx:id="apptCreateNewPatientBtn" onAction="#handleApptCreateNewPatient" styleClass="btn-outline" text="Create New Patient" />
+                                    </VBox>
+
+                                    <!-- New Patient Form (Hidden by default) -->
+                                    <VBox fx:id="apptNewPatientForm" spacing="10.0" visible="false" managed="false">
+                                        <Label styleClass="form-section-header" text="New Patient Information" />
+                                        <HBox spacing="10.0">
+                                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                <Label styleClass="reg-form-label" text="First Name" />
+                                                <TextField fx:id="apptNewPatientFirstName" styleClass="reg-text-field" />
+                                            </VBox>
+                                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                <Label styleClass="reg-form-label" text="Last Name" />
+                                                <TextField fx:id="apptNewPatientLastName" styleClass="reg-text-field" />
+                                            </VBox>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                <Label styleClass="reg-form-label" text="Phone Number" />
+                                                <TextField fx:id="apptNewPatientPhone" styleClass="reg-text-field" />
+                                            </VBox>
+                                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                                <Label styleClass="reg-form-label" text="Age" />
+                                                <TextField fx:id="apptNewPatientAge" styleClass="reg-text-field" />
+                                            </VBox>
+                                        </HBox>
+                                        <VBox spacing="5.0">
+                                            <Label styleClass="reg-form-label" text="Gender" />
+                                            <ComboBox fx:id="apptNewPatientGender" maxWidth="Infinity" promptText="Select Gender" styleClass="reg-combo-box" />
+                                        </VBox>
+                                        <VBox spacing="5.0">
+                                            <Label styleClass="reg-form-label" text="Address (Optional)" />
+                                            <TextArea fx:id="apptNewPatientAddress" prefHeight="60.0" promptText="Enter address..." styleClass="reg-text-area" wrapText="true" />
+                                        </VBox>
                                     </VBox>
 
                                     <VBox spacing="5.0">
                                         <Label styleClass="reg-form-label" text="Doctor" />
-                                        <ComboBox maxWidth="Infinity" promptText="Select Doctor" styleClass="reg-combo-box" />
+                                        <ComboBox fx:id="apptDoctorComboBox" maxWidth="Infinity" promptText="Select Doctor" styleClass="reg-combo-box" />
                                     </VBox>
 
                                     <HBox spacing="15.0">
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                             <Label styleClass="reg-form-label" text="Date" />
-                                            <DatePicker maxWidth="Infinity" styleClass="reg-text-field" />
+                                            <DatePicker fx:id="apptDatePicker" maxWidth="Infinity" styleClass="reg-text-field" />
                                         </VBox>
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                             <Label styleClass="reg-form-label" text="Time" />
-                                            <TextField promptText="10:00 AM" styleClass="reg-text-field" />
+                                            <TextField fx:id="apptTimeField" promptText="10:00 AM" styleClass="reg-text-field" />
                                         </VBox>
                                     </HBox>
 
                                     <VBox spacing="5.0">
                                         <Label styleClass="reg-form-label" text="Purpose" />
-                                        <TextArea prefHeight="80.0" promptText="Reason for visit..." styleClass="reg-text-area" wrapText="true" />
+                                        <TextArea fx:id="apptPurposeArea" prefHeight="80.0" promptText="Reason for visit..." styleClass="reg-text-area" wrapText="true" />
                                     </VBox>
 
-                                    <Button maxWidth="Infinity" styleClass="btn-book-appt" text="Book Appointment" />
+                                    <Button fx:id="apptBookButton" maxWidth="Infinity" onAction="#handleBookAppointment" styleClass="btn-book-appt" text="Book Appointment" />
                                 </children>
                             </VBox>
 
@@ -125,15 +167,15 @@
                                 <children>
                                     <!-- Calendar Header -->
                                     <HBox alignment="CENTER_LEFT" styleClass="calendar-header-nav">
-                                        <Button style="-fx-background-color: transparent; -fx-cursor: hand;" text="◄" />
+                                        <Button fx:id="apptCalendarPrevBtn" onAction="#handleApptCalendarPrev" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 18px;" text="◄" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="calendar-month-title" text="November 2025" />
+                                        <Label fx:id="apptCalendarMonthLabel" styleClass="calendar-month-title" text="" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Button style="-fx-background-color: transparent; -fx-cursor: hand;" text="►" />
+                                        <Button fx:id="apptCalendarNextBtn" onAction="#handleApptCalendarNext" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 18px;" text="►" />
                                     </HBox>
 
                                     <!-- Grid -->
-                                    <GridPane hgap="1.0" styleClass="calendar-grid" vgap="1.0">
+                                    <GridPane fx:id="apptCalendarGrid" hgap="1.0" styleClass="calendar-grid" vgap="1.0">
                                         <columnConstraints>
                                             <ColumnConstraints hgrow="ALWAYS" percentWidth="14.28" />
                                             <ColumnConstraints hgrow="ALWAYS" percentWidth="14.28" />
@@ -152,63 +194,6 @@
                                         <Label styleClass="calendar-day-header" text="Fri" GridPane.columnIndex="4" GridPane.rowIndex="0" />
                                         <Label styleClass="calendar-day-header" text="Sat" GridPane.columnIndex="5" GridPane.rowIndex="0" />
                                         <Label styleClass="calendar-day-header" text="Sun" GridPane.columnIndex="6" GridPane.rowIndex="0" />
-
-                                        <!-- Row 1 -->
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="0" GridPane.rowIndex="1"><Label styleClass="calendar-date-label, calendar-date-inactive" text="27" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label styleClass="calendar-date-label, calendar-date-inactive" text="28" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="2" GridPane.rowIndex="1"><Label styleClass="calendar-date-label, calendar-date-inactive" text="29" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="3" GridPane.rowIndex="1"><Label styleClass="calendar-date-label, calendar-date-inactive" text="30" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="4" GridPane.rowIndex="1">
-                                            <Label styleClass="calendar-date-label" text="1" />
-                                            <Label styleClass="appt-pill, appt-pill-checkup" text="9:00 AM J.Doe" />
-                                        </VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="5" GridPane.rowIndex="1"><Label styleClass="calendar-date-label" text="2" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="6" GridPane.rowIndex="1"><Label styleClass="calendar-date-label" text="3" /></VBox>
-
-                                        <!-- Row 2 -->
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="0" GridPane.rowIndex="2"><Label styleClass="calendar-date-label" text="4" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                            <Label styleClass="calendar-date-label" text="5" />
-                                            <Label styleClass="appt-pill" text="11:30 AM M.Smith" />
-                                        </VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="2" GridPane.rowIndex="2"><Label styleClass="calendar-date-label" text="6" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="3" GridPane.rowIndex="2"><Label styleClass="calendar-date-label" text="7" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="4" GridPane.rowIndex="2">
-                                            <Label styleClass="calendar-date-label" text="8" />
-                                            <Label styleClass="appt-pill, appt-pill-urgent" text="Urgent Surgery" />
-                                        </VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="5" GridPane.rowIndex="2"><Label styleClass="calendar-date-label" text="9" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="6" GridPane.rowIndex="2"><Label styleClass="calendar-date-label" text="10" /></VBox>
-
-                                        <!-- Row 3 -->
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="0" GridPane.rowIndex="3"><Label styleClass="calendar-date-label" text="11" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="1" GridPane.rowIndex="3"><Label styleClass="calendar-date-label" text="12" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="2" GridPane.rowIndex="3"><Label styleClass="calendar-date-label" text="13" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="3" GridPane.rowIndex="3">
-                                            <Label styleClass="calendar-date-label" text="14" />
-                                            <Label styleClass="appt-pill, appt-pill-checkup" text="2:00 PM A.Lee" />
-                                        </VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="4" GridPane.rowIndex="3"><Label styleClass="calendar-date-label" text="15" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="5" GridPane.rowIndex="3"><Label styleClass="calendar-date-label" text="16" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="6" GridPane.rowIndex="3"><Label styleClass="calendar-date-label" text="17" /></VBox>
-
-                                        <!-- Row 4 -->
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="0" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="18" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="1" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="19" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="2" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="20" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="3" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="21" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="4" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="22" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="5" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="23" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="6" GridPane.rowIndex="4"><Label styleClass="calendar-date-label" text="24" /></VBox>
-
-                                        <!-- Row 5 -->
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="0" GridPane.rowIndex="5"><Label styleClass="calendar-date-label" text="25" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="1" GridPane.rowIndex="5"><Label styleClass="calendar-date-label" text="26" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="2" GridPane.rowIndex="5"><Label styleClass="calendar-date-label" text="27" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="3" GridPane.rowIndex="5"><Label styleClass="calendar-date-label" text="28" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="4" GridPane.rowIndex="5"><Label styleClass="calendar-date-label" text="29" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="5" GridPane.rowIndex="5"><Label styleClass="calendar-date-label" text="30" /></VBox>
-                                        <VBox styleClass="calendar-cell" GridPane.columnIndex="6" GridPane.rowIndex="5"><Label styleClass="calendar-date-label, calendar-date-inactive" text="1" /></VBox>
                               <rowConstraints>
                                  <RowConstraints />
                                  <RowConstraints />

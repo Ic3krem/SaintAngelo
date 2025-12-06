@@ -187,6 +187,45 @@ public class TicketDAO extends BaseDAO {
     }
 
     /**
+     * Gets all tickets currently in service (IN_SERVICE status) for a specific doctor
+     *
+     * @param doctorId Doctor ID
+     * @return List of tickets currently being served by this doctor, ordered by called time (most recent first)
+     */
+    public List<Ticket> findAllInServiceByDoctor(String doctorId) {
+        List<Ticket> tickets = new ArrayList<>();
+        
+        if (doctorId == null || doctorId.isEmpty()) {
+            return tickets;
+        }
+        
+        String sql = "SELECT t.*, p.*, d.name AS doctor_name FROM tickets t " +
+                "INNER JOIN patients p ON t.patient_id = p.patient_id " +
+                "LEFT JOIN doctors d ON t.assigned_doctor_id = d.doctor_id " +
+                "WHERE t.status = 'IN_SERVICE' AND t.assigned_doctor_id = ? " +
+                "ORDER BY t.called_time DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, doctorId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        tickets.add(mapResultSetToTicket(rs));
+                    } catch (SQLException e) {
+                        logError("Error mapping ticket from result set", e);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error finding all in-service tickets for doctor: " + doctorId, e);
+        }
+        return tickets;
+    }
+
+    /**
      * Gets the next ticket to be called (first WAITING ticket)
      *
      * @return The next ticket in queue, or null if queue is empty
@@ -276,6 +315,41 @@ public class TicketDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             logError("Error finding today's tickets", e);
+        }
+        return tickets;
+    }
+
+    /**
+     * Gets all tickets for a specific patient (for patient history reference)
+     * Note: Tickets are for queue management only, not displayed in patient records
+     *
+     * @param patientId Patient ID
+     * @return List of tickets for the patient, ordered by creation time (newest first)
+     */
+    public List<Ticket> findByPatientId(String patientId) {
+        List<Ticket> tickets = new ArrayList<>();
+        String sql = "SELECT t.*, p.*, d.name AS doctor_name FROM tickets t " +
+                "INNER JOIN patients p ON t.patient_id = p.patient_id " +
+                "LEFT JOIN doctors d ON t.assigned_doctor_id = d.doctor_id " +
+                "WHERE t.patient_id = ? " +
+                "ORDER BY t.created_time DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, patientId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        tickets.add(mapResultSetToTicket(rs));
+                    } catch (SQLException e) {
+                        logError("Error mapping ticket from result set", e);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            logError("Error finding tickets by patient ID: " + patientId, e);
         }
         return tickets;
     }
