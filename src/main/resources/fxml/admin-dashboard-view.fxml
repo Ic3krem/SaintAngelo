@@ -1,35 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<!-- Controller linked here -->
-
-<BorderPane styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
+<BorderPane styleClass="root" stylesheets="@../css/admin-dashboard.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stangelo.saintangelo.controllers.AdminDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox maxWidth="300.0" minWidth="200.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox minWidth="240.0" prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
                 <!-- Logo -->
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
                         <Pane prefHeight="56.0" prefWidth="60.0">
-                            <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="-5.0" layoutY="-7.0" pickOnBounds="true" preserveRatio="true">
+                            <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                                 <image>
                                     <Image url="@../images/updatedlogo1.png" />
                                 </image>
                             </ImageView>
                         </Pane>
                         <VBox alignment="CENTER_LEFT">
-                            <Text styleClass="logo-text" text="St. Angelo" wrappingWidth="97.20703125">
-                                <font>
-                                    <Font size="24.0" />
-                                </font></Text>
+                            <Text styleClass="logo-text" text="St. Angelo" />
                             <Text fill="#777777" style="-fx-font-size: 10px; -fx-letter-spacing: 2;" text="MEDICAL CENTER" />
                         </VBox>
                     </children>
@@ -38,27 +48,25 @@
                     </VBox.margin>
                 </HBox>
 
-
                 <!-- Menu Items -->
-                <!-- ADDED onAction handlers -->
                 <Button maxWidth="Infinity" onAction="#handleNavDashboard" styleClass="nav-button, active" text="Dashboard">
                     <graphic>
-                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#1a1a1a" scaleX="0.7" scaleY="0.7" />
+                        <SVGPath content="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-6h-8v6zm0-18v6h8V3h-8z" styleClass="nav-icon" />
                     </graphic>
                 </Button>
                 <Button maxWidth="Infinity" onAction="#handleNavUsers" styleClass="nav-button" text="User Management">
                     <graphic>
-                        <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#666" scaleX="0.7" scaleY="0.7" />
+                        <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" styleClass="nav-icon" />
                     </graphic>
                 </Button>
                 <Button maxWidth="Infinity" onAction="#handleNavActivity" styleClass="nav-button" text="Activity Logs">
                     <graphic>
-                        <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12h-2v-6h2v6zm0-8h-2V5h2v2z" fill="#666" scaleX="0.7" scaleY="0.7" />
+                        <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12h-2v-6h2v6zm0-8h-2V5h2v2z" styleClass="nav-icon" />
                     </graphic>
                 </Button>
                 <Button maxWidth="Infinity" onAction="#handleNavReports" styleClass="nav-button" text="Generate Report">
                     <graphic>
-                        <SVGPath content="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="#666" scaleX="0.7" scaleY="0.7" />
+                        <SVGPath content="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" styleClass="nav-icon" />
                     </graphic>
                 </Button>
 
@@ -86,7 +94,8 @@
 
     <!-- MAIN CONTENT -->
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <!-- FIX: Background transparent on ScrollPane usually requires CSS fix on viewport (see CSS) -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="main-scroll-pane">
             <content>
                 <VBox spacing="25.0" styleClass="content-area">
                     <children>
@@ -94,53 +103,76 @@
                         <Text styleClass="page-title" text="Admin Dashboard" />
 
                         <!-- TOP STATS ROW -->
+                        <!-- FIX: Removed percentWidth to allow hgap to exist without overflow -->
                         <GridPane hgap="20.0">
                             <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                                <ColumnConstraints hgrow="ALWAYS" />
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <!-- Stat 1 -->
-                                <VBox styleClass="stat-card">
+                                <!-- Stat 1: Total Users -->
+                                <VBox spacing="8.0" styleClass="stat-card">
                                     <children>
                                         <Label styleClass="stat-title" text="Total Users" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="129" />
-                                            <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                            <Label fx:id="totalUsersLabel" styleClass="stat-value" text="0" />
+                                            <SVGPath fx:id="totalUsersArrow" content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <SVGPath content="M0 30 Q10 20 20 25 T40 10 T60 25 T80 5" fill="TRANSPARENT" stroke="#0b7d56" strokeWidth="2" />
+                                            <!-- FIX: explicitly disabled symbols and legend -->
+                                            <LineChart fx:id="totalUsersChart" createSymbols="false" legendVisible="false" maxHeight="50.0" prefHeight="50.0" prefWidth="80.0" styleClass="transparent-chart">
+                                                <xAxis>
+                                                    <NumberAxis side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                                                </yAxis>
+                                            </LineChart>
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                        <Label fx:id="totalUsersChangeLabel" styleClass="stat-footer" text="+ 0 Increased vs Last Month" />
                                     </children>
                                 </VBox>
-                                <!-- Stat 2 -->
-                                <VBox styleClass="stat-card" GridPane.columnIndex="1">
+                                <!-- Stat 2: Total Patients -->
+                                <VBox spacing="8.0" styleClass="stat-card" GridPane.columnIndex="1">
                                     <children>
                                         <Label styleClass="stat-title" text="Total Patients" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="30" />
-                                            <SVGPath content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
+                                            <Label fx:id="totalPatientsLabel" styleClass="stat-value" text="0" />
+                                            <SVGPath fx:id="totalPatientsArrow" content="M7 14l5-5 5 5z" fill="#0b7d56" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <SVGPath content="M0 30 Q10 15 20 20 T40 10 T60 25 T80 20" fill="TRANSPARENT" stroke="#76ff03" strokeWidth="2" />
+                                            <LineChart fx:id="totalPatientsChart" createSymbols="false" legendVisible="false" maxHeight="50.0" prefHeight="50.0" prefWidth="80.0" styleClass="transparent-chart">
+                                                <xAxis>
+                                                    <NumberAxis side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                                                </yAxis>
+                                            </LineChart>
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="+ 43 Increased vs Last Month" />
+                                        <Label fx:id="totalPatientsChangeLabel" styleClass="stat-footer" text="+ 0 Increased vs Last Month" />
                                     </children>
                                 </VBox>
-                                <!-- Stat 3 -->
-                                <VBox styleClass="stat-card" GridPane.columnIndex="2">
+                                <!-- Stat 3: Avg. Wait Time -->
+                                <VBox spacing="8.0" styleClass="stat-card" GridPane.columnIndex="2">
                                     <children>
                                         <Label styleClass="stat-title" text="Avg. Wait Time" />
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                            <Label styleClass="stat-value" text="129" />
-                                            <SVGPath content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
+                                            <Label fx:id="avgWaitTimeLabel" styleClass="stat-value" text="0 min" />
+                                            <SVGPath fx:id="avgWaitTimeArrow" content="M7 10l5 5 5-5z" fill="#ff6b6b" scaleX="0.8" scaleY="0.8" />
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <SVGPath content="M0 25 L20 20 L40 10 L60 25 L80 5" fill="TRANSPARENT" stroke="#64ffda" strokeWidth="2" />
+                                            <LineChart fx:id="avgWaitTimeChart" createSymbols="false" legendVisible="false" maxHeight="50.0" prefHeight="50.0" prefWidth="80.0" styleClass="transparent-chart">
+                                                <xAxis>
+                                                    <NumberAxis side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                                                </yAxis>
+                                            </LineChart>
                                         </HBox>
-                                        <Label styleClass="stat-footer" text="-14 Decreased vs Last Month" />
+                                        <Label fx:id="avgWaitTimeChangeLabel" styleClass="stat-footer" text="-0 Decreased vs Last Month" />
                                     </children>
                                 </VBox>
                             </children>
@@ -150,41 +182,18 @@
                         <HBox spacing="20.0">
                             <children>
                                 <!-- Chart 1 -->
-                                <VBox spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <VBox minWidth="300.0" spacing="10.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0b7d56;" text="Patient Flow (Last 7 Days)" />
-                                        <HBox alignment="BOTTOM_CENTER" prefHeight="150.0" spacing="15.0" styleClass="chart-container">
-                                            <children>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="80.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Mon" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="95.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Tue" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="105.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Wed" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="85.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Thu" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="110.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Fri" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="108.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Sat" /></VBox>
-                                                <VBox alignment="BOTTOM_CENTER" spacing="5.0"><Region prefHeight="120.0" prefWidth="30.0" styleClass="chart-bar" /><Label styleClass="chart-label" text="Sun" /></VBox>
-                                            </children>
-                                        </HBox>
+                                        <HBox fx:id="patientFlowChart" alignment="BOTTOM_CENTER" prefHeight="150.0" spacing="15.0" styleClass="chart-container" />
                                     </children>
                                 </VBox>
 
                                 <!-- Chart 2 -->
-                                <VBox spacing="20.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <VBox minWidth="300.0" spacing="20.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0b7d56;" text="System Usage by Roles" />
-                                        <VBox alignment="CENTER_LEFT" spacing="15.0">
-                                            <VBox spacing="5.0">
-                                                <HBox><Label styleClass="usage-label" text="Doctors" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="45%" /></HBox>
-                                                <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="150" styleClass="progress-fill, fill-blue" /></StackPane>
-                                            </VBox>
-                                            <VBox spacing="5.0">
-                                                <HBox><Label styleClass="usage-label" text="Receptionists" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="35%" /></HBox>
-                                                <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="110" styleClass="progress-fill, fill-green" /></StackPane>
-                                            </VBox>
-                                            <VBox spacing="5.0">
-                                                <HBox><Label styleClass="usage-label" text="Admins" /><Region HBox.hgrow="ALWAYS" /><Label styleClass="usage-percent" text="20%" /></HBox>
-                                                <StackPane alignment="CENTER_LEFT" styleClass="progress-track"><Region prefWidth="60" styleClass="progress-fill, fill-purple" /></StackPane>
-                                            </VBox>
-                                        </VBox>
+                                        <VBox fx:id="systemUsageContainer" VBox.vgrow="ALWAYS" spacing="15.0" />
                                     </children>
                                 </VBox>
                             </children>
@@ -196,30 +205,9 @@
                                 <HBox alignment="CENTER_LEFT">
                                     <Label blendMode="SRC_ATOP" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #000000;" text="Recent System Activity" />
                                     <Region HBox.hgrow="ALWAYS" />
-                                    <Button style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
+                                    <Button fx:id="viewAllActivityButton" onAction="#handleViewAllActivity" style="-fx-background-color: transparent; -fx-text-fill: #0b7d56; -fx-font-weight: bold; -fx-cursor: hand;" text="View All" />
                                 </HBox>
-                                <VBox spacing="0.0">
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label styleClass="badge-tag, tag-medical" text="medical" />
-                                        <Text styleClass="activity-text" text="Dr. John Diaz Completed patient consultation" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="activity-time" text="2 min ago" />
-                                    </HBox>
-                                    <Separator />
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label styleClass="badge-tag, tag-registration" text="registration" />
-                                        <Text styleClass="activity-text" text="Angelo Castro Registered new patient" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="activity-time" text="5 min ago" />
-                                    </HBox>
-                                    <Separator />
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="activity-item">
-                                        <Label styleClass="badge-tag, tag-medical" text="medical" />
-                                        <Text styleClass="activity-text" text="Dr. Sarah Lee Updated patient records" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Label styleClass="activity-time" text="8 min ago" />
-                                    </HBox>
-                                </VBox>
+                                <VBox fx:id="recentActivityContainer" spacing="0.0" />
                             </children>
                         </VBox>
 

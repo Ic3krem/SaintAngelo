@@ -798,6 +798,8 @@ public class ReceptionDashboardController implements Initializable {
             if (enqueued) {
                 // Refresh stats after creating a new ticket
                 updateStats();
+                updateCharts();
+                updateFooters();
                 
                 // Clear form
                 clearNewPatientForm();
@@ -916,6 +918,8 @@ public class ReceptionDashboardController implements Initializable {
         if (enqueued) {
             // Refresh stats after creating a new ticket
             updateStats();
+            updateCharts();
+            updateFooters();
             
             // Clear form
             clearExistingPatientForm();

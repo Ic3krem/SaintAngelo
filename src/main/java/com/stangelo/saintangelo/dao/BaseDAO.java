@@ -58,5 +58,14 @@ public abstract class BaseDAO {
     protected void logError(String message, SQLException e) {
         logger.log(Level.SEVERE, message, e);
     }
-}
 
+    /**
+     * Logs generic exceptions
+     *
+     * @param message Error message
+     * @param e Exception
+     */
+    protected void logError(String message, Exception e) {
+        logger.log(Level.SEVERE, message, e);
+    }
+}

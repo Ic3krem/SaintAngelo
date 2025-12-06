@@ -12,6 +12,7 @@ public class User {
     private String permissions;
     private String status;
     private LocalDateTime lastActive;
+    private LocalDateTime createdAt;
 
     public User(String id, String username, String password, String fullName, UserRole role) {
         this.id = id;
@@ -23,7 +24,7 @@ public class User {
     }
 
     public User(String id, String username, String password, String fullName, String email, 
-                UserRole role, String permissions, String status, LocalDateTime lastActive) {
+                UserRole role, String permissions, String status, LocalDateTime lastActive, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -33,6 +34,7 @@ public class User {
         this.permissions = permissions;
         this.status = status;
         this.lastActive = lastActive;
+        this.createdAt = createdAt;
     }
 
     public String getUsername() { return username; }
@@ -58,6 +60,9 @@ public class User {
 
     public LocalDateTime getLastActive() { return lastActive; }
     public void setLastActive(LocalDateTime lastActive) { this.lastActive = lastActive; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public boolean isAdmin() {
         return role == UserRole.ADMIN || role == UserRole.SUPER_ADMIN;

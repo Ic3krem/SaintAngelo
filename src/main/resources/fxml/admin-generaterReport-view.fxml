@@ -68,8 +68,8 @@
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <Circle fill="#e0e0e0" radius="20.0" />
                     <VBox>
-                        <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
-                        <Label style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
+                        <Label fx:id="userNameLabel" style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Angelo Castro" />
+                        <Label fx:id="userRoleLabel" style="-fx-text-fill: #666; -fx-font-size: 12px;" text="Receptionist" />
                     </VBox>
                 </HBox>
                 <Button maxWidth="Infinity" onAction="#handleLogout" styleClass="logout-button" text="Logout" />
@@ -82,7 +82,7 @@
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;">
             <VBox spacing="25.0" styleClass="content-area">
                 <!-- Title -->
-                <Text styleClass="page-title" text="Admin Dashboard" />
+                <Text styleClass="page-title" text="Generate Report" />
 
                 <!-- Form Card -->
                 <VBox spacing="20.0" styleClass="form-card">
@@ -95,48 +95,29 @@
                     <!-- Row 1: Report Type -->
                     <VBox spacing="5.0">
                         <Label styleClass="input-label" text="Report Type" />
-                        <ComboBox maxWidth="Infinity" promptText="Daily Statistics" styleClass="form-input" />
+                        <ComboBox fx:id="reportTypeComboBox" maxWidth="Infinity" promptText="Select Report Type" styleClass="form-input" />
                     </VBox>
 
                     <!-- Row 2: Dates -->
                     <HBox spacing="20.0">
                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                             <Label styleClass="input-label" text="Start Date" />
-                            <DatePicker maxWidth="Infinity" promptText="dd/mm/yyyy" styleClass="date-picker" />
+                            <DatePicker fx:id="startDatePicker" maxWidth="Infinity" promptText="dd/mm/yyyy" styleClass="date-picker" />
                         </VBox>
                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                             <Label styleClass="input-label" text="End Date" />
-                            <DatePicker maxWidth="Infinity" promptText="dd/mm/yyyy" styleClass="date-picker" />
+                            <DatePicker fx:id="endDatePicker" maxWidth="Infinity" promptText="dd/mm/yyyy" styleClass="date-picker" />
                         </VBox>
                     </HBox>
 
                     <!-- Row 3: Export Format -->
                     <VBox spacing="5.0">
                         <Label styleClass="input-label" text="Export Format" />
-                        <ComboBox maxWidth="Infinity" promptText="PDF Document" styleClass="form-input" />
-                    </VBox>
-
-                    <!-- Row 4: Checkboxes -->
-                    <VBox spacing="10.0">
-                        <Label styleClass="input-label" text="Include Sections (Optional)" />
-                        <GridPane hgap="20.0" vgap="10.0">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                            </columnConstraints>
-                            <CheckBox selected="true" styleClass="custom-check-box" text="Summary Statistics" />
-                            <CheckBox selected="true" styleClass="custom-check-box" text="Charts &amp; Graphs" GridPane.columnIndex="1" />
-                            <CheckBox selected="true" styleClass="custom-check-box" text="Detailed Tables" GridPane.rowIndex="1" />
-                            <CheckBox styleClass="custom-check-box" text="Raw Data" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                            <rowConstraints>
-                                <RowConstraints />
-                                <RowConstraints />
-                            </rowConstraints>
-                        </GridPane>
+                        <ComboBox fx:id="exportFormatComboBox" maxWidth="Infinity" promptText="Select Format" styleClass="form-input" />
                     </VBox>
 
                     <!-- Row 5: Button -->
-                    <Button maxWidth="Infinity" styleClass="btn-generate-large" text="Generate Report">
+                    <Button fx:id="generateReportButton" onAction="#handleGenerateReport" maxWidth="Infinity" styleClass="btn-generate-large" text="Generate Report">
                         <graphic>
                             <SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="WHITE" scaleX="0.8" scaleY="0.8" />
                         </graphic>
