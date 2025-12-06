@@ -1,5 +1,21 @@
 package com.stangelo.saintangelo.controllers;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
 import com.stangelo.saintangelo.dao.ActivityLogDAO;
 import com.stangelo.saintangelo.dao.PatientDAO;
 import com.stangelo.saintangelo.dao.TicketDAO;
@@ -9,6 +25,7 @@ import com.stangelo.saintangelo.models.ActivityType;
 import com.stangelo.saintangelo.models.User;
 import com.stangelo.saintangelo.models.UserRole;
 import com.stangelo.saintangelo.services.AuthService;
+
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,30 +38,29 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.TextStyle;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.*;
 
 public class AdminDashboardController implements Initializable {
 
@@ -825,11 +841,255 @@ public class AdminDashboardController implements Initializable {
     }
 
     private void showUserEditDialog(User user) {
-        // Implementation for editing a user
+        if (user == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "No user selected for editing.");
+            return;
+        }
+
+        // Fetch fresh user data from database to ensure we have the latest information
+        User currentUser = userDAO.findById(user.getId());
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "User not found in database.");
+            return;
+        }
+
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Edit User");
+        dialog.setHeaderText("Edit User Account: " + currentUser.getFullName());
+
+        // Create form
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userIdField = new TextField(currentUser.getId());
+        userIdField.setEditable(false);
+        userIdField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField usernameField = new TextField(currentUser.getUsername());
+        TextField fullNameField = new TextField(currentUser.getFullName());
+        TextField emailField = new TextField(currentUser.getEmail() != null ? currentUser.getEmail() : "");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Leave blank to keep current password");
+        
+        ComboBox<UserRole> roleComboBox = new ComboBox<>();
+        roleComboBox.getItems().addAll(UserRole.values());
+        roleComboBox.setValue(currentUser.getRole());
+
+        TextField permissionsField = new TextField(currentUser.getPermissions() != null ? currentUser.getPermissions() : "");
+        permissionsField.setEditable(false);
+        permissionsField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        ComboBox<String> statusComboBox = new ComboBox<>();
+        statusComboBox.getItems().addAll("Active", "Inactive");
+        statusComboBox.setValue(currentUser.getStatus() != null ? currentUser.getStatus() : "Active");
+
+        // Helper to set permissions text based on role
+        java.util.function.Consumer<UserRole> applyPermissionsForRole = role -> {
+            if (role == null) {
+                permissionsField.clear();
+                return;
+            }
+            switch (role) {
+                case DOCTOR:
+                    permissionsField.setText("Full Medical Access");
+                    break;
+                case STAFF:
+                    permissionsField.setText("Registration & Queue");
+                    break;
+                case ADMIN:
+                case SUPER_ADMIN:
+                    permissionsField.setText("System Configuration");
+                    break;
+            }
+        };
+
+        // Initialize and react to role changes
+        applyPermissionsForRole.accept(roleComboBox.getValue());
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> applyPermissionsForRole.accept(newVal));
+
+        grid.add(new Label("User ID:"), 0, 0);
+        grid.add(userIdField, 1, 0);
+        grid.add(new Label("Username:*"), 0, 1);
+        grid.add(usernameField, 1, 1);
+        grid.add(new Label("Full Name:*"), 0, 2);
+        grid.add(fullNameField, 1, 2);
+        grid.add(new Label("Email:*"), 0, 3);
+        grid.add(emailField, 1, 3);
+        grid.add(new Label("Password:"), 0, 4);
+        grid.add(passwordField, 1, 4);
+        grid.add(new Label("Role:*"), 0, 5);
+        grid.add(roleComboBox, 1, 5);
+        grid.add(new Label("Permissions:"), 0, 6);
+        grid.add(permissionsField, 1, 6);
+        grid.add(new Label("Status:"), 0, 7);
+        grid.add(statusComboBox, 1, 7);
+
+        Label requiredLabel = new Label("* Required fields");
+        requiredLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 11px;");
+        grid.add(requiredLabel, 1, 8);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType saveButtonType = new ButtonType("Save Changes", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // Enable/disable save button based on required fields
+        Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+
+        // Validate required fields
+        Runnable validateFields = () -> {
+            boolean isValid = !usernameField.getText().trim().isEmpty() &&
+                    !fullNameField.getText().trim().isEmpty() &&
+                    !emailField.getText().trim().isEmpty() &&
+                    roleComboBox.getValue() != null;
+            saveButton.setDisable(!isValid);
+        };
+
+        usernameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        fullNameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+        roleComboBox.valueProperty().addListener((obs, oldVal, newVal) -> validateFields.run());
+
+        // Initial validation
+        validateFields.run();
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                String username = usernameField.getText().trim();
+                String password = passwordField.getText().trim();
+                String fullName = fullNameField.getText().trim();
+                String email = emailField.getText().trim();
+                UserRole role = roleComboBox.getValue();
+                String permissions = permissionsField.getText().trim();
+                String status = statusComboBox.getValue();
+
+                // Create updated user object
+                // If password is empty, keep the current password
+                User updatedUser = new User(currentUser.getId(), username, 
+                        password.isEmpty() ? currentUser.getPassword() : password, 
+                        fullName, role);
+                updatedUser.setEmail(email);
+                updatedUser.setPermissions(permissions);
+                updatedUser.setStatus(status);
+
+                return updatedUser;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(updatedUser -> {
+            // Check if username was changed and if new username already exists
+            if (!updatedUser.getUsername().equals(currentUser.getUsername())) {
+                if (userDAO.findByUsername(updatedUser.getUsername()) != null) {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Username already exists. Please choose a different username.");
+                    return;
+                }
+            }
+
+            // Check if email was changed and if new email already exists
+            if (!updatedUser.getEmail().equals(currentUser.getEmail())) {
+                if (userDAO.findByEmail(updatedUser.getEmail()) != null) {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Email already exists. Please use a different email.");
+                    return;
+                }
+            }
+
+            // Update user in database
+            if (userDAO.update(updatedUser, updatedUser.getEmail(), updatedUser.getPermissions(), updatedUser.getStatus())) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "User updated successfully.");
+                loadUsers(); // Refresh table
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update user. Please try again.");
+            }
+        });
     }
 
     private void showUserViewDialog(User user) {
-        // Implementation for viewing user details
+        if (user == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "No user selected for viewing.");
+            return;
+        }
+
+        // Fetch fresh user data from database to ensure we have the latest information
+        User currentUser = userDAO.findById(user.getId());
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "User not found in database.");
+            return;
+        }
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("View User Details");
+        dialog.setHeaderText("User Information: " + currentUser.getFullName());
+
+        // Create form (read-only)
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userIdField = new TextField(currentUser.getId());
+        userIdField.setEditable(false);
+        userIdField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField usernameField = new TextField(currentUser.getUsername());
+        usernameField.setEditable(false);
+        usernameField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField fullNameField = new TextField(currentUser.getFullName());
+        fullNameField.setEditable(false);
+        fullNameField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField emailField = new TextField(currentUser.getEmail() != null ? currentUser.getEmail() : "");
+        emailField.setEditable(false);
+        emailField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField roleField = new TextField(getRoleDisplayName(currentUser.getRole()));
+        roleField.setEditable(false);
+        roleField.setStyle("-fx-background-color: #f0f0f0;");
+
+        TextField permissionsField = new TextField(currentUser.getPermissions() != null ? currentUser.getPermissions() : "");
+        permissionsField.setEditable(false);
+        permissionsField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField statusField = new TextField(currentUser.getStatus() != null ? currentUser.getStatus() : "Active");
+        statusField.setEditable(false);
+        statusField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField lastActiveField = new TextField(formatLastActive(currentUser.getLastActive()));
+        lastActiveField.setEditable(false);
+        lastActiveField.setStyle("-fx-background-color: #f0f0f0;");
+        
+        TextField createdAtField = new TextField(currentUser.getCreatedAt() != null 
+                ? currentUser.getCreatedAt().toString() : "N/A");
+        createdAtField.setEditable(false);
+        createdAtField.setStyle("-fx-background-color: #f0f0f0;");
+
+        grid.add(new Label("User ID:"), 0, 0);
+        grid.add(userIdField, 1, 0);
+        grid.add(new Label("Username:"), 0, 1);
+        grid.add(usernameField, 1, 1);
+        grid.add(new Label("Full Name:"), 0, 2);
+        grid.add(fullNameField, 1, 2);
+        grid.add(new Label("Email:"), 0, 3);
+        grid.add(emailField, 1, 3);
+        grid.add(new Label("Role:"), 0, 4);
+        grid.add(roleField, 1, 4);
+        grid.add(new Label("Permissions:"), 0, 5);
+        grid.add(permissionsField, 1, 5);
+        grid.add(new Label("Status:"), 0, 6);
+        grid.add(statusField, 1, 6);
+        grid.add(new Label("Last Active:"), 0, 7);
+        grid.add(lastActiveField, 1, 7);
+        grid.add(new Label("Created At:"), 0, 8);
+        grid.add(createdAtField, 1, 8);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        dialog.showAndWait();
     }
 
     @FXML
