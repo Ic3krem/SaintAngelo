@@ -42,26 +42,12 @@ public class UserDAO extends BaseDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    // Map ResultSet to User object
                     User user = mapResultSetToUser(rs);
-                    updateLastActive(user.getId());
-                    // Extract all data from ResultSet BEFORE doing anything else
-                    String userId = rs.getString("user_id");
-                    String dbUsername = rs.getString("username");
-                    String dbPassword = rs.getString("password");
-                    String fullName = rs.getString("full_name");
-                    String email = rs.getString("email");
-                    UserRole role = UserRole.valueOf(rs.getString("role"));
-                    String permissions = rs.getString("permissions");
-                    String status = rs.getString("status");
-                    Timestamp lastActiveTs = rs.getTimestamp("last_active");
-                    LocalDateTime lastActive = lastActiveTs != null ? lastActiveTs.toLocalDateTime() : null;
                     
-                    // Create user object with extracted data
-                    User user = new User(userId, dbUsername, dbPassword, fullName, email, role, permissions, status, lastActive);
-                    
-                    // Now update last active (after we've extracted all data)
+                    // Update last active timestamp
                     // This will trigger the database trigger to create activity log
-                    updateLastActive(userId);
+                    updateLastActive(user.getId());
                     
                     // Also manually create activity log as backup (in case trigger doesn't fire)
                     createLoginActivityLog(user);
@@ -530,7 +516,6 @@ public class UserDAO extends BaseDAO {
 
         return 0;
     }
-}
 
     /**
      * Gets daily user registration counts for the last N days.

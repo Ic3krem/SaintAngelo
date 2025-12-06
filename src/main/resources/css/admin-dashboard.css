@@ -1,6 +1,5 @@
-/* --- BASE STYLES (Copied from medical-dashboard.css to remove @import dependency) --- */
+/* --- BASE STYLES --- */
 
-/* Global Colors & Fonts */
 .root {
     -primary-green: #0b7d56;
     -light-green-bg: #e6f2ed;
@@ -8,10 +7,19 @@
     -text-dark: #1a1a1a;
     -text-muted: #666666;
     -card-bg: #ffffff;
-    -input-border: #e0e0e0;
     -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
     -fx-background-color: #f4fcf8;
-    -fx-font-size: 16px; /* Base font size for em calculations */
+}
+
+/* --- SCROLLPANE FIXES --- */
+.main-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent; /* Required for the control background */
+}
+
+/* This is the critical fix for the gray background box */
+.main-scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 
 /* Sidebar Styles */
@@ -37,6 +45,13 @@
     -fx-cursor: hand;
 }
 
+/* Helper for SVG Icons in buttons to change color on hover/active */
+.nav-icon {
+    -fx-fill: -text-muted;
+    -fx-scale-x: 0.7;
+    -fx-scale-y: 0.7;
+}
+
 .nav-button:hover {
     -fx-background-color: #eaeaea;
 }
@@ -45,6 +60,10 @@
     -fx-background-color: #e3ede8;
     -fx-text-fill: -text-dark;
     -fx-font-weight: bold;
+}
+
+.nav-button.active .nav-icon {
+    -fx-fill: -text-dark;
 }
 
 .user-section {
@@ -73,17 +92,13 @@
     -fx-fill: -text-dark;
 }
 
-.page-subtitle {
-    -fx-font-size: 14px;
-    -fx-fill: -text-muted;
-}
-
 /* Stat Cards */
 .stat-card {
     -fx-background-color: white;
     -fx-background-radius: 15;
     -fx-padding: 20;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-spacing: 8;
 }
 
 .stat-title {
@@ -101,11 +116,52 @@
 .stat-footer {
     -fx-font-size: 11px;
     -fx-text-fill: -text-muted;
+    -fx-padding: 4 0 0 0;
 }
 
-/* --- ADMIN SPECIFIC STYLES --- */
+/* --- CHART FIXES --- */
 
-/* Patient Flow Chart (Bar Chart) */
+/* Removes all default padding from the mini-charts so they actually show up */
+.transparent-chart {
+    -fx-background-color: transparent;
+    -fx-padding: -10px; /* Negative padding removes the default axis reservation space */
+    -fx-max-height: 50px;
+    -fx-pref-height: 50px;
+}
+
+.transparent-chart .chart-content {
+    -fx-padding: 0;
+}
+
+.transparent-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.transparent-chart .axis {
+    -fx-opacity: 0;
+    -fx-border-width: 0;
+    -fx-tick-length: 0;
+    -fx-padding: 0;
+    -fx-visibility: hidden; /* Ensure it takes no space */
+}
+
+.transparent-chart .chart-vertical-grid-lines,
+.transparent-chart .chart-horizontal-grid-lines {
+    -fx-opacity: 0;
+    -fx-visible: false;
+}
+
+.transparent-chart .chart-series-line {
+    -fx-stroke-width: 2px;
+    -fx-effect: null;
+}
+
+.transparent-chart .chart-line-symbol {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Patient Flow Chart */
 .chart-container {
     -fx-alignment: BOTTOM_CENTER;
     -fx-spacing: 15;
@@ -125,9 +181,11 @@
     -fx-text-fill: #888;
 }
 
-/* System Usage (Progress Bars) */
+/* System Usage */
 .usage-row {
     -fx-padding: 5 0;
+    -fx-pref-width: -1;
+    -fx-max-width: Infinity;
 }
 
 .usage-label {
@@ -144,20 +202,24 @@
 
 .progress-track {
     -fx-background-color: #f0f0f0;
-    -fx-background-radius: 10;
-    -fx-pref-height: 8;
+    -fx-background-radius: 12;
+    -fx-pref-height: 25;
+    -fx-min-height: 25;
+    -fx-pref-width: -1;
+    -fx-max-width: Infinity;
 }
 
 .progress-fill {
-    -fx-background-radius: 10;
-    -fx-pref-height: 8;
+    -fx-background-radius: 12;
+    -fx-pref-height: 25;
+    -fx-min-height: 25;
 }
 
 .fill-blue { -fx-background-color: #4a90e2; }
 .fill-green { -fx-background-color: #2ecc71; }
 .fill-purple { -fx-background-color: #9b59b6; }
 
-/* Recent Activity List */
+/* Recent Activity */
 .activity-item {
     -fx-padding: 15 0;
     -fx-border-color: transparent transparent #f5f5f5 transparent;
@@ -183,6 +245,7 @@
     -fx-background-radius: 15;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
+    -fx-text-fill: #333; /* Default text color if no specific tag class */
 }
 
 .tag-medical {
@@ -195,7 +258,12 @@
     -fx-text-fill: #137333;
 }
 
-/* --- USER MANAGEMENT STYLES (NEW) --- */
+.tag-system {
+    -fx-background-color: #f3e5f5; /* Light Purple */
+    -fx-text-fill: #7b1fa2; /* Dark Purple */
+}
+
+/* --- USER MANAGEMENT STYLES --- */
 
 /* Filter Bar */
 .filter-bar-container {
@@ -329,30 +397,8 @@
 .btn-primary:pressed {
     -fx-background-color: #095a3e;
 }
-/* --- USER & LOG MANAGEMENT STYLES --- */
 
-/* Filter Bar */
-.filter-bar-container {
-    -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
-    -fx-padding: 15;
-}
-
-.search-field {
-    -fx-background-color: white;
-    -fx-border-color: #e0e0e0;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
-    -fx-padding: 8 12;
-}
-
-.combo-box-filter {
-    -fx-background-color: white;
-    -fx-border-color: #e0e0e0;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
-}
+/* --- LOG MANAGEMENT STYLES --- */
 
 .btn-filter-outline {
     -fx-background-color: white;
@@ -363,47 +409,6 @@
     -fx-padding: 8 15;
 }
 .btn-filter-outline:hover { -fx-background-color: #f9f9f9; }
-
-/* Table Styles */
-.table-container {
-    -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
-    -fx-padding: 10 0 20 0;
-}
-
-.table-header-green {
-    -fx-background-color: -primary-green; /* #0b7d56 */
-    -fx-padding: 15 20;
-    -fx-background-radius: 8 8 0 0;
-}
-
-.table-col-header {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-font-size: 13px;
-}
-
-.table-row-item {
-    -fx-background-color: white;
-    -fx-border-color: transparent transparent #f0f0f0 transparent;
-    -fx-padding: 15 20;
-    -fx-alignment: CENTER_LEFT;
-}
-.table-row-item:hover {
-    -fx-background-color: #fafafa;
-}
-
-.text-cell-bold {
-    -fx-font-weight: bold;
-    -fx-text-fill: #333;
-    -fx-font-size: 13px;
-}
-
-.text-cell {
-    -fx-text-fill: #555;
-    -fx-font-size: 13px;
-}
 
 /* Activity Log Badges */
 .badge-log {
@@ -432,6 +437,7 @@
     -fx-background-color: #fff3e0; /* Light Orange */
     -fx-text-fill: #e65100;
 }
+
 /* --- GENERATE REPORT SPECIFIC STYLES --- */
 
 /* Form Container */
@@ -523,36 +529,4 @@
 }
 .btn-generate-large:hover {
     -fx-background-color: #218838;
-}
-
-/* LineChart Styling for Dashboard Stats */
-.transparent-chart {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-}
-
-.transparent-chart .chart-content {
-    -fx-padding: 0;
-}
-
-.transparent-chart .chart-plot-background {
-    -fx-background-color: transparent;
-}
-
-.transparent-chart .axis {
-    -fx-opacity: 0; /* Hide axes */
-}
-
-.transparent-chart .chart-vertical-grid-lines,
-.transparent-chart .chart-horizontal-grid-lines {
-    -fx-opacity: 0; /* Hide grid lines */
-}
-
-.transparent-chart .chart-series-line {
-    -fx-stroke-width: 2px;
-    -fx-effect: null; /* Remove default shadow/effect */
-}
-
-.transparent-chart .chart-line-symbol {
-    -fx-background-color: transparent; /* Hide symbols on the line */
 }

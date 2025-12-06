@@ -80,13 +80,7 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private Label userRoleLabel;
 
-    // Dashboard Stats FXML Fields
-    @FXML
-    private Label totalUsersLabel;
-    @FXML
-    private Label totalPatientsLabel;
-    @FXML
-    private Label avgWaitTimeLabel;
+    // Dashboard Stats FXML Fields (additional labels for charts view)
     @FXML
     private Label totalUsersChangeLabel;
     @FXML
@@ -118,10 +112,6 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private Button generateReportButton;
 
-
-    private UserDAO userDAO;
-    private PatientDAO patientDAO;
-    private TicketDAO ticketDAO;
     // DAOs
     private UserDAO userDAO;
     private PatientDAO patientDAO;
@@ -133,28 +123,22 @@ public class AdminDashboardController implements Initializable {
         userDAO = new UserDAO();
         patientDAO = new PatientDAO();
         ticketDAO = new TicketDAO();
+        activityLogDAO = new ActivityLogDAO();
 
         updateUserInfo();
 
-        if (userTableContainer != null) {
         // Determine which admin view we are on by checking which FXML fields are present
-        if (totalUsersLabel != null) {
+        if (totalUsersLabel != null && patientFlowChart != null) {
             // Dashboard view
-            userDAO = new UserDAO();
-            patientDAO = new PatientDAO();
-            ticketDAO = new TicketDAO();
-            activityLogDAO = new ActivityLogDAO();
             initializeDashboard();
+        } else if (totalUsersChart != null) {
+            // Charts-only view (if separate from main dashboard)
+            initializeDashboardCharts();
         }
 
         if (userTableContainer != null) {
             // User management view
-            userDAO = new UserDAO();
             initializeUserManagement();
-        }
-
-        if (totalUsersChart != null) {
-            initializeDashboardCharts();
         }
 
         if (reportTypeComboBox != null) {
@@ -168,6 +152,11 @@ public class AdminDashboardController implements Initializable {
         populatePatientFlowChart();
         populateSystemUsageStats();
         populateRecentActivity();
+        
+        // Initialize charts if they exist in this view
+        if (totalUsersChart != null) {
+            initializeDashboardCharts();
+        }
     }
 
     private void loadTopTiles() {
@@ -221,6 +210,8 @@ public class AdminDashboardController implements Initializable {
         if (systemUsageContainer == null || userDAO == null) return;
 
         systemUsageContainer.getChildren().clear();
+        
+        // Get user counts by role
         int doctors = userDAO.countByRole(UserRole.DOCTOR);
         int admins = userDAO.countByRole(UserRole.ADMIN) + userDAO.countByRole(UserRole.SUPER_ADMIN);
         int reception = userDAO.countByRole(UserRole.STAFF);
@@ -233,78 +224,154 @@ public class AdminDashboardController implements Initializable {
             return;
         }
 
-        addUsageRow("Doctors", doctors, total, "fill-blue");
-        addUsageRow("Receptionists", reception, total, "fill-green");
-        addUsageRow("Admins", admins, total, "fill-purple");
+        // Create horizontal progress bars for each role
+        addUsageBar("Doctors", doctors, total, "fill-blue");
+        addUsageBar("Receptionists", reception, total, "fill-green");
+        addUsageBar("Admins", admins, total, "fill-purple");
     }
 
-    private void addUsageRow(String labelText, int count, int total, String colorClass) {
+    private void addUsageBar(String labelText, int count, int total, String colorClass) {
         double percentage = total == 0 ? 0 : (count * 100.0 / total);
 
-        VBox wrapper = new VBox(5);
+        VBox wrapper = new VBox(8);
         wrapper.getStyleClass().add("usage-row");
+        wrapper.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        wrapper.setMaxWidth(Double.MAX_VALUE);
 
-        HBox header = new HBox();
+        // Header row with label, count, and percentage
+        HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
+        header.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        header.setMaxWidth(Double.MAX_VALUE);
 
         Label label = new Label(labelText);
         label.getStyleClass().add("usage-label");
 
-        Label percent = new Label(String.format("%.0f%%", percentage));
-        percent.getStyleClass().add("usage-percent");
+        Label countLabel = new Label(String.valueOf(count));
+        countLabel.getStyleClass().add("usage-label");
+        countLabel.setStyle("-fx-text-fill: #666;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        header.getChildren().addAll(label, spacer, percent);
 
+        Label percent = new Label(String.format("%.0f%%", percentage));
+        percent.getStyleClass().add("usage-percent");
+
+        header.getChildren().addAll(label, countLabel, spacer, percent);
+
+        // Progress bar container
+        HBox progressBarContainer = new HBox();
+        progressBarContainer.setAlignment(Pos.CENTER_LEFT);
+        progressBarContainer.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        progressBarContainer.setMaxWidth(Double.MAX_VALUE);
+        
+        // Track (background bar)
         StackPane track = new StackPane();
         track.getStyleClass().add("progress-track");
-        track.setPrefWidth(220);
+        track.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        track.setMaxWidth(Double.MAX_VALUE);
+        track.setMinHeight(25);
+        track.setPrefHeight(25);
+        HBox.setHgrow(track, Priority.ALWAYS);
 
+        // Fill (foreground bar that shows percentage)
         Region fill = new Region();
-        fill.getStyleClass().addAll("progress-fill", colorClass);
+        fill.getStyleClass().add("progress-fill");
+        
+        // Apply color based on colorClass
+        if ("fill-blue".equals(colorClass)) {
+            fill.setStyle("-fx-background-color: #4a90e2; -fx-background-radius: 12;");
+        } else if ("fill-green".equals(colorClass)) {
+            fill.setStyle("-fx-background-color: #2ecc71; -fx-background-radius: 12;");
+        } else if ("fill-purple".equals(colorClass)) {
+            fill.setStyle("-fx-background-color: #9b59b6; -fx-background-radius: 12;");
+        }
+        
+        fill.setMinHeight(25);
+        fill.setPrefHeight(25);
+        fill.setMinWidth(0);
+        fill.setMaxWidth(Double.MAX_VALUE);
         track.getChildren().add(fill);
         StackPane.setAlignment(fill, Pos.CENTER_LEFT);
-        fill.prefWidthProperty().bind(track.widthProperty().multiply(percentage / 100));
+        
+        // Bind fill width to track width based on percentage
+        // This creates the left-to-right progress bar effect
+        // The binding will automatically update when track width changes
+        fill.prefWidthProperty().bind(track.widthProperty().multiply(percentage / 100.0));
 
-        wrapper.getChildren().addAll(header, track);
+        progressBarContainer.getChildren().add(track);
+        wrapper.getChildren().addAll(header, progressBarContainer);
         systemUsageContainer.getChildren().add(wrapper);
     }
 
     private void populateRecentActivity() {
-        if (recentActivityContainer == null || activityLogDAO == null) return;
-
-        recentActivityContainer.getChildren().clear();
-        List<ActivityLog> logs = activityLogDAO.findRecent(3);
-
-        if (logs.isEmpty()) {
-            Label placeholder = new Label("No activity recorded yet.");
-            placeholder.getStyleClass().add("stat-footer");
-            recentActivityContainer.getChildren().add(placeholder);
+        if (recentActivityContainer == null) {
+            System.out.println("populateRecentActivity: recentActivityContainer is null");
+            return;
+        }
+        
+        if (activityLogDAO == null) {
+            System.out.println("populateRecentActivity: activityLogDAO is null");
             return;
         }
 
-        for (int i = 0; i < logs.size(); i++) {
-            ActivityLog log = logs.get(i);
-            HBox row = new HBox(15);
-            row.setAlignment(Pos.CENTER_LEFT);
-            row.getStyleClass().add("activity-item");
+        System.out.println("Populating recent activity logs...");
+        recentActivityContainer.getChildren().clear();
+        
+        try {
+            List<ActivityLog> logs = activityLogDAO.findRecent(5);
+            System.out.println("Found " + logs.size() + " recent activity logs");
 
-            Label badge = new Label(mapActivityBadgeText(log.getActivityType()));
-            badge.getStyleClass().addAll("badge-tag", mapActivityBadgeStyle(log.getActivityType()));
-
-            Label description = new Label(buildActivityDescription(log));
-            description.getStyleClass().add("activity-text");
-
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-
-            row.getChildren().addAll(badge, description, spacer);
-            recentActivityContainer.getChildren().add(row);
-
-            if (i < logs.size() - 1) {
-                recentActivityContainer.getChildren().add(new Separator());
+            if (logs == null || logs.isEmpty()) {
+                System.out.println("No recent activity logs found");
+                Label placeholder = new Label("No activity recorded yet.");
+                placeholder.getStyleClass().add("stat-footer");
+                recentActivityContainer.getChildren().add(placeholder);
+                return;
             }
+
+            for (int i = 0; i < logs.size(); i++) {
+                ActivityLog log = logs.get(i);
+                if (log == null) {
+                    System.out.println("Skipping null log at index " + i);
+                    continue;
+                }
+                
+                try {
+                    HBox row = new HBox(15);
+                    row.setAlignment(Pos.CENTER_LEFT);
+                    row.getStyleClass().add("activity-item");
+
+                    Label badge = new Label(mapActivityBadgeText(log.getActivityType()));
+                    badge.getStyleClass().addAll("badge-tag", mapActivityBadgeStyle(log.getActivityType()));
+
+                    Label description = new Label(buildActivityDescription(log));
+                    description.getStyleClass().add("activity-text");
+
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                    row.getChildren().addAll(badge, description, spacer);
+                    recentActivityContainer.getChildren().add(row);
+
+                    if (i < logs.size() - 1) {
+                        recentActivityContainer.getChildren().add(new Separator());
+                    }
+                    
+                    System.out.println("Added activity log: " + buildActivityDescription(log));
+                } catch (Exception e) {
+                    System.err.println("Error displaying activity log at index " + i + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            System.out.println("Successfully displayed " + recentActivityContainer.getChildren().size() + " activity items");
+        } catch (Exception e) {
+            System.err.println("Error in populateRecentActivity: " + e.getMessage());
+            e.printStackTrace();
+            Label errorLabel = new Label("Error loading activity logs.");
+            errorLabel.getStyleClass().add("stat-footer");
+            recentActivityContainer.getChildren().add(errorLabel);
         }
     }
 
@@ -399,7 +466,37 @@ public class AdminDashboardController implements Initializable {
         Map<LocalDate, Integer> avgWaitTimes = ticketDAO.getDailyAverageWaitTimesLast7Days();
         int currentAvgWaitTime = ticketDAO.getAverageWaitTimeToday();
         double previousAvgWaitTime = ticketDAO.getAverageWaitTimePrevious7Days();
-        updateStatCard(avgWaitTimeLabel, avgWaitTimeChangeLabel, avgWaitTimeArrow, currentAvgWaitTime, (int) previousAvgWaitTime, "Decreased", "Increased", "#ff6b6b", "#0b7d56");
+        // Update the label with "min" suffix for wait time
+        if (avgWaitTimeLabel != null) {
+            avgWaitTimeLabel.setText(currentAvgWaitTime + " min");
+        }
+        // Update change label and arrow
+        if (avgWaitTimeChangeLabel != null && avgWaitTimeArrow != null) {
+            double change = currentAvgWaitTime - (int) previousAvgWaitTime;
+            double percentageChange = ((int) previousAvgWaitTime != 0) ? (change / (int) previousAvgWaitTime) * 100 : (currentAvgWaitTime > 0 ? 100 : 0);
+            
+            String arrowContent;
+            String changeText;
+            Color arrowColor;
+            
+            if (change < 0) { // Decreased is good for wait time
+                arrowContent = "M7 10l5 5 5-5z"; // Down arrow
+                changeText = String.format("-%.0f%% Decreased vs Last Month", Math.abs(percentageChange));
+                arrowColor = Color.valueOf("#0b7d56");
+            } else if (change > 0) { // Increased is bad for wait time
+                arrowContent = "M7 14l5-5 5 5z"; // Up arrow
+                changeText = String.format("+%.0f%% Increased vs Last Month", Math.abs(percentageChange));
+                arrowColor = Color.valueOf("#ff6b6b");
+            } else {
+                arrowContent = "";
+                changeText = "No change vs Last Month";
+                arrowColor = Color.GRAY;
+            }
+            
+            avgWaitTimeArrow.setContent(arrowContent);
+            avgWaitTimeArrow.setFill(arrowColor);
+            avgWaitTimeChangeLabel.setText(changeText);
+        }
         populateChart(avgWaitTimeChart, avgWaitTimes, "#64ffda");
     }
 
@@ -494,7 +591,14 @@ public class AdminDashboardController implements Initializable {
         }
 
         chart.getData().add(series);
-        chart.lookup(".chart-series-line").setStyle("-fx-stroke: " + color + ";");
+        
+        // Apply style to chart line (may be null if chart hasn't rendered yet)
+        javafx.application.Platform.runLater(() -> {
+            Node chartLine = chart.lookup(".chart-series-line");
+            if (chartLine != null) {
+                chartLine.setStyle("-fx-stroke: " + color + ";");
+            }
+        });
     }
 
     private void updateStatCard(Label valueLabel, Label changeLabel, SVGPath arrowPath,
@@ -943,15 +1047,6 @@ public class AdminDashboardController implements Initializable {
 
     private void loadView(ActionEvent event, String fxmlPath) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Scene scene = ((Node) event.getSource()).getScene();
-            scene.setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateUserInfo() {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 

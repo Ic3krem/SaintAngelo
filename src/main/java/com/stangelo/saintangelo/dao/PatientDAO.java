@@ -347,7 +347,6 @@ public class PatientDAO extends BaseDAO {
 
         return 0;
     }
-}
 
     /**
      * Gets daily patient registration counts for the last N days.
