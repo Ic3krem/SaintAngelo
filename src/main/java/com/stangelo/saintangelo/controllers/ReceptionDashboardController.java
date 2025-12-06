@@ -3,6 +3,10 @@ package com.stangelo.saintangelo.controllers;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -15,6 +19,9 @@ import com.stangelo.saintangelo.models.Patient;
 import com.stangelo.saintangelo.models.Prescription;
 import com.stangelo.saintangelo.models.PriorityLevel;
 import com.stangelo.saintangelo.models.Ticket;
+import com.stangelo.saintangelo.models.Doctor;
+import com.stangelo.saintangelo.models.Appointment;
+import com.stangelo.saintangelo.models.AppointmentStatus;
 import com.stangelo.saintangelo.services.QueueManager;
 import com.stangelo.saintangelo.services.QueueService;
 
@@ -34,6 +41,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -121,17 +129,47 @@ public class ReceptionDashboardController implements Initializable {
     @FXML private Label modalConsultationDate;
     @FXML private Label modalConsultationNotes;
 
+    // Appointment Form Fields
+    @FXML private ComboBox<Patient> apptPatientComboBox;
+    @FXML private VBox apptExistingPatientInfo;
+    @FXML private Label apptSelectedPatientLabel;
+    @FXML private Button apptCreateNewPatientBtn;
+    @FXML private VBox apptNewPatientForm;
+    @FXML private TextField apptNewPatientFirstName;
+    @FXML private TextField apptNewPatientLastName;
+    @FXML private TextField apptNewPatientPhone;
+    @FXML private TextField apptNewPatientAge;
+    @FXML private ComboBox<String> apptNewPatientGender;
+    @FXML private TextArea apptNewPatientAddress;
+    @FXML private ComboBox<Doctor> apptDoctorComboBox;
+    @FXML private DatePicker apptDatePicker;
+    @FXML private TextField apptTimeField;
+    @FXML private TextArea apptPurposeArea;
+    @FXML private Button apptBookButton;
+    
+    // Calendar Fields
+    @FXML private Button apptCalendarPrevBtn;
+    @FXML private Button apptCalendarNextBtn;
+    @FXML private Label apptCalendarMonthLabel;
+    @FXML private GridPane apptCalendarGrid;
+
     // DAOs
     private PatientDAO patientDAO;
     private TicketDAO ticketDAO;
     private com.stangelo.saintangelo.dao.DischargeDAO dischargeDAO;
     private com.stangelo.saintangelo.dao.PrescriptionDAO prescriptionDAO;
+    private com.stangelo.saintangelo.dao.AppointmentDAO appointmentDAO;
+    private com.stangelo.saintangelo.dao.DoctorDAO doctorDAO;
     
     // Currently selected existing patient
     private Patient selectedExistingPatient;
     
     // Currently selected discharge for modal
     private com.stangelo.saintangelo.models.Discharge currentDischarge;
+    
+    // Appointment state
+    private Patient apptSelectedPatient; // Patient selected for appointment
+    private java.time.YearMonth currentCalendarMonth; // Current month being displayed
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -140,10 +178,17 @@ public class ReceptionDashboardController implements Initializable {
         ticketDAO = new TicketDAO();
         dischargeDAO = new com.stangelo.saintangelo.dao.DischargeDAO();
         prescriptionDAO = new com.stangelo.saintangelo.dao.PrescriptionDAO();
+        appointmentDAO = new com.stangelo.saintangelo.dao.AppointmentDAO();
+        doctorDAO = new com.stangelo.saintangelo.dao.DoctorDAO();
         
         // Initialize discharge view if components are available
         if (dischargeTableContainer != null) {
             initializeDischargeView();
+        }
+        
+        // Initialize appointment view if components are available
+        if (apptDoctorComboBox != null) {
+            initializeAppointmentView();
         }
         
         // Bind queue number label to the currently serving ticket
@@ -962,6 +1007,12 @@ public class ReceptionDashboardController implements Initializable {
     private void handleNavAppointments(ActionEvent event) {
         // UPDATED: Navigate to Appointments screen
         loadView(event, "/fxml/receptionist-appointments-view.fxml");
+        // Initialize appointment view after loading
+        javafx.application.Platform.runLater(() -> {
+            if (apptDoctorComboBox != null) {
+                initializeAppointmentView();
+            }
+        });
     }
 
     @FXML
@@ -2077,5 +2128,526 @@ public class ReceptionDashboardController implements Initializable {
                 modalConsultationNotes.setText("No prescription found for this visit.");
             }
         }
+    }
+    
+    // ==================== APPOINTMENT METHODS ====================
+    
+    /**
+     * Initializes the appointment view
+     */
+    private void initializeAppointmentView() {
+        // Initialize calendar to current month
+        currentCalendarMonth = YearMonth.now();
+        
+        // Load patients into ComboBox
+        if (apptPatientComboBox != null) {
+            List<Patient> patients = patientDAO.findAll();
+            apptPatientComboBox.getItems().clear();
+            apptPatientComboBox.getItems().addAll(patients);
+            
+            // Set converter to display patient name and info
+            apptPatientComboBox.setConverter(new javafx.util.StringConverter<Patient>() {
+                @Override
+                public String toString(Patient patient) {
+                    if (patient == null) return "";
+                    return patient.getName() + " (Age: " + patient.getAge() + ", Phone: " + patient.getContactNumber() + ")";
+                }
+                
+                @Override
+                public Patient fromString(String string) {
+                    return null;
+                }
+            });
+            
+            // Add listener to handle patient selection
+            apptPatientComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) {
+                    apptSelectedPatient = newVal;
+                    if (apptExistingPatientInfo != null) {
+                        apptExistingPatientInfo.setVisible(true);
+                        apptExistingPatientInfo.setManaged(true);
+                    }
+                    if (apptSelectedPatientLabel != null) {
+                        apptSelectedPatientLabel.setText("Selected: " + newVal.getName() + 
+                            " (Age: " + newVal.getAge() + ", Phone: " + newVal.getContactNumber() + ")");
+                    }
+                    // Hide new patient form if visible
+                    if (apptNewPatientForm != null && apptNewPatientForm.isVisible()) {
+                        apptNewPatientForm.setVisible(false);
+                        apptNewPatientForm.setManaged(false);
+                    }
+                } else {
+                    if (apptExistingPatientInfo != null) {
+                        apptExistingPatientInfo.setVisible(false);
+                        apptExistingPatientInfo.setManaged(false);
+                    }
+                    apptSelectedPatient = null;
+                }
+            });
+            
+            // Enable filtering/searching in ComboBox
+            apptPatientComboBox.setEditable(true);
+            apptPatientComboBox.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal == null || newVal.isEmpty()) {
+                    apptPatientComboBox.getItems().setAll(patientDAO.findAll());
+                } else {
+                    // Filter patients by name or phone
+                    List<Patient> filtered = new ArrayList<>();
+                    String searchTerm = newVal.toLowerCase();
+                    for (Patient patient : patientDAO.findAll()) {
+                        if (patient.getName().toLowerCase().contains(searchTerm) ||
+                            (patient.getContactNumber() != null && patient.getContactNumber().contains(searchTerm))) {
+                            filtered.add(patient);
+                        }
+                    }
+                    apptPatientComboBox.getItems().setAll(filtered);
+                }
+            });
+        }
+        
+        // Load doctors into ComboBox
+        if (apptDoctorComboBox != null) {
+            List<Doctor> doctors = doctorDAO.findAllActive();
+            apptDoctorComboBox.getItems().clear();
+            apptDoctorComboBox.getItems().addAll(doctors);
+            
+            // Set converter to display doctor name
+            apptDoctorComboBox.setConverter(new javafx.util.StringConverter<Doctor>() {
+                @Override
+                public String toString(Doctor doctor) {
+                    return doctor != null ? "Dr. " + doctor.getName() + " - " + doctor.getSpecialization() : "";
+                }
+                
+                @Override
+                public Doctor fromString(String string) {
+                    return null;
+                }
+            });
+        }
+        
+        // Initialize gender ComboBox
+        if (apptNewPatientGender != null) {
+            apptNewPatientGender.getItems().addAll("Male", "Female", "Other");
+        }
+        
+        // Set default date to today
+        if (apptDatePicker != null) {
+            apptDatePicker.setValue(LocalDate.now());
+        }
+        
+        // Render calendar
+        renderCalendar();
+        
+        // Clear form
+        clearAppointmentForm();
+    }
+    
+    /**
+     * Shows/hides the new patient form for appointment (toggle functionality)
+     */
+    @FXML
+    private void handleApptCreateNewPatient(ActionEvent event) {
+        if (apptNewPatientForm == null) return;
+        
+        // Toggle form visibility
+        boolean isVisible = apptNewPatientForm.isVisible();
+        
+        if (isVisible) {
+            // Hide form and clear fields
+            apptNewPatientForm.setVisible(false);
+            apptNewPatientForm.setManaged(false);
+            clearNewPatientFormFields();
+            // Clear patient ComboBox selection
+            if (apptPatientComboBox != null) {
+                apptPatientComboBox.setValue(null);
+            }
+        } else {
+            // Show form
+            apptNewPatientForm.setVisible(true);
+            apptNewPatientForm.setManaged(true);
+            // Clear patient ComboBox selection
+            if (apptPatientComboBox != null) {
+                apptPatientComboBox.setValue(null);
+            }
+            // Hide existing patient info
+            if (apptExistingPatientInfo != null) {
+                apptExistingPatientInfo.setVisible(false);
+                apptExistingPatientInfo.setManaged(false);
+            }
+            apptSelectedPatient = null;
+        }
+    }
+    
+    /**
+     * Clears new patient form fields
+     */
+    private void clearNewPatientFormFields() {
+        if (apptNewPatientFirstName != null) apptNewPatientFirstName.clear();
+        if (apptNewPatientLastName != null) apptNewPatientLastName.clear();
+        if (apptNewPatientPhone != null) apptNewPatientPhone.clear();
+        if (apptNewPatientAge != null) apptNewPatientAge.clear();
+        if (apptNewPatientGender != null) apptNewPatientGender.setValue(null);
+        if (apptNewPatientAddress != null) apptNewPatientAddress.clear();
+    }
+    
+    /**
+     * Books an appointment
+     */
+    @FXML
+    private void handleBookAppointment(ActionEvent event) {
+        // Validate patient selection
+        Patient patientToUse = null;
+        
+        if (apptSelectedPatient != null) {
+            // Using existing patient
+            patientToUse = apptSelectedPatient;
+        } else if (apptNewPatientForm != null && apptNewPatientForm.isVisible()) {
+            // Creating new patient
+            // Validate new patient fields
+            String firstName = apptNewPatientFirstName != null ? apptNewPatientFirstName.getText().trim() : "";
+            String lastName = apptNewPatientLastName != null ? apptNewPatientLastName.getText().trim() : "";
+            String phone = apptNewPatientPhone != null ? apptNewPatientPhone.getText().trim() : "";
+            String ageStr = apptNewPatientAge != null ? apptNewPatientAge.getText().trim() : "";
+            String gender = apptNewPatientGender != null && apptNewPatientGender.getValue() != null ? 
+                apptNewPatientGender.getValue() : "";
+            String address = apptNewPatientAddress != null ? apptNewPatientAddress.getText().trim() : "";
+            
+            // Validate required fields
+            if (firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty() || ageStr.isEmpty() || gender.isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Validation Error", 
+                    "Please fill in all required fields: First Name, Last Name, Phone Number, Age, and Gender.");
+                return;
+            }
+            
+            // Validate age
+            int age;
+            try {
+                age = Integer.parseInt(ageStr);
+                if (age < 0 || age > 150) {
+                    throw new NumberFormatException("Invalid age range");
+                }
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Validation Error", 
+                    "Please enter a valid age (0-150).");
+                return;
+            }
+            
+            // Validate phone number format (basic validation)
+            if (!phone.matches("^[0-9\\-\\+\\s\\(\\)]+$")) {
+                showAlert(Alert.AlertType.ERROR, "Validation Error", 
+                    "Please enter a valid phone number.");
+                return;
+            }
+            
+            // Create new patient
+            String patientId = generatePatientId();
+            String fullName = firstName + " " + lastName;
+            Patient newPatient = new Patient(
+                patientId, fullName, age, phone, address.isEmpty() ? null : address, gender,
+                null, null, age >= 60,
+                null, null, null, null, null,
+                null, null, null, null, null, null,
+                LocalDate.now().toString(), null
+            );
+            
+            // Save patient to database
+            boolean patientSaved = patientDAO.create(newPatient);
+            if (!patientSaved) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to create patient. Please try again.");
+                return;
+            }
+            
+            patientToUse = newPatient;
+        } else {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", 
+                "Please search for an existing patient or create a new patient.");
+            return;
+        }
+        
+        // Validate appointment fields
+        Doctor selectedDoctor = apptDoctorComboBox != null ? apptDoctorComboBox.getValue() : null;
+        if (selectedDoctor == null) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please select a doctor.");
+            return;
+        }
+        
+        LocalDate appointmentDate = apptDatePicker != null ? apptDatePicker.getValue() : null;
+        if (appointmentDate == null) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please select an appointment date.");
+            return;
+        }
+        
+        // Validate date is not in the past
+        if (appointmentDate.isBefore(LocalDate.now())) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Appointment date cannot be in the past.");
+            return;
+        }
+        
+        String timeStr = apptTimeField != null ? apptTimeField.getText().trim() : "";
+        if (timeStr.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please enter appointment time.");
+            return;
+        }
+        
+        // Parse and validate time format
+        LocalTime appointmentTime;
+        try {
+            appointmentTime = parseTime(timeStr);
+        } catch (DateTimeParseException e) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", 
+                "Invalid time format. Please use format: HH:MM AM/PM (e.g., 10:00 AM, 2:30 PM)");
+            return;
+        }
+        
+        String purpose = apptPurposeArea != null ? apptPurposeArea.getText().trim() : "";
+        if (purpose.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please enter the purpose of the appointment.");
+            return;
+        }
+        
+        // Generate appointment ID
+        String appointmentId = generateAppointmentId();
+        
+        // Create appointment object
+        Appointment appointment = new Appointment(
+            appointmentId,
+            patientToUse,
+            selectedDoctor,
+            appointmentDate,
+            appointmentTime,
+            purpose,
+            AppointmentStatus.SCHEDULED,
+            null
+        );
+        
+        // Save appointment to database
+        boolean appointmentSaved = appointmentDAO.create(appointment);
+        
+        if (appointmentSaved) {
+            showAlert(Alert.AlertType.INFORMATION, "Success", 
+                "Appointment booked successfully!\n\n" +
+                "Appointment ID: " + appointmentId + "\n" +
+                "Patient: " + patientToUse.getName() + "\n" +
+                "Doctor: Dr. " + selectedDoctor.getName() + "\n" +
+                "Date: " + appointmentDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")) + "\n" +
+                "Time: " + formatTime(appointmentTime));
+            
+            // Clear form
+            clearAppointmentForm();
+            
+            // Refresh calendar on JavaFX thread to ensure UI updates
+            javafx.application.Platform.runLater(() -> {
+                renderCalendar();
+            });
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to book appointment. Please try again.");
+        }
+    }
+    
+    /**
+     * Handles calendar previous month navigation
+     */
+    @FXML
+    private void handleApptCalendarPrev(ActionEvent event) {
+        if (currentCalendarMonth != null) {
+            currentCalendarMonth = currentCalendarMonth.minusMonths(1);
+            renderCalendar();
+        }
+    }
+    
+    /**
+     * Handles calendar next month navigation
+     */
+    @FXML
+    private void handleApptCalendarNext(ActionEvent event) {
+        if (currentCalendarMonth != null) {
+            currentCalendarMonth = currentCalendarMonth.plusMonths(1);
+            renderCalendar();
+        }
+    }
+    
+    /**
+     * Renders the calendar dynamically based on appointments
+     */
+    private void renderCalendar() {
+        if (apptCalendarGrid == null || currentCalendarMonth == null) return;
+        
+        // Clear existing calendar cells (except header)
+        apptCalendarGrid.getChildren().removeIf(node -> 
+            GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) > 0);
+        
+        // Update month label
+        if (apptCalendarMonthLabel != null) {
+            apptCalendarMonthLabel.setText(currentCalendarMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+        }
+        
+        // Get first day of month and number of days
+        LocalDate firstDayOfMonth = currentCalendarMonth.atDay(1);
+        int daysInMonth = currentCalendarMonth.lengthOfMonth();
+        
+        // Get day of week for first day (Monday = 1, Sunday = 7)
+        int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue();
+        
+        // Start from row 1 (row 0 is header)
+        int currentRow = 1;
+        int currentCol = firstDayOfWeek - 1; // Convert to 0-based index (Monday = 0)
+        
+        // Add days from previous month (if needed)
+        YearMonth previousMonth = currentCalendarMonth.minusMonths(1);
+        int daysInPreviousMonth = previousMonth.lengthOfMonth();
+        for (int i = firstDayOfWeek - 2; i >= 0; i--) {
+            int day = daysInPreviousMonth - i;
+            VBox cell = createCalendarCell(day, true, null);
+            apptCalendarGrid.add(cell, currentCol, currentRow);
+            currentCol++;
+        }
+        
+        // Add days of current month
+        for (int day = 1; day <= daysInMonth; day++) {
+            if (currentCol >= 7) {
+                currentCol = 0;
+                currentRow++;
+            }
+            
+            LocalDate date = currentCalendarMonth.atDay(day);
+            List<Appointment> dayAppointments = appointmentDAO.findByDate(date);
+            
+            VBox cell = createCalendarCell(day, false, dayAppointments);
+            apptCalendarGrid.add(cell, currentCol, currentRow);
+            currentCol++;
+        }
+        
+        // Add days from next month (if needed)
+        int remainingCells = (6 - currentRow) * 7 + (7 - currentCol);
+        for (int day = 1; day <= remainingCells && day <= 14; day++) {
+            if (currentCol >= 7) {
+                currentCol = 0;
+                currentRow++;
+            }
+            VBox cell = createCalendarCell(day, true, null);
+            apptCalendarGrid.add(cell, currentCol, currentRow);
+            currentCol++;
+        }
+    }
+    
+    /**
+     * Creates a calendar cell with date and appointments
+     */
+    private VBox createCalendarCell(int day, boolean isInactive, List<Appointment> appointments) {
+        VBox cell = new VBox(2);
+        cell.getStyleClass().add("calendar-cell");
+        cell.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+        cell.setPadding(new Insets(5));
+        
+        Label dateLabel = new Label(String.valueOf(day));
+        dateLabel.getStyleClass().add("calendar-date-label");
+        if (isInactive) {
+            dateLabel.getStyleClass().add("calendar-date-inactive");
+        }
+        cell.getChildren().add(dateLabel);
+        
+        // Add appointment pills
+        if (appointments != null && !appointments.isEmpty()) {
+            for (Appointment appt : appointments) {
+                Label pill = new Label();
+                String timeStr = formatTime(appt.getAppointmentTime());
+                String patientName = appt.getPatient().getName().split(" ")[0]; // First name only
+                pill.setText(timeStr + " " + patientName);
+                
+                // Determine pill style based on status
+                if (appt.getStatus() == AppointmentStatus.CANCELLED || appt.getStatus() == AppointmentStatus.NO_SHOW) {
+                    pill.getStyleClass().addAll("appt-pill", "appt-pill-urgent");
+                } else if (appt.getPurpose() != null && appt.getPurpose().toLowerCase().contains("urgent")) {
+                    pill.getStyleClass().addAll("appt-pill", "appt-pill-urgent");
+                } else {
+                    pill.getStyleClass().addAll("appt-pill", "appt-pill-checkup");
+                }
+                
+                cell.getChildren().add(pill);
+            }
+        }
+        
+        return cell;
+    }
+    
+    /**
+     * Clears the appointment form
+     */
+    private void clearAppointmentForm() {
+        // Clear patient selection
+        if (apptPatientComboBox != null) {
+            apptPatientComboBox.setValue(null);
+            // Reset to show all patients
+            apptPatientComboBox.getItems().setAll(patientDAO.findAll());
+            apptPatientComboBox.getEditor().clear();
+        }
+        if (apptExistingPatientInfo != null) {
+            apptExistingPatientInfo.setVisible(false);
+            apptExistingPatientInfo.setManaged(false);
+        }
+        // Hide new patient form
+        if (apptNewPatientForm != null) {
+            apptNewPatientForm.setVisible(false);
+            apptNewPatientForm.setManaged(false);
+        }
+        // Clear new patient fields
+        clearNewPatientFormFields();
+        // Clear appointment fields
+        if (apptDoctorComboBox != null) apptDoctorComboBox.setValue(null);
+        if (apptDatePicker != null) apptDatePicker.setValue(LocalDate.now());
+        if (apptTimeField != null) apptTimeField.clear();
+        if (apptPurposeArea != null) apptPurposeArea.clear();
+        apptSelectedPatient = null;
+    }
+    
+    /**
+     * Parses time string to LocalTime
+     * Supports formats: "10:00 AM", "2:30 PM", "14:30", etc.
+     */
+    private LocalTime parseTime(String timeStr) throws DateTimeParseException {
+        timeStr = timeStr.trim();
+        
+        // Try parsing with AM/PM format
+        if (timeStr.toUpperCase().contains("AM") || timeStr.toUpperCase().contains("PM")) {
+            // Remove any extra spaces and normalize
+            timeStr = timeStr.replaceAll("\\s+", " ").trim();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
+            try {
+                return LocalTime.parse(timeStr.toUpperCase(), formatter);
+            } catch (DateTimeParseException e) {
+                // Try with single digit hour
+                formatter = DateTimeFormatter.ofPattern("h:m a");
+                return LocalTime.parse(timeStr.toUpperCase(), formatter);
+            }
+        } else {
+            // Try 24-hour format
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
+            try {
+                return LocalTime.parse(timeStr, formatter);
+            } catch (DateTimeParseException e) {
+                // Try with single digit hour
+                formatter = DateTimeFormatter.ofPattern("H:m");
+                return LocalTime.parse(timeStr, formatter);
+            }
+        }
+    }
+    
+    /**
+     * Formats LocalTime to string (12-hour format with AM/PM)
+     */
+    private String formatTime(LocalTime time) {
+        int hour = time.getHour();
+        int minute = time.getMinute();
+        String amPm = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12;
+        if (hour == 0) hour = 12;
+        return String.format("%d:%02d %s", hour, minute, amPm);
+    }
+    
+    /**
+     * Generates a unique appointment ID
+     */
+    private String generateAppointmentId() {
+        return "APT" + System.currentTimeMillis();
     }
 }

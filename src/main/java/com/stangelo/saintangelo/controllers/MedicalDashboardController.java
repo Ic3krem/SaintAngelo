@@ -34,7 +34,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -79,6 +81,9 @@ public class MedicalDashboardController implements Initializable {
     @FXML private TextField dosageField;
     @FXML private TextField frequencyField;
     @FXML private TextArea consultationNotesArea;
+    
+    // Patient Selection ComboBox
+    @FXML private ComboBox<Ticket> currentPatientsComboBox;
 
     // Navigation Buttons
     @FXML private Button btnCurrentPatient;
@@ -108,9 +113,66 @@ public class MedicalDashboardController implements Initializable {
         prescriptionDAO = new PrescriptionDAO();
         doctorDAO = new DoctorDAO();
         
+        // Initialize ComboBox cell factory for patient display
+        if (currentPatientsComboBox != null) {
+            // Set prompt text
+            currentPatientsComboBox.setPromptText("Select a patient");
+            
+            // Set StringConverter to properly display patient names in the button
+            currentPatientsComboBox.setConverter(new javafx.util.StringConverter<Ticket>() {
+                @Override
+                public String toString(Ticket ticket) {
+                    if (ticket == null || ticket.getPatient() == null) {
+                        return "Select a patient";
+                    }
+                    String patientName = ticket.getPatient().getName();
+                    return patientName != null && !patientName.trim().isEmpty() ? patientName : "Select a patient";
+                }
+                
+                @Override
+                public Ticket fromString(String string) {
+                    // Not needed for display-only ComboBox
+                    return null;
+                }
+            });
+            
+            // Cell factory for dropdown items
+            currentPatientsComboBox.setCellFactory(param -> new ListCell<Ticket>() {
+                @Override
+                protected void updateItem(Ticket ticket, boolean empty) {
+                    super.updateItem(ticket, empty);
+                    if (empty || ticket == null || ticket.getPatient() == null) {
+                        setText(null);
+                    } else {
+                        String ticketNum = ticket.getTicketNumber() != null ? ticket.getTicketNumber() : "N/A";
+                        String patientName = ticket.getPatient().getName();
+                        setText(ticketNum + " - " + patientName);
+                    }
+                }
+            });
+            
+            // Button cell for displaying selected value
+            currentPatientsComboBox.setButtonCell(new ListCell<Ticket>() {
+                @Override
+                protected void updateItem(Ticket ticket, boolean empty) {
+                    super.updateItem(ticket, empty);
+                    if (empty || ticket == null) {
+                        setText("Select a patient");
+                    } else if (ticket.getPatient() == null) {
+                        setText("Select a patient");
+                    } else {
+                        String patientName = ticket.getPatient().getName();
+                        setText(patientName != null && !patientName.trim().isEmpty() ? patientName : "Select a patient");
+                    }
+                }
+            });
+            
+        }
+        
         // Load dashboard data and current patient (sync happens inside loadDashboardData)
         loadDashboardData();
         loadCurrentPatient();
+        loadCurrentPatientsComboBox();
         updateCharts();
         updateFooters();
         
@@ -306,14 +368,213 @@ public class MedicalDashboardController implements Initializable {
             Patient patient = currentTicket.getPatient();
             if(patientIdLabel != null) patientIdLabel.setText(patient.getId());
             if(patientNameLabel != null) patientNameLabel.setText(patient.getName());
-            if(chiefComplaintLabel != null) chiefComplaintLabel.setText(patient.getNotes() != null ? patient.getNotes() : "N/A");
+            
+            // Get chief complaint from ticket service type or patient notes
+            String chiefComplaint = currentTicket.getServiceType();
+            if (chiefComplaint == null || chiefComplaint.isEmpty()) {
+                chiefComplaint = patient.getNotes() != null ? patient.getNotes() : "N/A";
+            }
+            if(chiefComplaintLabel != null) chiefComplaintLabel.setText(chiefComplaint);
             if(patientAgeLabel != null) patientAgeLabel.setText(String.valueOf(patient.getAge()));
+            
+            // Load existing prescription if available
+            loadExistingPrescription(currentTicket);
+            
+            // Suggest treatments based on chief complaint
+            suggestTreatmentBasedOnComplaint(chiefComplaint);
         } else {
             // No patient currently being served
             if(patientIdLabel != null) patientIdLabel.setText("---");
             if(patientNameLabel != null) patientNameLabel.setText("No patient");
             if(chiefComplaintLabel != null) chiefComplaintLabel.setText("---");
             if(patientAgeLabel != null) patientAgeLabel.setText("---");
+            
+            // Clear prescription fields
+            if(medicationField != null) medicationField.clear();
+            if(dosageField != null) dosageField.clear();
+            if(frequencyField != null) frequencyField.clear();
+            if(consultationNotesArea != null) consultationNotesArea.clear();
+        }
+    }
+    
+    /**
+     * Loads all patients currently being treated (IN_SERVICE) by this doctor into the ComboBox
+     */
+    private void loadCurrentPatientsComboBox() {
+        if (currentPatientsComboBox == null) return;
+        
+        String doctorId = getDoctorId();
+        if (doctorId == null || doctorId.isEmpty()) {
+            currentPatientsComboBox.getItems().clear();
+            return;
+        }
+        
+        // Get all IN_SERVICE tickets for this doctor
+        List<Ticket> inServiceTickets = ticketDAO.findAllInServiceByDoctor(doctorId);
+        
+        // Update ComboBox items
+        currentPatientsComboBox.getItems().clear();
+        currentPatientsComboBox.getItems().addAll(inServiceTickets);
+        
+        // Select the current ticket if it exists
+        if (currentTicket != null) {
+            // Verify the ticket is still in the list
+            if (inServiceTickets.contains(currentTicket)) {
+                currentPatientsComboBox.setValue(currentTicket);
+            } else {
+                // Current ticket is no longer in service, select first available
+                if (!inServiceTickets.isEmpty()) {
+                    currentPatientsComboBox.setValue(inServiceTickets.get(0));
+                    currentTicket = inServiceTickets.get(0);
+                    // Load the newly selected patient
+                    loadCurrentPatient();
+                } else {
+                    currentPatientsComboBox.setValue(null);
+                }
+            }
+        } else if (!inServiceTickets.isEmpty()) {
+            // Select the first one (most recent) and set as current
+            currentPatientsComboBox.setValue(inServiceTickets.get(0));
+            currentTicket = inServiceTickets.get(0);
+            // Load the newly selected patient
+            loadCurrentPatient();
+        } else {
+            // No patients in service, clear selection
+            currentPatientsComboBox.setValue(null);
+        }
+    }
+    
+    /**
+     * Handles patient selection from the ComboBox
+     */
+    @FXML
+    private void handlePatientSelection(ActionEvent event) {
+        if (currentPatientsComboBox == null) return;
+        
+        Ticket selectedTicket = currentPatientsComboBox.getValue();
+        if (selectedTicket == null) return;
+        
+        // Switch to the selected patient
+        currentTicket = selectedTicket;
+        
+        // Load patient information
+        if (currentTicket.getPatient() != null) {
+            Patient patient = currentTicket.getPatient();
+            if(patientIdLabel != null) patientIdLabel.setText(patient.getId());
+            if(patientNameLabel != null) patientNameLabel.setText(patient.getName());
+            
+            // Get chief complaint from ticket service type or patient notes
+            String chiefComplaint = currentTicket.getServiceType();
+            if (chiefComplaint == null || chiefComplaint.isEmpty()) {
+                chiefComplaint = patient.getNotes() != null ? patient.getNotes() : "N/A";
+            }
+            if(chiefComplaintLabel != null) chiefComplaintLabel.setText(chiefComplaint);
+            if(patientAgeLabel != null) patientAgeLabel.setText(String.valueOf(patient.getAge()));
+            
+            // Load existing prescription if available
+            loadExistingPrescription(currentTicket);
+            
+            // Suggest treatments based on chief complaint
+            suggestTreatmentBasedOnComplaint(chiefComplaint);
+        }
+    }
+    
+    /**
+     * Loads existing prescription for the current ticket if available
+     */
+    private void loadExistingPrescription(Ticket ticket) {
+        if (ticket == null || ticket.getPatient() == null) return;
+        
+        String doctorId = ticket.getAssignedDoctorId();
+        if (doctorId == null || doctorId.isEmpty()) {
+            doctorId = getDoctorId();
+        }
+        
+        if (doctorId != null && !doctorId.isEmpty()) {
+            List<Prescription> prescriptions = prescriptionDAO.findByPatientAndDoctor(
+                ticket.getPatient().getId(), 
+                doctorId
+            );
+            
+            if (!prescriptions.isEmpty()) {
+                // Get the most recent prescription
+                Prescription prescription = prescriptions.get(0);
+                
+                if (medicationField != null) {
+                    medicationField.setText(prescription.getMedication() != null ? prescription.getMedication() : "");
+                }
+                if (dosageField != null) {
+                    dosageField.setText(prescription.getDosage() != null ? prescription.getDosage() : "");
+                }
+                if (frequencyField != null) {
+                    frequencyField.setText(prescription.getFrequency() != null ? prescription.getFrequency() : "");
+                }
+                if (consultationNotesArea != null) {
+                    consultationNotesArea.setText(prescription.getConsultationNotes() != null ? prescription.getConsultationNotes() : "");
+                }
+            } else {
+                // Clear fields if no prescription found
+                if (medicationField != null) medicationField.clear();
+                if (dosageField != null) dosageField.clear();
+                if (frequencyField != null) frequencyField.clear();
+                if (consultationNotesArea != null) consultationNotesArea.clear();
+            }
+        }
+    }
+    
+    /**
+     * Suggests treatment/drugs based on chief complaint
+     */
+    private void suggestTreatmentBasedOnComplaint(String chiefComplaint) {
+        if (chiefComplaint == null || chiefComplaint.isEmpty()) {
+            return;
+        }
+        
+        String complaintLower = chiefComplaint.toLowerCase();
+        
+        // Treatment suggestions based on common complaints
+        // This is a simple mapping - in a real system, this would be more sophisticated
+        String suggestedMedication = "";
+        String suggestedDosage = "";
+        String suggestedFrequency = "";
+        
+        if (complaintLower.contains("fever") || complaintLower.contains("temperature")) {
+            suggestedMedication = "Paracetamol";
+            suggestedDosage = "500 mg";
+            suggestedFrequency = "3x daily for 5 days";
+        } else if (complaintLower.contains("cough") || complaintLower.contains("cold")) {
+            suggestedMedication = "Cough Syrup";
+            suggestedDosage = "10 ml";
+            suggestedFrequency = "3x daily";
+        } else if (complaintLower.contains("headache") || complaintLower.contains("head")) {
+            suggestedMedication = "Ibuprofen";
+            suggestedDosage = "400 mg";
+            suggestedFrequency = "2x daily as needed";
+        } else if (complaintLower.contains("pain") || complaintLower.contains("ache")) {
+            suggestedMedication = "Paracetamol";
+            suggestedDosage = "500 mg";
+            suggestedFrequency = "3x daily";
+        } else if (complaintLower.contains("infection") || complaintLower.contains("bacterial")) {
+            suggestedMedication = "Antibiotic (consult doctor)";
+            suggestedDosage = "As prescribed";
+            suggestedFrequency = "As prescribed";
+        } else if (complaintLower.contains("allergy") || complaintLower.contains("allergic")) {
+            suggestedMedication = "Antihistamine";
+            suggestedDosage = "10 mg";
+            suggestedFrequency = "Once daily";
+        }
+        
+        // Only suggest if fields are empty (don't overwrite existing data)
+        if (!suggestedMedication.isEmpty()) {
+            if (medicationField != null && medicationField.getText().trim().isEmpty()) {
+                medicationField.setText(suggestedMedication);
+            }
+            if (dosageField != null && dosageField.getText().trim().isEmpty()) {
+                dosageField.setText(suggestedDosage);
+            }
+            if (frequencyField != null && frequencyField.getText().trim().isEmpty()) {
+                frequencyField.setText(suggestedFrequency);
+            }
         }
     }
     
@@ -328,6 +589,20 @@ public class MedicalDashboardController implements Initializable {
         
         if (doctorId == null) {
             showAlert(Alert.AlertType.ERROR, "Error", "Doctor ID not found. Please log in again.");
+            return;
+        }
+        
+        // Check if there are any incomplete patients (IN_SERVICE status)
+        List<Ticket> inServiceTickets = ticketDAO.findAllInServiceByDoctor(doctorId);
+        
+        // If there are incomplete patients, show warning
+        if (!inServiceTickets.isEmpty()) {
+            Alert warning = new Alert(Alert.AlertType.WARNING);
+            warning.setTitle("Incomplete Patients");
+            warning.setHeaderText("You have " + inServiceTickets.size() + " patient(s) currently being treated.");
+            warning.setContentText("Please complete treatment for all current patients before calling the next one.\n\n" +
+                "You can switch between patients using the dropdown menu.");
+            warning.showAndWait();
             return;
         }
         
@@ -361,6 +636,7 @@ public class MedicalDashboardController implements Initializable {
             
             // Update UI
             loadCurrentPatient();
+            loadCurrentPatientsComboBox(); // Refresh ComboBox with new patient
             loadDashboardData();
             updateCharts();
             updateFooters();
@@ -468,6 +744,7 @@ public class MedicalDashboardController implements Initializable {
                 
                 // Reload UI
                 loadCurrentPatient();
+                loadCurrentPatientsComboBox(); // Refresh ComboBox to remove completed patient
                 loadDashboardData();
                 updateCharts();
                 updateFooters();

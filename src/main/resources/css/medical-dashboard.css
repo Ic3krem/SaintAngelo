@@ -465,6 +465,20 @@
     -fx-background-radius: 4;
 }
 
+/* ComboBox style matching reception dashboard */
+.reg-combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 2;
+    -fx-font-size: 14px;
+}
+
+.reg-combo-box:focused {
+    -fx-border-color: #046c4e;
+}
+
 .btn-filter-outline {
     -fx-background-color: white;
     -fx-border-color: #e0e0e0;

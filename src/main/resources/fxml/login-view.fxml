@@ -85,7 +85,7 @@
         <!-- Right Pane: Round only Bottom-Right (0 0 30 0) -->
         <StackPane minWidth="200.0" prefWidth="400.0" style="-fx-background-radius: 0;" styleClass="right-pane" HBox.hgrow="ALWAYS">
             <children>
-                <ImageView fitHeight="419.0" fitWidth="372.0" pickOnBounds="true" preserveRatio="false" StackPane.alignment="CENTER">
+                <ImageView fitHeight="424.0" fitWidth="372.0" pickOnBounds="true" preserveRatio="false" StackPane.alignment="CENTER">
                     <image>
                         <Image url="@../images/login.png" />
                     </image>
